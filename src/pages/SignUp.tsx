@@ -54,13 +54,6 @@ const SignUp = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
-            <div>
-              <img 
-                src="/lovable-uploads/0a5d559d-482d-4275-a21c-51a53fc846cf.png" 
-                alt="Rocket Logo" 
-                className="h-12"
-              />
-            </div>
             <div className="space-y-6">
               <h1 className="text-5xl font-bold text-primary">
                 Find Your Perfect Co-Founder
