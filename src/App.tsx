@@ -9,6 +9,7 @@ import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import CompleteProfile from "./pages/CompleteProfile";
 import Dashboard from "./pages/Dashboard";
+import ProjectManagement from "./pages/ProjectManagement";
 import Navbar from "./components/Navbar";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
               <Route path="/signup" element={<SignUp />} />
               <Route path="/complete-profile" element={<CompleteProfile />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/project-management" element={<ProjectManagement />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
