@@ -8,7 +8,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-accent to-secondary/20">
+    <div className="min-h-screen bg-background">
       <Navbar />
       
       <main>
@@ -18,7 +18,7 @@ const Index = () => {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary">
               Find Your Perfect Co-Founder Match
             </h1>
-            <p className="text-xl text-secondary-foreground max-w-3xl mx-auto">
+            <p className="text-xl text-foreground max-w-3xl mx-auto">
               Using machine learning to connect ambitious founders with skilled professionals 
               who share their vision, interests, and drive for success.
             </p>
