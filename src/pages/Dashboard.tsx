@@ -1,9 +1,7 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ProfileSummary } from "@/components/dashboard/ProfileSummary";
 import { MatchProfile } from "@/components/dashboard/MatchProfile";
-import { MatchAnalysis } from "@/components/dashboard/MatchAnalysis";
 import { MatchesPanel } from "@/components/dashboard/MatchesPanel";
 
 // Mock data - In real app, this would come from your backend
@@ -116,17 +114,14 @@ const Dashboard = () => {
         <ProfileSummary user={currentUser} />
         
         <div className="grid grid-cols-[1fr,400px] gap-8 mt-8">
-          <div className="space-y-8">
+          <div>
             {currentMatch && (
-              <>
-                <MatchProfile
-                  match={currentMatch}
-                  onLike={handleLike}
-                  onPass={handlePass}
-                  onMessage={() => handleMessage(currentMatch.id)}
-                />
-                <MatchAnalysis matchData={matchData} />
-              </>
+              <MatchProfile
+                match={currentMatch}
+                onLike={handleLike}
+                onPass={handlePass}
+                onMessage={() => handleMessage(currentMatch.id)}
+              />
             )}
           </div>
           
@@ -141,4 +136,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
