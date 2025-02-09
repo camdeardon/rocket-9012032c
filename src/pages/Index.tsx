@@ -43,8 +43,21 @@ const ProfileCard = () => (
       </div>
     </div>
     <div className="mt-14 space-y-4">
-      <h2 className="text-xl font-semibold text-primary">John Doe</h2>
-      <p className="text-sm text-secondary-foreground">Technical Co-Founder</p>
+      <div className="space-y-2">
+        <h2 className="text-xl font-semibold text-primary">John Doe</h2>
+        <p className="text-sm text-secondary-foreground">Technical Co-Founder</p>
+        <p className="text-sm text-secondary-foreground/70">San Francisco, CA</p>
+      </div>
+
+      <div className="space-y-2">
+        <h3 className="text-sm font-medium text-secondary-foreground">About Rocket</h3>
+        <p className="text-sm text-secondary-foreground/80">
+          At Rocket, we understand that finding those early team members is vital to building a successful team. 
+          At Rocket we use machine learning to not only find people with the skills you need but also match you 
+          to people with similar interests and experiences. We believe by creating the right matches we can 
+          kickstart success through empowered collaboration.
+        </p>
+      </div>
       
       <div className="space-y-2">
         <p className="text-sm font-medium text-secondary-foreground">Core Skills</p>
@@ -88,11 +101,29 @@ const ProfileCard = () => (
       </div>
 
       <div className="space-y-2">
-        <p className="text-sm font-medium text-secondary-foreground">Interests</p>
+        <p className="text-sm font-medium text-secondary-foreground">Personal Interests</p>
+        <div className="space-y-2 text-sm text-secondary-foreground">
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline">Hiking</Badge>
+            <Badge variant="outline">Photography</Badge>
+            <Badge variant="outline">Rock Climbing</Badge>
+            <Badge variant="outline">Reading</Badge>
+          </div>
+          <p className="mt-2 text-secondary-foreground/80">
+            Avid outdoor enthusiast and lifelong learner. Love exploring new technologies
+            and connecting with fellow entrepreneurs who share a passion for education and innovation.
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-secondary-foreground">Professional Interests</p>
         <div className="flex flex-wrap gap-2">
           <Badge variant="outline">EdTech</Badge>
           <Badge variant="outline">AI/ML</Badge>
           <Badge variant="outline">Social Impact</Badge>
+          <Badge variant="outline">Startups</Badge>
+          <Badge variant="outline">Innovation</Badge>
         </div>
       </div>
     </div>
@@ -215,3 +246,4 @@ const RecommendedMatches = () => (
 );
 
 export default Index;
+
