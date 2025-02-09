@@ -1,60 +1,29 @@
 
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileBackground } from "@/components/profile/ProfileBackground";
 import { ProfileSkills } from "@/components/profile/ProfileSkills";
 import { ProfileInterests } from "@/components/profile/ProfileInterests";
-
-interface ProfileData {
-  id: string;
-  first_name: string;
-  last_name: string;
-  title: string | null;
-  location: string | null;
-  avatar_url: string | null;
-  bio: string | null;
-  background: string | null;
-}
-
-interface UserSkill {
-  id: string;
-  skill: {
-    name: string;
-    category: string;
-  };
-  proficiency_level: string;
-  years_experience: number;
-}
-
-interface UserInterest {
-  id: string;
-  interest: {
-    name: string;
-    category: string;
-  };
-}
+import { useAuthentication } from "@/hooks/useAuthentication";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuthentication();
   const [isLoading, setIsLoading] = useState(true);
-  const [profileData, setProfileData] = useState<ProfileData | null>(null);
-  const [userSkills, setUserSkills] = useState<UserSkill[]>([]);
-  const [userInterests, setUserInterests] = useState<UserInterest[]>([]);
+  const [profileData, setProfileData] = useState(null);
+  const [userSkills, setUserSkills] = useState([]);
+  const [userInterests, setUserInterests] = useState([]);
 
   // Fetch profile data
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          navigate('/auth');
-          return;
-        }
+        if (!user) return;
 
         // Fetch profile data
         const { data: profile, error: profileError } = await supabase
@@ -111,11 +80,10 @@ const Profile = () => {
     };
 
     fetchProfileData();
-  }, [navigate, toast]);
+  }, [user, toast]);
 
   const handleSaveProfile = async (updates: any) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
       const { error } = await supabase
@@ -151,7 +119,6 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-8">
       <div className="max-w-6xl mx-auto px-4 space-y-8">
-        {/* Header Section */}
         <Card className="p-6 bg-white/90 backdrop-blur-sm">
           {profileData && (
             <ProfileHeader 
@@ -163,7 +130,6 @@ const Profile = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-[2fr,1fr] gap-8">
           <div className="space-y-8">
-            {/* Background Section */}
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
               <ProfileBackground
                 background={profileData?.background || null}
@@ -173,12 +139,10 @@ const Profile = () => {
           </div>
 
           <div className="space-y-8">
-            {/* Skills Section */}
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
               <ProfileSkills skills={userSkills} />
             </Card>
 
-            {/* Interests Section */}
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
               <ProfileInterests interests={userInterests} />
             </Card>

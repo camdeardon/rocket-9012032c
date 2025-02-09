@@ -1,21 +1,23 @@
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, MessageSquare, Bell, UserCircle } from "lucide-react";
+import { Home, MessageSquare, Bell, UserCircle, LogOut } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuthentication } from "@/hooks/useAuthentication";
+import { Button } from "./ui/button";
 
 const Navbar = () => {
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
-  const isAuthenticated = localStorage.getItem('authToken');
+  const { user, signOut } = useAuthentication();
 
   const handleNavigation = (path: string) => {
-    if (!isAuthenticated) {
+    if (!user) {
       toast({
         title: "Authentication Required",
         description: "Please sign in to access this feature.",
       });
-      navigate('/login', { state: { from: location } });
+      navigate('/auth', { state: { from: location } });
     } else {
       navigate(path);
     }
@@ -36,10 +38,26 @@ const Navbar = () => {
           </div>
           
           <div className="hidden md:flex items-center space-x-8">
-            <NavLink onClick={() => handleNavigation('/')} icon={<Home className="w-6 h-6" />} label="Home" />
-            <NavLink onClick={() => handleNavigation('/messages')} icon={<MessageSquare className="w-6 h-6" />} label="Messages" />
-            <NavLink onClick={() => handleNavigation('/notifications')} icon={<Bell className="w-6 h-6" />} label="Notifications" />
-            <NavLink onClick={() => handleNavigation('/profile')} icon={<UserCircle className="w-6 h-6" />} label="Profile" />
+            {user ? (
+              <>
+                <NavLink onClick={() => handleNavigation('/dashboard')} icon={<Home className="w-6 h-6" />} label="Dashboard" />
+                <NavLink onClick={() => handleNavigation('/messages')} icon={<MessageSquare className="w-6 h-6" />} label="Messages" />
+                <NavLink onClick={() => handleNavigation('/notifications')} icon={<Bell className="w-6 h-6" />} label="Notifications" />
+                <NavLink onClick={() => handleNavigation('/profile')} icon={<UserCircle className="w-6 h-6" />} label="Profile" />
+                <Button 
+                  variant="ghost" 
+                  className="flex flex-col items-center text-secondary-foreground hover:text-primary"
+                  onClick={signOut}
+                >
+                  <LogOut className="w-6 h-6" />
+                  <span className="text-xs mt-1">Sign Out</span>
+                </Button>
+              </>
+            ) : (
+              <Button onClick={() => navigate('/auth')} variant="default">
+                Sign In
+              </Button>
+            )}
           </div>
         </div>
       </div>

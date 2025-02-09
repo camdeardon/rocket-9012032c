@@ -13,28 +13,45 @@ import Dashboard from "./pages/Dashboard";
 import ProjectManagement from "./pages/ProjectManagement";
 import Profile from "./pages/Profile";
 import Navbar from "./components/Navbar";
-import { useToast } from "./components/ui/use-toast";
+import { useAuthentication } from "./hooks/useAuthentication";
 import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { toast } = useToast();
+  const { user, isLoading } = useAuthentication();
   const location = useLocation();
   
-  // Check if user is authenticated (has valid token)
-  const isAuthenticated = localStorage.getItem('authToken');
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    </div>;
+  }
   
-  if (!isAuthenticated) {
-    // Show toast message when redirecting
-    toast({
-      title: "Authentication Required",
-      description: "Please sign in or create an account to access this feature.",
-    });
-    
+  if (!user) {
     // Redirect to auth while preserving the attempted destination
     return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+};
+
+// Guest Route wrapper component (for auth pages)
+const GuestRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isLoading } = useAuthentication();
+  const location = useLocation();
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    </div>;
+  }
+
+  if (user) {
+    // Redirect to dashboard or the page they were trying to access
+    const from = location.state?.from?.pathname || '/dashboard';
+    return <Navigate to={from} replace />;
   }
 
   return <>{children}</>;
@@ -51,10 +68,14 @@ const App = () => (
           <div className="pt-16">
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/complete-profile" element={<CompleteProfile />} />
+              <Route
+                path="/auth"
+                element={
+                  <GuestRoute>
+                    <Auth />
+                  </GuestRoute>
+                }
+              />
               {/* Protected Routes */}
               <Route
                 path="/dashboard"
