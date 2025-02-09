@@ -13,9 +13,9 @@ const Navbar = () => {
     if (!isAuthenticated) {
       toast({
         title: "Authentication Required",
-        description: "Please sign in or create an account to access this feature.",
+        description: "Please sign in to access this feature.",
       });
-      navigate('/signup', { state: { from: location } });
+      navigate('/login', { state: { from: location } });
     } else {
       navigate(path);
     }

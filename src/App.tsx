@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import SignUp from "./pages/SignUp";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import CompleteProfile from "./pages/CompleteProfile";
 import Dashboard from "./pages/Dashboard";
@@ -31,8 +32,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       description: "Please sign in or create an account to access this feature.",
     });
     
-    // Redirect to signup while preserving the attempted destination
-    return <Navigate to="/signup" state={{ from: location }} replace />;
+    // Redirect to login while preserving the attempted destination
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
@@ -50,6 +51,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/signup" element={<SignUp />} />
+              <Route path="/login" element={<Login />} />
               <Route path="/complete-profile" element={<CompleteProfile />} />
               {/* Protected Routes */}
               <Route
