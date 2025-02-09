@@ -5,6 +5,35 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar as CalendarIcon, ListTodo, MessageSquare, Users, Briefcase } from "lucide-react";
+import TeamMember from "@/components/project/TeamMember";
+
+// Mock team data - in a real app this would come from your backend
+const teamMembers = [
+  {
+    id: 1,
+    name: "John Doe",
+    avatar: "/placeholder.svg",
+    role: "Project Lead",
+    bio: "Building a fintech startup focused on democratizing access to investment opportunities.",
+    skills: ["React", "Node.js", "Product Management"],
+  },
+  {
+    id: 2,
+    name: "Sarah Chen",
+    avatar: "/placeholder.svg",
+    role: "UX Designer",
+    bio: "UX designer with 5 years of experience in fintech",
+    skills: ["UI/UX Design", "User Research", "Figma"],
+  },
+  {
+    id: 3,
+    name: "Michael Park",
+    avatar: "/placeholder.svg",
+    role: "Backend Developer",
+    bio: "Full-stack developer passionate about AI",
+    skills: ["React", "Node.js", "Machine Learning"],
+  },
+];
 
 const ProjectManagement = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -68,8 +97,8 @@ const ProjectManagement = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <p className="text-2xl font-bold">5</p>
-                  <p className="text-sm text-muted-foreground">2 pending invites</p>
+                  <p className="text-2xl font-bold">{teamMembers.length}</p>
+                  <p className="text-sm text-muted-foreground">Full team assembled</p>
                 </div>
               </CardContent>
             </Card>
@@ -139,14 +168,11 @@ const ProjectManagement = () => {
         </TabsContent>
 
         <TabsContent value="team">
-          <Card>
-            <CardHeader>
-              <CardTitle>Team Management</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Team management view coming soon...</p>
-            </CardContent>
-          </Card>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {teamMembers.map((member) => (
+              <TeamMember key={member.id} member={member} />
+            ))}
+          </div>
         </TabsContent>
       </Tabs>
     </div>

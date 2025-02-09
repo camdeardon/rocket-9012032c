@@ -3,8 +3,10 @@ import { useToast } from "@/hooks/use-toast";
 import { ProfileSummary } from "@/components/dashboard/ProfileSummary";
 import { MatchProfile } from "@/components/dashboard/MatchProfile";
 import { MatchesPanel } from "@/components/dashboard/MatchesPanel";
+import { Button } from "@/components/ui/button";
+import { Briefcase } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-// Mock data - In real app, this would come from your backend
 const currentUser = {
   id: 1,
   name: "John Doe",
@@ -83,12 +85,13 @@ const matchData = [
 const Dashboard = () => {
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const { toast } = useToast();
+  const navigate = useNavigate();
   const currentMatch = potentialMatches[currentMatchIndex];
 
   const handleLike = () => {
     toast({
       title: "It's a match! 🎉",
-      description: `You and ${currentMatch.name} have been matched! You can now start chatting.`,
+      description: `You and ${currentMatch.name} have been matched! You can now start a project together.`,
     });
     setCurrentMatchIndex(prev => prev + 1);
   };
@@ -108,10 +111,20 @@ const Dashboard = () => {
     });
   };
 
+  const goToProjects = () => {
+    navigate('/project-management');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-8">
       <div className="max-w-7xl mx-auto px-4">
-        <ProfileSummary user={currentUser} />
+        <div className="flex justify-between items-center mb-6">
+          <ProfileSummary user={currentUser} />
+          <Button onClick={goToProjects} className="hover:scale-105 transition-transform">
+            <Briefcase className="mr-2 h-4 w-4" />
+            View Projects
+          </Button>
+        </div>
         
         <div className="grid grid-cols-[1fr,400px] gap-8 mt-8">
           <div>
