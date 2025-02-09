@@ -7,10 +7,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Upload, Linkedin, Video, ChevronRight, Check, MapPin, Calendar } from "lucide-react";
+import { completeProfile } from "@/utils/api";
 
 const CompleteProfile = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     about: "",
     skills: "",
@@ -48,14 +50,32 @@ const CompleteProfile = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Profile data:", formData);
-    toast({
-      title: "Profile completed!",
-      description: "Your profile has been successfully updated.",
-    });
-    navigate("/dashboard");
+    setIsLoading(true);
+    
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      
+      await completeProfile(formData, token);
+      
+      toast({
+        title: "Profile completed!",
+        description: "Your profile has been successfully updated.",
+      });
+      navigate("/dashboard");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleLinkedInConnect = () => {

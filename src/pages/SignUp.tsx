@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,10 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { signUp } from "@/utils/api";
 
 const SignUp = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -17,15 +18,28 @@ const SignUp = () => {
     password: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
-    console.log("Form submitted:", formData);
-    toast({
-      title: "Account created!",
-      description: "Let's complete your profile to find your perfect match.",
-    });
-    navigate("/complete-profile");
+    setIsLoading(true);
+    
+    try {
+      const response = await signUp(formData);
+      localStorage.setItem('authToken', response.token);
+      
+      toast({
+        title: "Account created!",
+        description: "Let's complete your profile to find your perfect match.",
+      });
+      navigate("/complete-profile");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +53,6 @@ const SignUp = () => {
     <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left Column - Marketing Content */}
           <div className="space-y-8">
             <div>
               <img 
@@ -79,7 +92,6 @@ const SignUp = () => {
             </div>
           </div>
 
-          {/* Right Column - Sign Up Form */}
           <Card className="p-8 shadow-lg bg-white/90 backdrop-blur-sm">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2 text-center">
@@ -144,8 +156,12 @@ const SignUp = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full text-lg py-6">
-                Create Account
+              <Button 
+                type="submit" 
+                className="w-full text-lg py-6" 
+                disabled={isLoading}
+              >
+                {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
 
               <p className="text-sm text-center text-secondary-foreground/80">
