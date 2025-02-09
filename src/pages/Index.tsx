@@ -1,5 +1,4 @@
 
-import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Rocket, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -9,8 +8,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-accent to-secondary/20">
-      <Navbar />
-      
       <main>
         {/* Hero Section */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
