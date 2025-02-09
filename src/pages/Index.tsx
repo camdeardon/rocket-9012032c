@@ -1,4 +1,3 @@
-
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Rocket, Brain } from "lucide-react";
@@ -91,11 +90,10 @@ const Index = () => {
             </p>
             <Button 
               size="lg" 
-              variant="secondary"
-              className="bg-accent hover:bg-accent/90 text-secondary-foreground"
+              className="bg-primary hover:bg-primary/90 text-white"
               onClick={() => navigate("/signup")}
             >
-              Get Started Now
+              Get Started Now <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
         </section>
