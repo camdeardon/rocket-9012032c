@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
-import { Upload, Linkedin, Video, ChevronRight, Check } from "lucide-react";
+import { Upload, Linkedin, Video, ChevronRight, Check, MapPin, Calendar } from "lucide-react";
 
 const CompleteProfile = () => {
   const { toast } = useToast();
@@ -19,6 +18,12 @@ const CompleteProfile = () => {
     interests: "",
     resume: null as File | null,
     linkedinUrl: "",
+    street: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "",
+    dateOfBirth: "",
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,7 +86,6 @@ const CompleteProfile = () => {
           <Card className="p-8 space-y-8 bg-white/95 backdrop-blur-sm shadow-lg">
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Left Column */}
                 <div className="space-y-8">
                   <div className="space-y-4">
                     <Label htmlFor="about" className="text-lg font-semibold flex items-center gap-2">
@@ -112,9 +116,48 @@ const CompleteProfile = () => {
                       className="min-h-[100px] bg-white"
                     />
                   </div>
+
+                  <div className="space-y-4">
+                    <Label className="text-lg font-semibold flex items-center gap-2">
+                      <MapPin className="h-5 w-5 text-primary" />
+                      Location
+                    </Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Input
+                        name="street"
+                        placeholder="Street Address"
+                        value={formData.street}
+                        onChange={handleChange}
+                      />
+                      <Input
+                        name="city"
+                        placeholder="City"
+                        value={formData.city}
+                        onChange={handleChange}
+                      />
+                      <Input
+                        name="state"
+                        placeholder="State/Province"
+                        value={formData.state}
+                        onChange={handleChange}
+                      />
+                      <Input
+                        name="zipCode"
+                        placeholder="ZIP/Postal Code"
+                        value={formData.zipCode}
+                        onChange={handleChange}
+                      />
+                      <Input
+                        name="country"
+                        placeholder="Country"
+                        value={formData.country}
+                        onChange={handleChange}
+                        className="col-span-2"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                {/* Right Column */}
                 <div className="space-y-8">
                   <div className="space-y-4">
                     <Label htmlFor="background" className="text-lg font-semibold flex items-center gap-2">
@@ -145,10 +188,23 @@ const CompleteProfile = () => {
                       className="min-h-[100px] bg-white"
                     />
                   </div>
+
+                  <div className="space-y-4">
+                    <Label className="text-lg font-semibold flex items-center gap-2">
+                      <Calendar className="h-5 w-5 text-primary" />
+                      Date of Birth
+                    </Label>
+                    <Input
+                      type="date"
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      onChange={handleChange}
+                      className="bg-white"
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* Bottom Section - Upload and Integration Options */}
               <div className="pt-4 border-t">
                 <Label className="text-lg font-semibold mb-4 block">
                   Enhance your profile
@@ -195,7 +251,6 @@ const CompleteProfile = () => {
                 </div>
               </div>
 
-              {/* Submit Button */}
               <Button 
                 type="submit" 
                 className="w-full text-lg py-6 bg-primary hover:bg-primary/90 transition-colors"
