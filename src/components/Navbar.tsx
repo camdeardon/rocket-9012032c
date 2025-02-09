@@ -12,7 +12,7 @@ const Navbar = () => {
               <img 
                 src="/lovable-uploads/93a57052-fc29-4425-9b65-2a5b0d987b96.png" 
                 alt="Rocket Logo" 
-                className="h-16 w-auto" // Increased from h-12 to h-16
+                className="h-20 w-auto" // Increased from h-16 to h-20
               />
             </Link>
           </div>
