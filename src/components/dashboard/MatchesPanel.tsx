@@ -26,22 +26,28 @@ interface MatchesPanelProps {
 }
 
 export const MatchesPanel = ({ matches, onMessage }: MatchesPanelProps) => {
-  const [filterBy, setFilterBy] = useState<'overall' | 'skills' | 'interests'>('overall');
+  const [filterBy, setFilterBy] = useState<'overall' | 'skills' | 'interests' | 'location' | 'experience'>('overall');
 
   const sortedMatches = [...matches].sort((a, b) => {
-    if (filterBy === 'skills') {
-      return b.matchScore.skillsMatch - a.matchScore.skillsMatch;
-    } else if (filterBy === 'interests') {
-      return b.matchScore.interestsMatch - a.matchScore.interestsMatch;
+    switch (filterBy) {
+      case 'skills':
+        return b.matchScore.skillsMatch - a.matchScore.skillsMatch;
+      case 'interests':
+        return b.matchScore.interestsMatch - a.matchScore.interestsMatch;
+      case 'location':
+        return b.matchScore.locationMatch - a.matchScore.locationMatch;
+      case 'experience':
+        return b.matchScore.experienceMatch - a.matchScore.experienceMatch;
+      default:
+        return b.matchScore.overallMatch - a.matchScore.overallMatch;
     }
-    return b.matchScore.overallMatch - a.matchScore.overallMatch;
   });
 
   return (
-    <Card className="p-6 bg-white/90 backdrop-blur-sm">
-      <div className="flex justify-between items-center mb-6">
+    <Card className="p-6 bg-white/90 backdrop-blur-sm h-[calc(100vh-200px)] flex flex-col">
+      <div className="space-y-4 mb-6">
         <h3 className="text-xl font-bold text-primary">Your Matches</h3>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button 
             variant={filterBy === 'overall' ? 'default' : 'outline'}
             onClick={() => setFilterBy('overall')}
@@ -63,9 +69,23 @@ export const MatchesPanel = ({ matches, onMessage }: MatchesPanelProps) => {
           >
             Interests
           </Button>
+          <Button 
+            variant={filterBy === 'location' ? 'default' : 'outline'}
+            onClick={() => setFilterBy('location')}
+            size="sm"
+          >
+            Location
+          </Button>
+          <Button 
+            variant={filterBy === 'experience' ? 'default' : 'outline'}
+            onClick={() => setFilterBy('experience')}
+            size="sm"
+          >
+            Experience
+          </Button>
         </div>
       </div>
-      <div className="space-y-4 max-h-[400px] overflow-y-auto">
+      <div className="space-y-4 overflow-y-auto flex-1">
         {sortedMatches.map((match) => (
           <div key={match.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-secondary/20">
             <div className="flex items-center gap-4">
@@ -85,7 +105,11 @@ export const MatchesPanel = ({ matches, onMessage }: MatchesPanelProps) => {
             </div>
             <div className="flex items-center gap-4">
               <Badge variant={filterBy === 'skills' ? 'default' : 'outline'} className="text-sm">
-                Skills: {match.matchScore.skillsMatch}%
+                {filterBy === 'overall' && `Overall: ${match.matchScore.overallMatch}%`}
+                {filterBy === 'skills' && `Skills: ${match.matchScore.skillsMatch}%`}
+                {filterBy === 'interests' && `Interests: ${match.matchScore.interestsMatch}%`}
+                {filterBy === 'location' && `Location: ${match.matchScore.locationMatch}%`}
+                {filterBy === 'experience' && `Experience: ${match.matchScore.experienceMatch}%`}
               </Badge>
               <Button
                 variant="ghost"

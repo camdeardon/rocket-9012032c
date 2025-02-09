@@ -1,5 +1,6 @@
+
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ProfileSummary } from "@/components/dashboard/ProfileSummary";
 import { MatchProfile } from "@/components/dashboard/MatchProfile";
 import { MatchAnalysis } from "@/components/dashboard/MatchAnalysis";
@@ -111,30 +112,33 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-8">
-      <div className="max-w-6xl mx-auto px-4 space-y-8">
+      <div className="max-w-7xl mx-auto px-4">
         <ProfileSummary user={currentUser} />
         
-        <div className="grid md:grid-cols-2 gap-8">
-          {currentMatch && (
-            <>
-              <MatchProfile
-                match={currentMatch}
-                onLike={handleLike}
-                onPass={handlePass}
-                onMessage={() => handleMessage(currentMatch.id)}
-              />
-              <MatchAnalysis matchData={matchData} />
-            </>
-          )}
+        <div className="grid grid-cols-[1fr,400px] gap-8 mt-8">
+          <div className="space-y-8">
+            {currentMatch && (
+              <>
+                <MatchProfile
+                  match={currentMatch}
+                  onLike={handleLike}
+                  onPass={handlePass}
+                  onMessage={() => handleMessage(currentMatch.id)}
+                />
+                <MatchAnalysis matchData={matchData} />
+              </>
+            )}
+          </div>
+          
+          <MatchesPanel 
+            matches={potentialMatches} 
+            onMessage={handleMessage}
+          />
         </div>
-
-        <MatchesPanel 
-          matches={potentialMatches} 
-          onMessage={handleMessage}
-        />
       </div>
     </div>
   );
 };
 
 export default Dashboard;
+
