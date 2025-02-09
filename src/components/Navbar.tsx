@@ -8,7 +8,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
-            <Link to="/" className="flex-shrink-0">
+            <Link to="/" className="flex-shrink-0 hover:opacity-80 transition-opacity">
               <img 
                 src="/lovable-uploads/93a57052-fc29-4425-9b65-2a5b0d987b96.png" 
                 alt="Rocket Logo" 
@@ -33,7 +33,7 @@ const Navbar = () => {
 const NavLink = ({ to, icon, label }: { to: string; icon: React.ReactNode; label: string }) => (
   <Link
     to={to}
-    className="flex flex-col items-center text-gray-500 hover:text-primary transition-colors duration-200"
+    className="flex flex-col items-center text-secondary-foreground hover:text-primary transition-colors duration-200"
   >
     {icon}
     <span className="text-xs mt-1">{label}</span>
@@ -41,4 +41,3 @@ const NavLink = ({ to, icon, label }: { to: string; icon: React.ReactNode; label
 );
 
 export default Navbar;
-

@@ -2,20 +2,20 @@
 import Navbar from "@/components/Navbar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, ThumbsUp, Share2, ChevronRight, ChevronLeft } from "lucide-react";
+import { Heart, X, ChevronRight, ChevronLeft } from "lucide-react";
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend } from 'recharts';
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-secondary">
+    <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary">
       <Navbar />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to Rocket</h1>
-          <p className="text-xl text-gray-600">Find your perfect co-founder match and build something amazing together</p>
+          <h1 className="text-4xl font-bold text-primary mb-4">Find Your Perfect Match</h1>
+          <p className="text-xl text-secondary-foreground">Swipe right on your future co-founder</p>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -25,7 +25,7 @@ const Index = () => {
           </div>
 
           {/* Main Matching Section */}
-          <div className="lg:col-span-6 space-y-6">
+          <div className="lg:col-span-6">
             <MatchingCard />
           </div>
 
@@ -40,18 +40,18 @@ const Index = () => {
 };
 
 const ProfileCard = () => (
-  <Card className="p-6 animate-fade-up">
+  <Card className="p-6 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
     <div className="relative">
       <div className="h-24 bg-gradient-to-r from-primary to-accent rounded-t-lg" />
       <div className="absolute -bottom-12 left-6">
-        <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200" />
+        <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 shadow-lg" />
       </div>
     </div>
     <div className="mt-14 space-y-4">
-      <h2 className="text-xl font-semibold">John Doe</h2>
-      <p className="text-sm text-gray-600">Technical Co-Founder</p>
+      <h2 className="text-xl font-semibold text-primary">John Doe</h2>
+      <p className="text-sm text-secondary-foreground">Technical Co-Founder</p>
       <div className="space-y-2">
-        <p className="text-sm font-medium">Core Skills</p>
+        <p className="text-sm font-medium text-secondary-foreground">Core Skills</p>
         <div className="flex flex-wrap gap-2">
           <Badge variant="secondary">Full-Stack Development</Badge>
           <Badge variant="secondary">System Architecture</Badge>
@@ -59,7 +59,7 @@ const ProfileCard = () => (
         </div>
       </div>
       <div className="space-y-2">
-        <p className="text-sm font-medium">Interests</p>
+        <p className="text-sm font-medium text-secondary-foreground">Interests</p>
         <div className="flex flex-wrap gap-2">
           <Badge variant="outline">Sustainability</Badge>
           <Badge variant="outline">EdTech</Badge>
@@ -85,20 +85,20 @@ const MatchingCard = () => {
         { subject: 'Values Alignment', A: 90, B: 85 },
       ]
     },
-    // ... Add more profiles here
   ];
 
   return (
-    <Card className="p-6 animate-fade-up">
+    <Card className="p-6 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold">Potential Co-Founder Match</h2>
+          <h2 className="text-2xl font-semibold text-primary">Potential Match</h2>
           <div className="flex gap-2">
             <Button 
               variant="outline" 
               size="icon"
               onClick={() => setCurrentProfile(prev => Math.max(0, prev - 1))}
               disabled={currentProfile === 0}
+              className="hover:bg-primary/10"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -107,6 +107,7 @@ const MatchingCard = () => {
               size="icon"
               onClick={() => setCurrentProfile(prev => Math.min(profiles.length - 1, prev + 1))}
               disabled={currentProfile === profiles.length - 1}
+              className="hover:bg-primary/10"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -114,30 +115,30 @@ const MatchingCard = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 rounded-full bg-gray-200" />
+          <div className="w-16 h-16 rounded-full bg-accent/20" />
           <div>
-            <h3 className="font-semibold text-lg">{profiles[currentProfile].name}</h3>
-            <p className="text-sm text-gray-500">{profiles[currentProfile].role} • {profiles[currentProfile].location}</p>
+            <h3 className="font-semibold text-lg text-secondary-foreground">{profiles[currentProfile].name}</h3>
+            <p className="text-sm text-secondary-foreground/70">{profiles[currentProfile].role} • {profiles[currentProfile].location}</p>
           </div>
         </div>
 
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart data={profiles[currentProfile].compatibility}>
-              <PolarGrid />
-              <PolarAngleAxis dataKey="subject" />
+              <PolarGrid stroke="#96cce9" />
+              <PolarAngleAxis dataKey="subject" stroke="#132641" />
               <Radar
                 name="You"
                 dataKey="A"
-                stroke="#0A66C2"
-                fill="#0A66C2"
+                stroke="#529493"
+                fill="#529493"
                 fillOpacity={0.3}
               />
               <Radar
                 name={profiles[currentProfile].name}
                 dataKey="B"
-                stroke="#057642"
-                fill="#057642"
+                stroke="#96cce9"
+                fill="#96cce9"
                 fillOpacity={0.3}
               />
               <Legend />
@@ -145,9 +146,23 @@ const MatchingCard = () => {
           </ResponsiveContainer>
         </div>
 
-        <div className="flex justify-between">
-          <Button variant="outline">Pass</Button>
-          <Button>Connect</Button>
+        <div className="flex justify-center gap-4">
+          <Button 
+            variant="outline" 
+            size="lg"
+            className="rounded-full w-16 h-16 hover:bg-red-100"
+            onClick={() => setCurrentProfile(prev => prev + 1)}
+          >
+            <X className="h-8 w-8 text-red-500" />
+          </Button>
+          <Button 
+            variant="outline"
+            size="lg"
+            className="rounded-full w-16 h-16 hover:bg-green-100"
+            onClick={() => setCurrentProfile(prev => prev + 1)}
+          >
+            <Heart className="h-8 w-8 text-green-500" />
+          </Button>
         </div>
       </div>
     </Card>
@@ -155,17 +170,17 @@ const MatchingCard = () => {
 };
 
 const RecommendedMatches = () => (
-  <Card className="p-6 animate-fade-up">
-    <h3 className="font-semibold mb-4">Recommended Matches</h3>
+  <Card className="p-6 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
+    <h3 className="font-semibold mb-4 text-primary">Today's Top Matches</h3>
     <div className="space-y-4">
       {[1, 2, 3].map((suggestion) => (
-        <div key={suggestion} className="flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-full bg-gray-200" />
+        <div key={suggestion} className="group flex items-center space-x-4 p-2 rounded-lg hover:bg-accent/10 transition-colors">
+          <div className="w-12 h-12 rounded-full bg-accent/20" />
           <div className="flex-1">
-            <h4 className="font-medium">Alex Johnson</h4>
-            <p className="text-sm text-gray-500">Product Strategy • 85% Match</p>
+            <h4 className="font-medium text-secondary-foreground">Alex Johnson</h4>
+            <p className="text-sm text-secondary-foreground/70">Product Strategy • 85% Match</p>
           </div>
-          <Button variant="outline" size="sm">
+          <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
             View
           </Button>
         </div>
@@ -175,4 +190,3 @@ const RecommendedMatches = () => (
 );
 
 export default Index;
-
