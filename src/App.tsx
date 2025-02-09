@@ -12,6 +12,7 @@ import CompleteProfile from "./pages/CompleteProfile";
 import Dashboard from "./pages/Dashboard";
 import ProjectManagement from "./pages/ProjectManagement";
 import Profile from "./pages/Profile";
+import Navbar from "./components/Navbar";
 import { useToast } from "./components/ui/use-toast";
 
 const queryClient = new QueryClient();
@@ -45,7 +46,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <div className="min-h-screen">
-          <div>
+          <Navbar />
+          <div className="pt-16">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/signup" element={<SignUp />} />
