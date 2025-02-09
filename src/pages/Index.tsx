@@ -1,4 +1,4 @@
-
+import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Rocket, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -8,19 +8,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
+      
       <main>
         {/* Hero Section */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
-          <div className="flex flex-col items-center space-y-8">
-            <img 
-              src="/lovable-uploads/93a57052-fc29-4425-9b65-2a5b0d987b96.png" 
-              alt="Rocket Logo" 
-              className="h-32 w-auto mb-4 animate-fade-in"
-            />
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary text-center">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+          <div className="text-center space-y-8">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary">
               Find Your Perfect Co-Founder Match
             </h1>
-            <p className="text-xl text-foreground max-w-3xl mx-auto text-center">
+            <p className="text-xl text-foreground max-w-3xl mx-auto">
               Using machine learning to connect ambitious founders with skilled professionals 
               who share their vision, interests, and drive for success.
             </p>
@@ -93,7 +90,7 @@ const Index = () => {
             </p>
             <Button 
               size="lg" 
-              className="bg-white hover:bg-white/90 text-primary"
+              className="bg-primary hover:bg-primary/90 text-white"
               onClick={() => navigate("/signup")}
             >
               Get Started Now <ArrowRight className="ml-2 h-5 w-5" />
