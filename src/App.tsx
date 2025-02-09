@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
@@ -12,8 +12,31 @@ import Dashboard from "./pages/Dashboard";
 import ProjectManagement from "./pages/ProjectManagement";
 import Profile from "./pages/Profile";
 import Navbar from "./components/Navbar";
+import { useToast } from "./components/ui/use-toast";
 
 const queryClient = new QueryClient();
+
+// Protected Route wrapper component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { toast } = useToast();
+  const location = useLocation();
+  
+  // Check if user is authenticated (has valid token)
+  const isAuthenticated = localStorage.getItem('authToken');
+  
+  if (!isAuthenticated) {
+    // Show toast message when redirecting
+    toast({
+      title: "Authentication Required",
+      description: "Please sign in or create an account to access this feature.",
+    });
+    
+    // Redirect to signup while preserving the attempted destination
+    return <Navigate to="/signup" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -28,9 +51,47 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/complete-profile" element={<CompleteProfile />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/project-management" element={<ProjectManagement />} />
-              <Route path="/profile" element={<Profile />} />
+              {/* Protected Routes */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/project-management"
+                element={
+                  <ProtectedRoute>
+                    <ProjectManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/messages"
+                element={
+                  <ProtectedRoute>
+                    <div className="p-8">Messages feature coming soon!</div>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/notifications"
+                element={
+                  <ProtectedRoute>
+                    <div className="p-8">Notifications feature coming soon!</div>
+                  </ProtectedRoute>
+                }
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
