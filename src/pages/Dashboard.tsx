@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { ProfileSummary } from "@/components/dashboard/ProfileSummary";
 import { MatchProfile } from "@/components/dashboard/MatchProfile";
 import { MatchAnalysis } from "@/components/dashboard/MatchAnalysis";
+import { MatchesPanel } from "@/components/dashboard/MatchesPanel";
 
 // Mock data - In real app, this would come from your backend
 const currentUser = {
@@ -40,7 +40,38 @@ const potentialMatches = [
       overallMatch: 85
     }
   },
-  // Add more potential matches here
+  {
+    id: 3,
+    name: "Michael Park",
+    avatar: "/placeholder.svg",
+    bio: "Full-stack developer passionate about AI",
+    location: "Seattle, WA",
+    skills: ["React", "Node.js", "Machine Learning"],
+    interests: ["AI", "Blockchain", "Hiking"],
+    matchScore: {
+      skillsMatch: 95,
+      interestsMatch: 75,
+      locationMatch: 60,
+      experienceMatch: 85,
+      overallMatch: 80
+    }
+  },
+  {
+    id: 4,
+    name: "Emma Wilson",
+    avatar: "/placeholder.svg",
+    bio: "Product manager with startup experience",
+    location: "Austin, TX",
+    skills: ["Product Strategy", "Agile", "Data Analysis"],
+    interests: ["Startups", "Innovation", "Tech"],
+    matchScore: {
+      skillsMatch: 70,
+      interestsMatch: 85,
+      locationMatch: 65,
+      experienceMatch: 90,
+      overallMatch: 78
+    }
+  }
 ];
 
 const matchData = [
@@ -71,7 +102,7 @@ const Dashboard = () => {
     });
   };
 
-  const handleMessage = () => {
+  const handleMessage = (matchId?: number) => {
     toast({
       title: "Coming soon!",
       description: "The messaging feature will be available soon.",
@@ -80,20 +111,27 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-8">
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-6xl mx-auto px-4 space-y-8">
         <ProfileSummary user={currentUser} />
         
-        {currentMatch && (
-          <div className="grid md:grid-cols-2 gap-8">
-            <MatchProfile
-              match={currentMatch}
-              onLike={handleLike}
-              onPass={handlePass}
-              onMessage={handleMessage}
-            />
-            <MatchAnalysis matchData={matchData} />
-          </div>
-        )}
+        <div className="grid md:grid-cols-2 gap-8">
+          {currentMatch && (
+            <>
+              <MatchProfile
+                match={currentMatch}
+                onLike={handleLike}
+                onPass={handlePass}
+                onMessage={() => handleMessage(currentMatch.id)}
+              />
+              <MatchAnalysis matchData={matchData} />
+            </>
+          )}
+        </div>
+
+        <MatchesPanel 
+          matches={potentialMatches} 
+          onMessage={handleMessage}
+        />
       </div>
     </div>
   );
