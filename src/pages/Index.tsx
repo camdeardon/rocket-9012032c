@@ -13,22 +13,21 @@ const Index = () => {
       <Navbar />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-2">Find Your Perfect Match</h1>
-          <p className="text-xl text-secondary-foreground">Swipe right on your future co-founder</p>
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Profile */}
-          <ProfileCard />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Profile Section */}
+          <div className="lg:col-span-3">
+            <ProfileCard />
+          </div>
 
-          {/* Center Column - Matching */}
-          <div className="lg:col-span-1">
+          {/* Main Matching Section */}
+          <div className="lg:col-span-6">
             <MatchingCard />
           </div>
 
-          {/* Right Column - Network */}
-          <RecommendedMatches />
+          {/* Network Section */}
+          <div className="lg:col-span-3">
+            <RecommendedMatches />
+          </div>
         </div>
       </main>
     </div>
@@ -46,6 +45,7 @@ const ProfileCard = () => (
     <div className="mt-14 space-y-4">
       <h2 className="text-xl font-semibold text-primary">John Doe</h2>
       <p className="text-sm text-secondary-foreground">Technical Co-Founder</p>
+      
       <div className="space-y-2">
         <p className="text-sm font-medium text-secondary-foreground">Core Skills</p>
         <div className="flex flex-wrap gap-2">
@@ -54,11 +54,44 @@ const ProfileCard = () => (
           <Badge variant="secondary">AI/ML</Badge>
         </div>
       </div>
+
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-secondary-foreground">Project</p>
+        <div className="text-sm text-secondary-foreground">
+          <h4 className="font-medium">AI-Powered Education Platform</h4>
+          <p className="mt-1">Building an adaptive learning platform that uses AI to personalize education paths for students.</p>
+          <p className="mt-2 font-medium">Stage: MVP Development</p>
+          <p className="text-xs text-secondary-foreground/70">Seeking seed funding</p>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-secondary-foreground">Looking for</p>
+        <div className="space-y-2 text-sm text-secondary-foreground">
+          <div>
+            <span className="font-medium">Roles needed:</span>
+            <div className="flex flex-wrap gap-2 mt-1">
+              <Badge variant="outline">UI/UX Designer</Badge>
+              <Badge variant="outline">Marketing Lead</Badge>
+            </div>
+          </div>
+          <div className="mt-2">
+            <span className="font-medium">Requirements:</span>
+            <ul className="list-disc list-inside mt-1 text-xs space-y-1">
+              <li>5+ years experience in respective field</li>
+              <li>Strong background in education sector</li>
+              <li>Available for full-time commitment</li>
+              <li>Based in San Francisco or remote</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <div className="space-y-2">
         <p className="text-sm font-medium text-secondary-foreground">Interests</p>
         <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">Sustainability</Badge>
           <Badge variant="outline">EdTech</Badge>
+          <Badge variant="outline">AI/ML</Badge>
           <Badge variant="outline">Social Impact</Badge>
         </div>
       </div>

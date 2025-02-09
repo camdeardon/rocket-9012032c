@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Home, MessageSquare, BriefcaseIcon, Bell, UserCircle } from "lucide-react";
+import { Home, MessageSquare, Bell, UserCircle } from "lucide-react";
 
 const Navbar = () => {
   return (
@@ -20,7 +20,6 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-8">
             <NavLink to="/" icon={<Home className="w-6 h-6" />} label="Home" />
             <NavLink to="/messages" icon={<MessageSquare className="w-6 h-6" />} label="Messages" />
-            <NavLink to="/jobs" icon={<BriefcaseIcon className="w-6 h-6" />} label="Jobs" />
             <NavLink to="/notifications" icon={<Bell className="w-6 h-6" />} label="Notifications" />
             <NavLink to="/profile" icon={<UserCircle className="w-6 h-6" />} label="Profile" />
           </div>
