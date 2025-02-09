@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,14 +19,18 @@ const projectInfo = {
   ]
 };
 
-// Mock team data - in a real app this would come from your backend
+// Update the mock team data with more details
 const teamMembers = [
   {
     id: 1,
     name: "John Doe",
     avatar: "/placeholder.svg",
     role: "Project Lead",
-    bio: "Building a fintech startup focused on democratizing access to investment opportunities.",
+    location: "San Francisco, CA",
+    bio: "Building a fintech startup focused on democratizing access to investment opportunities. Passionate about creating impactful solutions that make financial markets accessible to everyone.",
+    experience: "10+ years in fintech and startup leadership",
+    hobbies: ["Rock climbing", "Chess", "Writing tech blogs"],
+    passions: ["Financial inclusion", "Mentoring", "Open source"],
     skills: ["React", "Node.js", "Product Management"],
   },
   {
@@ -35,7 +38,11 @@ const teamMembers = [
     name: "Sarah Chen",
     avatar: "/placeholder.svg",
     role: "UX Designer",
-    bio: "UX designer with 5 years of experience in fintech",
+    location: "New York, NY",
+    bio: "UX designer with 5 years of experience in fintech. Dedicated to creating intuitive and accessible user experiences that delight users while solving complex problems.",
+    experience: "Previously led design at two successful fintech startups",
+    hobbies: ["Digital art", "Photography", "Hiking"],
+    passions: ["User advocacy", "Design systems", "Accessibility"],
     skills: ["UI/UX Design", "User Research", "Figma"],
   },
   {
@@ -43,7 +50,11 @@ const teamMembers = [
     name: "Michael Park",
     avatar: "/placeholder.svg",
     role: "Backend Developer",
-    bio: "Full-stack developer passionate about AI",
+    location: "Seattle, WA",
+    bio: "Full-stack developer passionate about AI and scalable systems. Loves building robust backend architectures that can handle millions of users.",
+    experience: "7 years building high-scale financial systems",
+    hobbies: ["Machine learning", "Playing guitar", "Competitive gaming"],
+    passions: ["AI technology", "System architecture", "Teaching coding"],
     skills: ["React", "Node.js", "Machine Learning"],
   },
 ];
@@ -103,6 +114,16 @@ const ProjectManagement = () => {
                         </li>
                       ))}
                     </ul>
+                  </div>
+                </div>
+                <div className="mt-6 pt-6 border-t">
+                  <h4 className="font-semibold mb-2">Team Members</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {teamMembers.map((member) => (
+                      <span key={member.id} className="text-muted-foreground">
+                        {member.name}{member.id !== teamMembers.length ? "," : ""}&nbsp;
+                      </span>
+                    ))}
                   </div>
                 </div>
               </CardContent>
@@ -232,4 +253,3 @@ const ProjectManagement = () => {
 };
 
 export default ProjectManagement;
-
