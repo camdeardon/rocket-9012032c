@@ -25,8 +25,7 @@ const SignUp = () => {
       title: "Account created!",
       description: "Let's complete your profile to find your perfect match.",
     });
-    // In a real app, this would navigate to the profile completion page after successful signup
-    // navigate("/complete-profile");
+    navigate("/complete-profile");
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
