@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,7 +51,7 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20">
+    <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
@@ -58,16 +59,16 @@ const SignUp = () => {
               <h1 className="text-5xl font-bold text-primary">
                 Find Your Perfect Co-Founder
               </h1>
-              <p className="text-xl text-secondary-foreground leading-relaxed">
+              <p className="text-xl text-foreground leading-relaxed">
                 Join Rocket and connect with like-minded professionals who share your 
                 vision and passion. Our AI-powered matching algorithm helps you find 
                 the right people to build your dream team.
               </p>
-              <div className="space-y-4 bg-white/60 p-6 rounded-lg backdrop-blur-sm">
+              <div className="space-y-4 bg-white/80 backdrop-blur-sm p-6 rounded-lg">
                 <h2 className="text-2xl font-semibold text-primary">
                   How it works:
                 </h2>
-                <ul className="space-y-3 text-secondary-foreground">
+                <ul className="space-y-3 text-foreground">
                   <li className="flex items-start">
                     <span className="font-bold mr-2">1.</span>
                     Create your account
@@ -89,7 +90,7 @@ const SignUp = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2 text-center">
                 <h2 className="text-3xl font-bold text-primary">Get Started</h2>
-                <p className="text-secondary-foreground">
+                <p className="text-foreground">
                   Create your account in seconds
                 </p>
               </div>
@@ -151,13 +152,13 @@ const SignUp = () => {
 
               <Button 
                 type="submit" 
-                className="w-full text-lg py-6" 
+                className="w-full text-lg py-6 bg-accent hover:bg-accent/90" 
                 disabled={isLoading}
               >
                 {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
 
-              <p className="text-sm text-center text-secondary-foreground/80">
+              <p className="text-sm text-center text-foreground/80">
                 By signing up, you agree to our Terms of Service and Privacy Policy
               </p>
             </form>
