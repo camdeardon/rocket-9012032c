@@ -4,8 +4,21 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar as CalendarIcon, ListTodo, MessageSquare, Users, Briefcase } from "lucide-react";
+import { Calendar as CalendarIcon, ListTodo, MessageSquare, Users, Briefcase, Lightbulb, Target } from "lucide-react";
 import TeamMember from "@/components/project/TeamMember";
+
+// Mock project data - in a real app this would come from your backend
+const projectInfo = {
+  name: "InvestEasy",
+  vision: "Democratizing investment opportunities for everyone through accessible technology and education.",
+  goal: "Build a platform that allows anyone to invest in fractional shares while learning about financial markets.",
+  approach: [
+    "Develop user-friendly mobile-first interface",
+    "Create educational content partnerships",
+    "Build secure trading infrastructure",
+    "Launch beta with 1000 users by Q2"
+  ]
+};
 
 // Mock team data - in a real app this would come from your backend
 const teamMembers = [
@@ -41,7 +54,7 @@ const ProjectManagement = () => {
   return (
     <div className="container mx-auto p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Project Hub</h1>
+        <h1 className="text-3xl font-bold">{projectInfo.name}</h1>
         <Button className="hover-lift">
           <Briefcase className="mr-2" />
           New Project
@@ -57,6 +70,45 @@ const ProjectManagement = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
+          {/* Project Vision Section */}
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card className="md:col-span-3">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5" />
+                  Project Vision
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-lg text-center font-medium text-muted-foreground mb-6">
+                  {projectInfo.vision}
+                </p>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-2">
+                      <Target className="h-5 w-5 mt-1 text-primary" />
+                      <div>
+                        <h4 className="font-semibold mb-2">Our Goal</h4>
+                        <p className="text-muted-foreground">{projectInfo.goal}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">How We'll Get There</h4>
+                    <ul className="space-y-2">
+                      {projectInfo.approach.map((step, index) => (
+                        <li key={index} className="flex items-center gap-2 text-muted-foreground">
+                          <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                          {step}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card>
               <CardHeader>
@@ -180,3 +232,4 @@ const ProjectManagement = () => {
 };
 
 export default ProjectManagement;
+
