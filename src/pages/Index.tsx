@@ -8,7 +8,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary">
+    <div className="min-h-screen bg-gradient-to-b from-accent to-secondary/20">
       <Navbar />
       
       <main>
@@ -18,15 +18,23 @@ const Index = () => {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary">
               Find Your Perfect Co-Founder Match
             </h1>
-            <p className="text-xl text-secondary-foreground/80 max-w-3xl mx-auto">
+            <p className="text-xl text-secondary-foreground max-w-3xl mx-auto">
               Using machine learning to connect ambitious founders with skilled professionals 
               who share their vision, interests, and drive for success.
             </p>
             <div className="flex justify-center gap-4">
-              <Button size="lg" onClick={() => navigate("/signup")}>
+              <Button 
+                size="lg" 
+                className="bg-primary hover:bg-primary/90 text-white"
+                onClick={() => navigate("/signup")}
+              >
                 Get Started <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-primary text-primary hover:bg-primary/10"
+              >
                 Learn More
               </Button>
             </div>
@@ -60,10 +68,10 @@ const Index = () => {
         </section>
 
         {/* Mission Statement */}
-        <section className="py-20">
+        <section className="py-20 bg-accent/10">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-bold text-primary mb-6">Our Mission</h2>
-            <p className="text-lg text-secondary-foreground/80">
+            <p className="text-lg text-secondary-foreground">
               At Rocket, we understand that finding those early team members is vital to building a successful team. 
               We use machine learning to not only find people with the skills you need but also match you 
               to people with similar interests and experiences. We believe by creating the right matches we can 
@@ -84,6 +92,7 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="secondary"
+              className="bg-accent hover:bg-accent/90 text-secondary-foreground"
               onClick={() => navigate("/signup")}
             >
               Get Started Now
@@ -104,12 +113,11 @@ const FeatureCard = ({
   title: string; 
   description: string;
 }) => (
-  <div className="p-6 rounded-lg bg-white/80 backdrop-blur-sm hover-lift">
+  <div className="p-6 rounded-lg bg-white shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
     <div className="text-primary mb-4">{icon}</div>
     <h3 className="text-xl font-semibold text-primary mb-2">{title}</h3>
-    <p className="text-secondary-foreground/80">{description}</p>
+    <p className="text-secondary-foreground">{description}</p>
   </div>
 );
 
 export default Index;
-
