@@ -13,26 +13,22 @@ const Index = () => {
       <Navbar />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-primary mb-4">Find Your Perfect Match</h1>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-primary mb-2">Find Your Perfect Match</h1>
           <p className="text-xl text-secondary-foreground">Swipe right on your future co-founder</p>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Profile Section */}
-          <div className="lg:col-span-3">
-            <ProfileCard />
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Profile */}
+          <ProfileCard />
 
-          {/* Main Matching Section */}
-          <div className="lg:col-span-6">
+          {/* Center Column - Matching */}
+          <div className="lg:col-span-1">
             <MatchingCard />
           </div>
 
-          {/* Network Section */}
-          <div className="lg:col-span-3">
-            <RecommendedMatches />
-          </div>
+          {/* Right Column - Network */}
+          <RecommendedMatches />
         </div>
       </main>
     </div>
@@ -40,11 +36,11 @@ const Index = () => {
 };
 
 const ProfileCard = () => (
-  <Card className="p-6 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
+  <Card className="p-6 bg-white/80 backdrop-blur-sm">
     <div className="relative">
       <div className="h-24 bg-gradient-to-r from-primary to-accent rounded-t-lg" />
       <div className="absolute -bottom-12 left-6">
-        <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 shadow-lg" />
+        <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200" />
       </div>
     </div>
     <div className="mt-14 space-y-4">
@@ -88,8 +84,8 @@ const MatchingCard = () => {
   ];
 
   return (
-    <Card className="p-6 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
-      <div className="space-y-6">
+    <Card className="p-6 bg-white/80 backdrop-blur-sm">
+      <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-semibold text-primary">Potential Match</h2>
           <div className="flex gap-2">
@@ -98,7 +94,6 @@ const MatchingCard = () => {
               size="icon"
               onClick={() => setCurrentProfile(prev => Math.max(0, prev - 1))}
               disabled={currentProfile === 0}
-              className="hover:bg-primary/10"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -107,7 +102,6 @@ const MatchingCard = () => {
               size="icon"
               onClick={() => setCurrentProfile(prev => Math.min(profiles.length - 1, prev + 1))}
               disabled={currentProfile === profiles.length - 1}
-              className="hover:bg-primary/10"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -122,7 +116,7 @@ const MatchingCard = () => {
           </div>
         </div>
 
-        <div className="h-80">
+        <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart data={profiles[currentProfile].compatibility}>
               <PolarGrid stroke="#96cce9" />
@@ -150,16 +144,14 @@ const MatchingCard = () => {
           <Button 
             variant="outline" 
             size="lg"
-            className="rounded-full w-16 h-16 hover:bg-red-100"
-            onClick={() => setCurrentProfile(prev => prev + 1)}
+            className="rounded-full w-16 h-16"
           >
             <X className="h-8 w-8 text-red-500" />
           </Button>
           <Button 
             variant="outline"
             size="lg"
-            className="rounded-full w-16 h-16 hover:bg-green-100"
-            onClick={() => setCurrentProfile(prev => prev + 1)}
+            className="rounded-full w-16 h-16"
           >
             <Heart className="h-8 w-8 text-green-500" />
           </Button>
@@ -170,7 +162,7 @@ const MatchingCard = () => {
 };
 
 const RecommendedMatches = () => (
-  <Card className="p-6 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
+  <Card className="p-6 bg-white/80 backdrop-blur-sm">
     <h3 className="font-semibold mb-4 text-primary">Today's Top Matches</h3>
     <div className="space-y-4">
       {[1, 2, 3].map((suggestion) => (
