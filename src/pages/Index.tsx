@@ -1,248 +1,114 @@
 
 import Navbar from "@/components/Navbar";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Heart, X, ChevronRight, ChevronLeft } from "lucide-react";
-import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend } from 'recharts';
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { ArrowRight, Users, Rocket, Brain } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary">
       <Navbar />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Profile Section */}
-          <div className="lg:col-span-3">
-            <ProfileCard />
+      <main>
+        {/* Hero Section */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+          <div className="text-center space-y-8">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary">
+              Find Your Perfect Co-Founder Match
+            </h1>
+            <p className="text-xl text-secondary-foreground/80 max-w-3xl mx-auto">
+              Using machine learning to connect ambitious founders with skilled professionals 
+              who share their vision, interests, and drive for success.
+            </p>
+            <div className="flex justify-center gap-4">
+              <Button size="lg" onClick={() => navigate("/signup")}>
+                Get Started <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <Button size="lg" variant="outline">
+                Learn More
+              </Button>
+            </div>
           </div>
+        </section>
 
-          {/* Main Matching Section */}
-          <div className="lg:col-span-6">
-            <MatchingCard />
+        {/* Features Section */}
+        <section className="py-20 bg-white/50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center text-primary mb-12">
+              Why Choose Rocket?
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <FeatureCard 
+                icon={<Brain className="h-8 w-8" />}
+                title="AI-Powered Matching"
+                description="Our advanced algorithms analyze skills, experience, and personality traits to find your ideal co-founder match."
+              />
+              <FeatureCard 
+                icon={<Users className="h-8 w-8" />}
+                title="Like-Minded Partners"
+                description="Connect with professionals who share your interests, values, and vision for success."
+              />
+              <FeatureCard 
+                icon={<Rocket className="h-8 w-8" />}
+                title="Launch Together"
+                description="From idea to execution, find the perfect partner to help bring your vision to life."
+              />
+            </div>
           </div>
+        </section>
 
-          {/* Network Section */}
-          <div className="lg:col-span-3">
-            <RecommendedMatches />
+        {/* Mission Statement */}
+        <section className="py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl font-bold text-primary mb-6">Our Mission</h2>
+            <p className="text-lg text-secondary-foreground/80">
+              At Rocket, we understand that finding those early team members is vital to building a successful team. 
+              We use machine learning to not only find people with the skills you need but also match you 
+              to people with similar interests and experiences. We believe by creating the right matches we can 
+              kickstart success through empowered collaboration.
+            </p>
           </div>
-        </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-20 bg-primary">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl font-bold text-white mb-6">
+              Ready to Find Your Perfect Match?
+            </h2>
+            <p className="text-xl text-white/90 mb-8">
+              Join our community of ambitious founders and skilled professionals today.
+            </p>
+            <Button 
+              size="lg" 
+              variant="secondary"
+              onClick={() => navigate("/signup")}
+            >
+              Get Started Now
+            </Button>
+          </div>
+        </section>
       </main>
     </div>
   );
 };
 
-const ProfileCard = () => (
-  <Card className="p-6 bg-white/80 backdrop-blur-sm">
-    <div className="relative">
-      <div className="h-24 bg-gradient-to-r from-primary to-accent rounded-t-lg" />
-      <div className="absolute -bottom-12 left-6">
-        <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200" />
-      </div>
-    </div>
-    <div className="mt-14 space-y-4">
-      <div className="space-y-2">
-        <h2 className="text-xl font-semibold text-primary">John Doe</h2>
-        <p className="text-sm text-secondary-foreground">Technical Co-Founder</p>
-        <p className="text-sm text-secondary-foreground/70">San Francisco, CA</p>
-      </div>
-
-      <div className="space-y-2">
-        <h3 className="text-sm font-medium text-secondary-foreground">About Rocket</h3>
-        <p className="text-sm text-secondary-foreground/80">
-          At Rocket, we understand that finding those early team members is vital to building a successful team. 
-          At Rocket we use machine learning to not only find people with the skills you need but also match you 
-          to people with similar interests and experiences. We believe by creating the right matches we can 
-          kickstart success through empowered collaboration.
-        </p>
-      </div>
-      
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-secondary-foreground">Core Skills</p>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary">Full-Stack Development</Badge>
-          <Badge variant="secondary">System Architecture</Badge>
-          <Badge variant="secondary">AI/ML</Badge>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-secondary-foreground">Project</p>
-        <div className="text-sm text-secondary-foreground">
-          <h4 className="font-medium">AI-Powered Education Platform</h4>
-          <p className="mt-1">Building an adaptive learning platform that uses AI to personalize education paths for students.</p>
-          <p className="mt-2 font-medium">Stage: MVP Development</p>
-          <p className="text-xs text-secondary-foreground/70">Seeking seed funding</p>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-secondary-foreground">Looking for</p>
-        <div className="space-y-2 text-sm text-secondary-foreground">
-          <div>
-            <span className="font-medium">Roles needed:</span>
-            <div className="flex flex-wrap gap-2 mt-1">
-              <Badge variant="outline">UI/UX Designer</Badge>
-              <Badge variant="outline">Marketing Lead</Badge>
-            </div>
-          </div>
-          <div className="mt-2">
-            <span className="font-medium">Requirements:</span>
-            <ul className="list-disc list-inside mt-1 text-xs space-y-1">
-              <li>5+ years experience in respective field</li>
-              <li>Strong background in education sector</li>
-              <li>Available for full-time commitment</li>
-              <li>Based in San Francisco or remote</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-secondary-foreground">Personal Interests</p>
-        <div className="space-y-2 text-sm text-secondary-foreground">
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline">Hiking</Badge>
-            <Badge variant="outline">Photography</Badge>
-            <Badge variant="outline">Rock Climbing</Badge>
-            <Badge variant="outline">Reading</Badge>
-          </div>
-          <p className="mt-2 text-secondary-foreground/80">
-            Avid outdoor enthusiast and lifelong learner. Love exploring new technologies
-            and connecting with fellow entrepreneurs who share a passion for education and innovation.
-          </p>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-secondary-foreground">Professional Interests</p>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">EdTech</Badge>
-          <Badge variant="outline">AI/ML</Badge>
-          <Badge variant="outline">Social Impact</Badge>
-          <Badge variant="outline">Startups</Badge>
-          <Badge variant="outline">Innovation</Badge>
-        </div>
-      </div>
-    </div>
-  </Card>
-);
-
-const MatchingCard = () => {
-  const [currentProfile, setCurrentProfile] = useState(0);
-  const profiles = [
-    {
-      name: "Sarah Chen",
-      role: "Business Development",
-      location: "San Francisco, CA",
-      compatibility: [
-        { subject: 'Experience', A: 90, B: 85 },
-        { subject: 'Technical Skills', A: 50, B: 95 },
-        { subject: 'Business Skills', A: 95, B: 45 },
-        { subject: 'Industry Knowledge', A: 80, B: 75 },
-        { subject: 'Values Alignment', A: 90, B: 85 },
-      ]
-    },
-  ];
-
-  return (
-    <Card className="p-6 bg-white/80 backdrop-blur-sm">
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold text-primary">Potential Match</h2>
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={() => setCurrentProfile(prev => Math.max(0, prev - 1))}
-              disabled={currentProfile === 0}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={() => setCurrentProfile(prev => Math.min(profiles.length - 1, prev + 1))}
-              disabled={currentProfile === profiles.length - 1}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 rounded-full bg-accent/20" />
-          <div>
-            <h3 className="font-semibold text-lg text-secondary-foreground">{profiles[currentProfile].name}</h3>
-            <p className="text-sm text-secondary-foreground/70">{profiles[currentProfile].role} • {profiles[currentProfile].location}</p>
-          </div>
-        </div>
-
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <RadarChart data={profiles[currentProfile].compatibility}>
-              <PolarGrid stroke="#96cce9" />
-              <PolarAngleAxis dataKey="subject" stroke="#132641" />
-              <Radar
-                name="You"
-                dataKey="A"
-                stroke="#529493"
-                fill="#529493"
-                fillOpacity={0.3}
-              />
-              <Radar
-                name={profiles[currentProfile].name}
-                dataKey="B"
-                stroke="#96cce9"
-                fill="#96cce9"
-                fillOpacity={0.3}
-              />
-              <Legend />
-            </RadarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="flex justify-center gap-4">
-          <Button 
-            variant="outline" 
-            size="lg"
-            className="rounded-full w-16 h-16"
-          >
-            <X className="h-8 w-8 text-red-500" />
-          </Button>
-          <Button 
-            variant="outline"
-            size="lg"
-            className="rounded-full w-16 h-16"
-          >
-            <Heart className="h-8 w-8 text-green-500" />
-          </Button>
-        </div>
-      </div>
-    </Card>
-  );
-};
-
-const RecommendedMatches = () => (
-  <Card className="p-6 bg-white/80 backdrop-blur-sm">
-    <h3 className="font-semibold mb-4 text-primary">Today's Top Matches</h3>
-    <div className="space-y-4">
-      {[1, 2, 3].map((suggestion) => (
-        <div key={suggestion} className="group flex items-center space-x-4 p-2 rounded-lg hover:bg-accent/10 transition-colors">
-          <div className="w-12 h-12 rounded-full bg-accent/20" />
-          <div className="flex-1">
-            <h4 className="font-medium text-secondary-foreground">Alex Johnson</h4>
-            <p className="text-sm text-secondary-foreground/70">Product Strategy • 85% Match</p>
-          </div>
-          <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-            View
-          </Button>
-        </div>
-      ))}
-    </div>
-  </Card>
+const FeatureCard = ({ 
+  icon, 
+  title, 
+  description 
+}: { 
+  icon: React.ReactNode; 
+  title: string; 
+  description: string;
+}) => (
+  <div className="p-6 rounded-lg bg-white/80 backdrop-blur-sm hover-lift">
+    <div className="text-primary mb-4">{icon}</div>
+    <h3 className="text-xl font-semibold text-primary mb-2">{title}</h3>
+    <p className="text-secondary-foreground/80">{description}</p>
+  </div>
 );
 
 export default Index;
