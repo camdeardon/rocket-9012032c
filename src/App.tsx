@@ -14,6 +14,7 @@ import ProjectManagement from "./pages/ProjectManagement";
 import Profile from "./pages/Profile";
 import Navbar from "./components/Navbar";
 import { useToast } from "./components/ui/use-toast";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -32,8 +33,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       description: "Please sign in or create an account to access this feature.",
     });
     
-    // Redirect to login while preserving the attempted destination
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // Redirect to auth while preserving the attempted destination
+    return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/auth" element={<Auth />} />
               <Route path="/complete-profile" element={<CompleteProfile />} />
               {/* Protected Routes */}
               <Route
