@@ -1,3 +1,4 @@
+
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Rocket, Brain } from "lucide-react";
@@ -14,6 +15,13 @@ const Index = () => {
         {/* Hero Section */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
           <div className="text-center space-y-8">
+            <div className="flex justify-center mb-8">
+              <img 
+                src="/lovable-uploads/35a51d87-fe5a-4e06-9a5a-ae308d831a6f.png" 
+                alt="Rocket Logo" 
+                className="h-24 w-auto animate-fade-in"
+              />
+            </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary">
               Find Your Perfect Co-Founder Match
             </h1>
