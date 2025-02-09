@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import CompleteProfile from "./pages/CompleteProfile";
 import Dashboard from "./pages/Dashboard";
 import ProjectManagement from "./pages/ProjectManagement";
+import Profile from "./pages/Profile";
 import Navbar from "./components/Navbar";
 
 const queryClient = new QueryClient();
@@ -22,13 +23,14 @@ const App = () => (
       <BrowserRouter>
         <div className="min-h-screen">
           <Navbar />
-          <div className="pt-16"> {/* Add padding to account for fixed navbar */}
+          <div className="pt-16">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/complete-profile" element={<CompleteProfile />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/project-management" element={<ProjectManagement />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
