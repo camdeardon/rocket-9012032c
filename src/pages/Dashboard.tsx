@@ -1,12 +1,9 @@
 
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer } from "recharts";
-import { Heart, X, MessageCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { ProfileSummary } from "@/components/dashboard/ProfileSummary";
+import { MatchProfile } from "@/components/dashboard/MatchProfile";
+import { MatchAnalysis } from "@/components/dashboard/MatchAnalysis";
 
 // Mock data - In real app, this would come from your backend
 const currentUser = {
@@ -84,121 +81,17 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-8">
       <div className="max-w-6xl mx-auto px-4">
-        {/* User Profile Summary */}
-        <Card className="p-6 mb-8 bg-white/90 backdrop-blur-sm">
-          <div className="flex items-start gap-6">
-            <Avatar className="h-20 w-20">
-              <img src={currentUser.avatar} alt={currentUser.name} />
-            </Avatar>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-primary mb-2">{currentUser.name}</h1>
-              <p className="text-secondary-foreground mb-4">{currentUser.bio}</p>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold mb-2">Skills</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {currentUser.skills.map(skill => (
-                      <Badge key={skill} variant="secondary">{skill}</Badge>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Looking for</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {currentUser.lookingFor.map(skill => (
-                      <Badge key={skill} variant="outline">{skill}</Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Matching Interface */}
+        <ProfileSummary user={currentUser} />
+        
         {currentMatch && (
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Potential Match Profile */}
-            <Card className="p-6 bg-white/90 backdrop-blur-sm">
-              <div className="text-center mb-6">
-                <Avatar className="h-32 w-32 mx-auto mb-4">
-                  <img src={currentMatch.avatar} alt={currentMatch.name} />
-                </Avatar>
-                <h2 className="text-2xl font-bold text-primary">{currentMatch.name}</h2>
-                <p className="text-secondary-foreground">{currentMatch.location}</p>
-              </div>
-              <div className="space-y-4">
-                <p className="text-secondary-foreground">{currentMatch.bio}</p>
-                <div>
-                  <h3 className="font-semibold mb-2">Skills</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {currentMatch.skills.map(skill => (
-                      <Badge key={skill} variant="secondary">{skill}</Badge>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Interests</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {currentMatch.interests.map(interest => (
-                      <Badge key={interest} variant="outline">{interest}</Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-center gap-4 mt-8">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="rounded-full p-4"
-                  onClick={handlePass}
-                >
-                  <X className="h-6 w-6" />
-                </Button>
-                <Button
-                  size="lg"
-                  className="rounded-full p-4 bg-primary"
-                  onClick={handleLike}
-                >
-                  <Heart className="h-6 w-6" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="rounded-full p-4"
-                  onClick={handleMessage}
-                >
-                  <MessageCircle className="h-6 w-6" />
-                </Button>
-              </div>
-            </Card>
-
-            {/* Match Analysis */}
-            <Card className="p-6 bg-white/90 backdrop-blur-sm">
-              <h3 className="text-xl font-bold text-primary mb-6 text-center">Match Analysis</h3>
-              <div className="h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart data={matchData}>
-                    <PolarGrid />
-                    <PolarAngleAxis dataKey="subject" />
-                    <Radar
-                      name="Match"
-                      dataKey="A"
-                      stroke="#529493"
-                      fill="#529493"
-                      fillOpacity={0.6}
-                    />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="mt-6">
-                <h4 className="font-semibold mb-2">Why this match?</h4>
-                <p className="text-secondary-foreground">
-                  Based on your profiles, you share similar interests in fintech and have complementary skills.
-                  Sarah's design expertise could be valuable for your project's user experience.
-                </p>
-              </div>
-            </Card>
+            <MatchProfile
+              match={currentMatch}
+              onLike={handleLike}
+              onPass={handlePass}
+              onMessage={handleMessage}
+            />
+            <MatchAnalysis matchData={matchData} />
           </div>
         )}
       </div>
