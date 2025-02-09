@@ -1,29 +1,72 @@
 
 import { useState, useEffect } from "react";
+import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
+import { Briefcase, FileText, Heart, Image, MapPin, User, X, Plus, Save, Edit2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ProfileHeader } from "@/components/profile/ProfileHeader";
-import { ProfileBackground } from "@/components/profile/ProfileBackground";
-import { ProfileSkills } from "@/components/profile/ProfileSkills";
-import { ProfileInterests } from "@/components/profile/ProfileInterests";
-import { useAuthentication } from "@/hooks/useAuthentication";
+
+interface ProfileData {
+  id: string;
+  first_name: string;
+  last_name: string;
+  title: string | null;
+  location: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  background: string | null;
+}
+
+interface UserSkill {
+  id: string;
+  skill: {
+    name: string;
+    category: string;
+  };
+  proficiency_level: string;
+  years_experience: number;
+}
+
+interface UserInterest {
+  id: string;
+  interest: {
+    name: string;
+    category: string;
+  };
+}
 
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuthentication();
   const [isLoading, setIsLoading] = useState(true);
-  const [profileData, setProfileData] = useState(null);
-  const [userSkills, setUserSkills] = useState([]);
-  const [userInterests, setUserInterests] = useState([]);
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [userSkills, setUserSkills] = useState<UserSkill[]>([]);
+  const [userInterests, setUserInterests] = useState<UserInterest[]>([]);
+  const [editMode, setEditMode] = useState<string | null>(null);
+  const [editedValues, setEditedValues] = useState({
+    first_name: "",
+    last_name: "",
+    title: "",
+    location: "",
+    bio: "",
+    background: "",
+  });
 
   // Fetch profile data
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        if (!user) return;
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          navigate('/auth');
+          return;
+        }
 
         // Fetch profile data
         const { data: profile, error: profileError } = await supabase
@@ -67,6 +110,14 @@ const Profile = () => {
         setProfileData(profile);
         setUserSkills(skills || []);
         setUserInterests(interests || []);
+        setEditedValues({
+          first_name: profile?.first_name || "",
+          last_name: profile?.last_name || "",
+          title: profile?.title || "",
+          location: profile?.location || "",
+          bio: profile?.bio || "",
+          background: profile?.background || "",
+        });
       } catch (error) {
         console.error('Error fetching profile:', error);
         toast({
@@ -80,11 +131,26 @@ const Profile = () => {
     };
 
     fetchProfileData();
-  }, [user, toast]);
+  }, [navigate, toast]);
 
-  const handleSaveProfile = async (updates: any) => {
+  const handleSave = async (section: string) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      const updates: any = {};
+      switch (section) {
+        case 'header':
+          updates.first_name = editedValues.first_name;
+          updates.last_name = editedValues.last_name;
+          updates.title = editedValues.title;
+          updates.location = editedValues.location;
+          updates.bio = editedValues.bio;
+          break;
+        case 'background':
+          updates.background = editedValues.background;
+          break;
+      }
 
       const { error } = await supabase
         .from('profiles')
@@ -94,6 +160,7 @@ const Profile = () => {
       if (error) throw error;
 
       setProfileData(prev => prev ? { ...prev, ...updates } : null);
+      setEditMode(null);
       toast({
         title: "Success",
         description: "Profile updated successfully",
@@ -119,32 +186,200 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-8">
       <div className="max-w-6xl mx-auto px-4 space-y-8">
+        {/* Header Section */}
         <Card className="p-6 bg-white/90 backdrop-blur-sm">
-          {profileData && (
-            <ProfileHeader 
-              profileData={profileData}
-              onSave={handleSaveProfile}
-            />
-          )}
+          <div className="flex items-start gap-6">
+            <Avatar className="h-32 w-32">
+              <img 
+                src={profileData?.avatar_url || "/placeholder.svg"} 
+                alt={`${profileData?.first_name} ${profileData?.last_name}`} 
+                className="object-cover" 
+              />
+            </Avatar>
+            <div className="flex-1">
+              {editMode === 'header' ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium">First Name</label>
+                      <Input
+                        value={editedValues.first_name}
+                        onChange={(e) => setEditedValues(prev => ({
+                          ...prev,
+                          first_name: e.target.value
+                        }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Last Name</label>
+                      <Input
+                        value={editedValues.last_name}
+                        onChange={(e) => setEditedValues(prev => ({
+                          ...prev,
+                          last_name: e.target.value
+                        }))}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Title</label>
+                    <Input
+                      value={editedValues.title}
+                      onChange={(e) => setEditedValues(prev => ({
+                        ...prev,
+                        title: e.target.value
+                      }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Location</label>
+                    <Input
+                      value={editedValues.location}
+                      onChange={(e) => setEditedValues(prev => ({
+                        ...prev,
+                        location: e.target.value
+                      }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Bio</label>
+                    <Textarea
+                      value={editedValues.bio}
+                      onChange={(e) => setEditedValues(prev => ({
+                        ...prev,
+                        bio: e.target.value
+                      }))}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={() => handleSave('header')}>
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Changes
+                    </Button>
+                    <Button variant="outline" onClick={() => setEditMode(null)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h1 className="text-3xl font-bold text-primary">
+                        {profileData?.first_name} {profileData?.last_name}
+                      </h1>
+                      <p className="text-xl text-secondary-foreground">{profileData?.title}</p>
+                      {profileData?.location && (
+                        <div className="flex items-center gap-2 mt-2 text-secondary-foreground">
+                          <MapPin className="h-4 w-4" />
+                          <span>{profileData.location}</span>
+                        </div>
+                      )}
+                    </div>
+                    <Button 
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setEditMode('header')}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {profileData?.bio && (
+                    <p className="mt-4 text-secondary-foreground">{profileData.bio}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-[2fr,1fr] gap-8">
           <div className="space-y-8">
+            {/* Background Section */}
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
-              <ProfileBackground
-                background={profileData?.background || null}
-                onSave={handleSaveProfile}
-              />
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <User className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-semibold">Background</h2>
+                </div>
+                <Button 
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setEditMode('background')}
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+              </div>
+              {editMode === 'background' ? (
+                <div className="space-y-4">
+                  <Textarea
+                    value={editedValues.background}
+                    onChange={(e) => setEditedValues(prev => ({
+                      ...prev,
+                      background: e.target.value
+                    }))}
+                    className="min-h-[150px]"
+                  />
+                  <div className="flex gap-2">
+                    <Button onClick={() => handleSave('background')}>
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Changes
+                    </Button>
+                    <Button variant="outline" onClick={() => setEditMode(null)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-secondary-foreground">{profileData?.background}</p>
+              )}
             </Card>
           </div>
 
           <div className="space-y-8">
+            {/* Skills Section */}
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
-              <ProfileSkills skills={userSkills} />
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Skills</h2>
+                <Button variant="outline" size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Skill
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {userSkills.map((userSkill) => (
+                  <Badge key={userSkill.id} variant="secondary" className="flex items-center gap-2">
+                    {userSkill.skill.name}
+                    <button className="hover:text-destructive">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
             </Card>
 
+            {/* Interests Section */}
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
-              <ProfileInterests interests={userInterests} />
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Heart className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-semibold">Interests</h2>
+                </div>
+                <Button variant="outline" size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Interest
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {userInterests.map((userInterest) => (
+                  <Badge key={userInterest.id} variant="outline" className="flex items-center gap-2">
+                    {userInterest.interest.name}
+                    <button className="hover:text-destructive">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
             </Card>
           </div>
         </div>
