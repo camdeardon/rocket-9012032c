@@ -1,5 +1,7 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ProfileSummary } from "@/components/dashboard/ProfileSummary";
 import { MatchProfile } from "@/components/dashboard/MatchProfile";
 import { MatchesPanel } from "@/components/dashboard/MatchesPanel";
@@ -86,6 +88,7 @@ const Dashboard = () => {
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const currentMatch = potentialMatches[currentMatchIndex];
 
   const handleLike = () => {
@@ -116,17 +119,17 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-4 md:py-8">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
           <ProfileSummary user={currentUser} />
-          <Button onClick={goToProjects} className="hover:scale-105 transition-transform">
+          <Button onClick={goToProjects} className="hover:scale-105 transition-transform w-full md:w-auto">
             <Briefcase className="mr-2 h-4 w-4" />
             View Projects
           </Button>
         </div>
         
-        <div className="grid grid-cols-[1fr,400px] gap-8 mt-8">
+        <div className={`${isMobile ? 'space-y-6' : 'grid grid-cols-[1fr,400px] gap-8'} mt-8`}>
           <div>
             {currentMatch && (
               <MatchProfile
