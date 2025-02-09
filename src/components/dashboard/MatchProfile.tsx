@@ -3,7 +3,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { User, X, MessageCircle } from "lucide-react";
+import { Heart, X, MessageCircle } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer } from "recharts";
 
 interface MatchProfile {
@@ -82,7 +82,7 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
               className="rounded-full p-4 bg-primary"
               onClick={onLike}
             >
-              <User className="h-6 w-6" />
+              <Heart className="h-6 w-6" />
             </Button>
             <Button
               size="lg"
