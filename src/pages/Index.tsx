@@ -13,6 +13,11 @@ const Index = () => {
       <Navbar />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to Rocket</h1>
+          <p className="text-xl text-gray-600">Find your perfect co-founder match and build something amazing together</p>
+        </div>
+        
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Profile Section */}
           <div className="lg:col-span-3">
@@ -170,3 +175,4 @@ const RecommendedMatches = () => (
 );
 
 export default Index;
+

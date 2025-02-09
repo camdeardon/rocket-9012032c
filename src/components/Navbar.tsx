@@ -7,9 +7,13 @@ const Navbar = () => {
     <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md shadow-sm z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
+          <div className="flex items-center space-x-2">
             <Link to="/" className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-primary">SocialBridge</h1>
+              <img 
+                src="/lovable-uploads/93a57052-fc29-4425-9b65-2a5b0d987b96.png" 
+                alt="Rocket Logo" 
+                className="h-8"
+              />
             </Link>
           </div>
           
@@ -37,3 +41,4 @@ const NavLink = ({ to, icon, label }: { to: string; icon: React.ReactNode; label
 );
 
 export default Navbar;
+
