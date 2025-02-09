@@ -152,7 +152,7 @@ const SignUp = () => {
 
               <Button 
                 type="submit" 
-                className="w-full text-lg py-6 bg-accent hover:bg-accent/90" 
+                className="w-full text-lg py-6 bg-primary hover:bg-primary/90" 
                 disabled={isLoading}
               >
                 {isLoading ? "Creating Account..." : "Create Account"}
@@ -170,3 +170,4 @@ const SignUp = () => {
 };
 
 export default SignUp;
+
