@@ -99,6 +99,7 @@ export type Database = {
           id: string
           last_name: string | null
           location: string | null
+          onboarding_completed: boolean | null
           title: string | null
           updated_at: string
         }
@@ -112,6 +113,7 @@ export type Database = {
           id: string
           last_name?: string | null
           location?: string | null
+          onboarding_completed?: boolean | null
           title?: string | null
           updated_at?: string
         }
@@ -125,6 +127,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           location?: string | null
+          onboarding_completed?: boolean | null
           title?: string | null
           updated_at?: string
         }
