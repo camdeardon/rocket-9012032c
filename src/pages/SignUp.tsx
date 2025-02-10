@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
-import { signUp } from "@/utils/api";
+import { supabase } from "@/integrations/supabase/client";
 
 const SignUp = () => {
   const { toast } = useToast();
@@ -24,8 +24,18 @@ const SignUp = () => {
     setIsLoading(true);
     
     try {
-      const response = await signUp(formData);
-      localStorage.setItem('authToken', response.token);
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+          }
+        }
+      });
+
+      if (error) throw error;
       
       toast({
         title: "Account created!",
@@ -170,4 +180,3 @@ const SignUp = () => {
 };
 
 export default SignUp;
-
