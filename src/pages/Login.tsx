@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { LogIn } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const { toast } = useToast();
@@ -23,8 +24,12 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      // Mock login for now - in real app, this would call an API
-      localStorage.setItem('authToken', 'mock-token');
+      const { error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error) throw error;
       
       toast({
         title: "Welcome back!",
@@ -34,10 +39,10 @@ const Login = () => {
       // Redirect to the page they were trying to access, or dashboard
       const from = location.state?.from?.pathname || "/dashboard";
       navigate(from);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Invalid email or password. Please try again.",
+        description: error.message || "Invalid email or password. Please try again.",
         variant: "destructive",
       });
     } finally {
