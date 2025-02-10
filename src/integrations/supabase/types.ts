@@ -150,9 +150,11 @@ export type Database = {
           embedding_updated_at: string | null
           first_name: string | null
           id: string
+          interests: string[] | null
           last_name: string | null
           location: string | null
           onboarding_completed: boolean | null
+          skills: string[] | null
           title: string | null
           updated_at: string
         }
@@ -166,9 +168,11 @@ export type Database = {
           embedding_updated_at?: string | null
           first_name?: string | null
           id: string
+          interests?: string[] | null
           last_name?: string | null
           location?: string | null
           onboarding_completed?: boolean | null
+          skills?: string[] | null
           title?: string | null
           updated_at?: string
         }
@@ -182,9 +186,11 @@ export type Database = {
           embedding_updated_at?: string | null
           first_name?: string | null
           id?: string
+          interests?: string[] | null
           last_name?: string | null
           location?: string | null
           onboarding_completed?: boolean | null
+          skills?: string[] | null
           title?: string | null
           updated_at?: string
         }
