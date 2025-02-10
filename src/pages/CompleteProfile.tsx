@@ -61,13 +61,14 @@ const CompleteProfile = () => {
 
       const location = `${formData.city}, ${formData.state}, ${formData.country}`.trim();
       
+      // Update profile with all relevant fields and mark onboarding as completed
       const { error } = await supabase
         .from('profiles')
         .update({
           bio: formData.about,
           background: formData.background,
           location: location,
-          onboarding_completed: true,
+          onboarding_completed: true, // This is crucial - marks profile as complete
         })
         .eq('id', user.id);
 
@@ -111,3 +112,4 @@ const CompleteProfile = () => {
 };
 
 export default CompleteProfile;
+
