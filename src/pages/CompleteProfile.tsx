@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Upload, Linkedin, Video, ChevronRight, Check, MapPin, Calendar } from "lucide-react";
-import { completeProfile } from "@/utils/api";
+import { supabase } from "@/integrations/supabase/client";
 
 const CompleteProfile = () => {
   const { toast } = useToast();
@@ -55,12 +55,25 @@ const CompleteProfile = () => {
     setIsLoading(true);
     
     try {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
+      const { data: { user } } = await supabase.auth.getUser();
       
-      await completeProfile(formData, token);
+      if (!user) {
+        throw new Error('No authenticated user found');
+      }
+
+      const location = `${formData.city}, ${formData.state}, ${formData.country}`.trim();
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          bio: formData.about,
+          background: formData.background,
+          location: location,
+          onboarding_completed: true,
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
       
       toast({
         title: "Profile completed!",
@@ -68,6 +81,7 @@ const CompleteProfile = () => {
       });
       navigate("/dashboard");
     } catch (error) {
+      console.error('Profile completion error:', error);
       toast({
         title: "Error",
         description: "Failed to update profile. Please try again.",
@@ -274,8 +288,9 @@ const CompleteProfile = () => {
               <Button 
                 type="submit" 
                 className="w-full text-lg py-6 bg-primary hover:bg-primary/90 transition-colors"
+                disabled={isLoading}
               >
-                Complete Profile
+                {isLoading ? "Updating..." : "Complete Profile"}
                 <ChevronRight className="ml-2" />
               </Button>
             </form>
