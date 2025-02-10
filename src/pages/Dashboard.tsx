@@ -44,8 +44,7 @@ const Dashboard = () => {
           bio: profile.bio,
           location: profile.location,
           skills: profile.skills || [],
-          interests: profile.interests || [],
-          project: null // We'll fetch this separately if needed
+          interests: profile.interests || []
         });
 
         // Fetch potential matches
@@ -148,7 +147,7 @@ const Dashboard = () => {
     });
   };
 
-  const handleMessage = (matchId?: number) => {
+  const handleMessage = (matchId?: string) => {
     toast({
       title: "Coming soon!",
       description: "The messaging feature will be available soon.",
