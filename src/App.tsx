@@ -25,6 +25,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [needsProfile, setNeedsProfile] = useState(false);
+  const [hasShownToast, setHasShownToast] = useState(false);
   
   useEffect(() => {
     const checkAuth = async () => {
@@ -72,6 +73,25 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && !hasShownToast) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in or create an account to access this feature.",
+      });
+      setHasShownToast(true);
+    }
+  }, [isLoading, isAuthenticated, hasShownToast, toast]);
+
+  useEffect(() => {
+    if (!isLoading && needsProfile && location.pathname !== '/complete-profile') {
+      toast({
+        title: "Profile Completion Required",
+        description: "Please complete your profile to continue.",
+      });
+    }
+  }, [isLoading, needsProfile, location.pathname, toast]);
+
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -79,20 +99,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
   
   if (!isAuthenticated) {
-    toast({
-      title: "Authentication Required",
-      description: "Please sign in or create an account to access this feature.",
-    });
-    
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   // Redirect to complete profile if needed
   if (needsProfile && location.pathname !== '/complete-profile') {
-    toast({
-      title: "Profile Completion Required",
-      description: "Please complete your profile to continue.",
-    });
     return <Navigate to="/complete-profile" replace />;
   }
 
