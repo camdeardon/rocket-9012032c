@@ -50,8 +50,9 @@ const Index = () => {
               Find Your Perfect Co-Founder Match
             </h1>
             <p className="text-xl text-foreground max-w-3xl mx-auto">
-              Using machine learning to connect ambitious founders with skilled professionals 
-              who share their vision, interests, and drive for success.
+    🚀 Connecting Ambitious Founders with Talented Professionals! 🤝
+    Harnessing the power of machine learning, we bring together visionary founders and skilled professionals who share the same passion, goals, and drive for success. 💡
+    We believe the right match sparks the journey to success through empowered collaboration! 🌟
             </p>
             <div className="flex justify-center gap-4">
               <Button 
