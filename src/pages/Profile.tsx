@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { Briefcase, FileText, Heart, Image, MapPin, User, X, Plus, Save, Edit2 } from "lucide-react";
+import { Briefcase, FileText, Heart, Image, MapPin, User, X, Plus, Save, Edit2, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -175,6 +174,24 @@ const Profile = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      localStorage.removeItem('authToken');
+      toast({
+        title: "Logged out successfully",
+        description: "Come back soon!",
+      });
+      navigate('/auth');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -186,116 +203,124 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-8">
       <div className="max-w-6xl mx-auto px-4 space-y-8">
-        {/* Header Section */}
         <Card className="p-6 bg-white/90 backdrop-blur-sm">
-          <div className="flex items-start gap-6">
-            <Avatar className="h-32 w-32">
-              <img 
-                src={profileData?.avatar_url || "/placeholder.svg"} 
-                alt={`${profileData?.first_name} ${profileData?.last_name}`} 
-                className="object-cover" 
-              />
-            </Avatar>
-            <div className="flex-1">
-              {editMode === 'header' ? (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-start gap-6">
+              <Avatar className="h-32 w-32">
+                <img 
+                  src={profileData?.avatar_url || "/placeholder.svg"} 
+                  alt={`${profileData?.first_name} ${profileData?.last_name}`} 
+                  className="object-cover" 
+                />
+              </Avatar>
+              <div className="flex-1">
+                {editMode === 'header' ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium">First Name</label>
+                        <Input
+                          value={editedValues.first_name}
+                          onChange={(e) => setEditedValues(prev => ({
+                            ...prev,
+                            first_name: e.target.value
+                          }))}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Last Name</label>
+                        <Input
+                          value={editedValues.last_name}
+                          onChange={(e) => setEditedValues(prev => ({
+                            ...prev,
+                            last_name: e.target.value
+                          }))}
+                        />
+                      </div>
+                    </div>
                     <div>
-                      <label className="text-sm font-medium">First Name</label>
+                      <label className="text-sm font-medium">Title</label>
                       <Input
-                        value={editedValues.first_name}
+                        value={editedValues.title}
                         onChange={(e) => setEditedValues(prev => ({
                           ...prev,
-                          first_name: e.target.value
+                          title: e.target.value
                         }))}
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">Last Name</label>
+                      <label className="text-sm font-medium">Location</label>
                       <Input
-                        value={editedValues.last_name}
+                        value={editedValues.location}
                         onChange={(e) => setEditedValues(prev => ({
                           ...prev,
-                          last_name: e.target.value
+                          location: e.target.value
                         }))}
                       />
                     </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Title</label>
-                    <Input
-                      value={editedValues.title}
-                      onChange={(e) => setEditedValues(prev => ({
-                        ...prev,
-                        title: e.target.value
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Location</label>
-                    <Input
-                      value={editedValues.location}
-                      onChange={(e) => setEditedValues(prev => ({
-                        ...prev,
-                        location: e.target.value
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Bio</label>
-                    <Textarea
-                      value={editedValues.bio}
-                      onChange={(e) => setEditedValues(prev => ({
-                        ...prev,
-                        bio: e.target.value
-                      }))}
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button onClick={() => handleSave('header')}>
-                      <Save className="h-4 w-4 mr-2" />
-                      Save Changes
-                    </Button>
-                    <Button variant="outline" onClick={() => setEditMode(null)}>
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <div className="flex justify-between items-start">
                     <div>
-                      <h1 className="text-3xl font-bold text-primary">
-                        {profileData?.first_name} {profileData?.last_name}
-                      </h1>
-                      <p className="text-xl text-secondary-foreground">{profileData?.title}</p>
-                      {profileData?.location && (
-                        <div className="flex items-center gap-2 mt-2 text-secondary-foreground">
-                          <MapPin className="h-4 w-4" />
-                          <span>{profileData.location}</span>
-                        </div>
-                      )}
+                      <label className="text-sm font-medium">Bio</label>
+                      <Textarea
+                        value={editedValues.bio}
+                        onChange={(e) => setEditedValues(prev => ({
+                          ...prev,
+                          bio: e.target.value
+                        }))}
+                      />
                     </div>
-                    <Button 
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setEditMode('header')}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button onClick={() => handleSave('header')}>
+                        <Save className="h-4 w-4 mr-2" />
+                        Save Changes
+                      </Button>
+                      <Button variant="outline" onClick={() => setEditMode(null)}>
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
-                  {profileData?.bio && (
-                    <p className="mt-4 text-secondary-foreground">{profileData.bio}</p>
-                  )}
-                </div>
-              )}
+                ) : (
+                  <div>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h1 className="text-3xl font-bold text-primary">
+                          {profileData?.first_name} {profileData?.last_name}
+                        </h1>
+                        <p className="text-xl text-secondary-foreground">{profileData?.title}</p>
+                        {profileData?.location && (
+                          <div className="flex items-center gap-2 mt-2 text-secondary-foreground">
+                            <MapPin className="h-4 w-4" />
+                            <span>{profileData.location}</span>
+                          </div>
+                        )}
+                      </div>
+                      <Button 
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditMode('header')}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {profileData?.bio && (
+                      <p className="mt-4 text-secondary-foreground">{profileData.bio}</p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
+            <Button
+              variant="outline"
+              onClick={handleLogout}
+              className="flex items-center gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
           </div>
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-[2fr,1fr] gap-8">
           <div className="space-y-8">
-            {/* Background Section */}
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -337,7 +362,6 @@ const Profile = () => {
           </div>
 
           <div className="space-y-8">
-            {/* Skills Section */}
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">Skills</h2>
@@ -358,7 +382,6 @@ const Profile = () => {
               </div>
             </Card>
 
-            {/* Interests Section */}
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">

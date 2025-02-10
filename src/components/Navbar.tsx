@@ -1,7 +1,9 @@
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, MessageSquare, Bell, UserCircle } from "lucide-react";
+import { Home, MessageSquare, Bell, UserCircle, LogOut } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
   const { toast } = useToast();
@@ -9,13 +11,31 @@ const Navbar = () => {
   const navigate = useNavigate();
   const isAuthenticated = localStorage.getItem('authToken');
 
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      localStorage.removeItem('authToken');
+      toast({
+        title: "Logged out successfully",
+        description: "Come back soon!",
+      });
+      navigate('/auth');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleNavigation = (path: string) => {
     if (!isAuthenticated) {
       toast({
         title: "Authentication Required",
         description: "Please sign in to access this feature.",
       });
-      navigate('/login', { state: { from: location } });
+      navigate('/auth', { state: { from: location } });
     } else {
       navigate(path);
     }
@@ -40,6 +60,17 @@ const Navbar = () => {
             <NavLink onClick={() => handleNavigation('/messages')} icon={<MessageSquare className="w-6 h-6" />} label="Messages" />
             <NavLink onClick={() => handleNavigation('/notifications')} icon={<Bell className="w-6 h-6" />} label="Notifications" />
             <NavLink onClick={() => handleNavigation('/profile')} icon={<UserCircle className="w-6 h-6" />} label="Profile" />
+            {isAuthenticated && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="flex flex-col items-center text-secondary-foreground hover:text-primary transition-colors duration-200"
+              >
+                <LogOut className="w-6 h-6" />
+                <span className="text-xs mt-1">Logout</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>
