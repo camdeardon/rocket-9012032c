@@ -27,6 +27,57 @@ export type Database = {
         }
         Relationships: []
       }
+      match_scores: {
+        Row: {
+          background_similarity: number | null
+          created_at: string | null
+          id: string
+          interests_similarity: number | null
+          location_similarity: number | null
+          matched_user_id: string | null
+          similarity_score: number | null
+          skills_similarity: number | null
+          user_id: string | null
+        }
+        Insert: {
+          background_similarity?: number | null
+          created_at?: string | null
+          id?: string
+          interests_similarity?: number | null
+          location_similarity?: number | null
+          matched_user_id?: string | null
+          similarity_score?: number | null
+          skills_similarity?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          background_similarity?: number | null
+          created_at?: string | null
+          id?: string
+          interests_similarity?: number | null
+          location_similarity?: number | null
+          matched_user_id?: string | null
+          similarity_score?: number | null
+          skills_similarity?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_scores_matched_user_id_fkey"
+            columns: ["matched_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_scores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       matches: {
         Row: {
           created_at: string
@@ -95,6 +146,8 @@ export type Database = {
           bio: string | null
           created_at: string
           email: string | null
+          embedding: string | null
+          embedding_updated_at: string | null
           first_name: string | null
           id: string
           last_name: string | null
@@ -109,6 +162,8 @@ export type Database = {
           bio?: string | null
           created_at?: string
           email?: string | null
+          embedding?: string | null
+          embedding_updated_at?: string | null
           first_name?: string | null
           id: string
           last_name?: string | null
@@ -123,6 +178,8 @@ export type Database = {
           bio?: string | null
           created_at?: string
           email?: string | null
+          embedding?: string | null
+          embedding_updated_at?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
@@ -317,7 +374,178 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      binary_quantize:
+        | {
+            Args: {
+              "": string
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+      halfvec_avg: {
+        Args: {
+          "": number[]
+        }
+        Returns: unknown
+      }
+      halfvec_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      halfvec_send: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      halfvec_typmod_in: {
+        Args: {
+          "": unknown[]
+        }
+        Returns: number
+      }
+      hnsw_bit_support: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      hnsw_halfvec_support: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      hnsw_sparsevec_support: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      hnswhandler: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      ivfflat_bit_support: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      ivfflat_halfvec_support: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      ivfflathandler: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      l2_norm:
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: number
+          }
+      l2_normalize:
+        | {
+            Args: {
+              "": string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+      sparsevec_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      sparsevec_send: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      sparsevec_typmod_in: {
+        Args: {
+          "": unknown[]
+        }
+        Returns: number
+      }
+      vector_avg: {
+        Args: {
+          "": number[]
+        }
+        Returns: string
+      }
+      vector_dims:
+        | {
+            Args: {
+              "": string
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: number
+          }
+      vector_norm: {
+        Args: {
+          "": string
+        }
+        Returns: number
+      }
+      vector_out: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      vector_send: {
+        Args: {
+          "": string
+        }
+        Returns: string
+      }
+      vector_typmod_in: {
+        Args: {
+          "": unknown[]
+        }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
