@@ -7,8 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
-import SignUp from "./pages/SignUp";
-import Login from "./pages/Login";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import CompleteProfile from "./pages/CompleteProfile";
 import Dashboard from "./pages/Dashboard";
@@ -16,7 +15,6 @@ import ProjectManagement from "./pages/ProjectManagement";
 import Profile from "./pages/Profile";
 import Navbar from "./components/Navbar";
 import { useToast } from "./components/ui/use-toast";
-import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -26,13 +24,22 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [needsProfile, setNeedsProfile] = useState(false);
   
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        // Check if profile is complete
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_completed')
+          .eq('id', session.user.id)
+          .single();
+        
         localStorage.setItem('authToken', session.access_token);
         setIsAuthenticated(true);
+        setNeedsProfile(!profile?.onboarding_completed);
       } else {
         localStorage.removeItem('authToken');
         setIsAuthenticated(false);
@@ -42,10 +49,18 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session) {
+        // Check if profile is complete
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_completed')
+          .eq('id', session.user.id)
+          .single();
+        
         localStorage.setItem('authToken', session.access_token);
         setIsAuthenticated(true);
+        setNeedsProfile(!profile?.onboarding_completed);
       } else {
         localStorage.removeItem('authToken');
         setIsAuthenticated(false);
@@ -72,7 +87,31 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
+  // Redirect to complete profile if needed
+  if (needsProfile && location.pathname !== '/complete-profile') {
+    toast({
+      title: "Profile Completion Required",
+      description: "Please complete your profile to continue.",
+    });
+    return <Navigate to="/complete-profile" replace />;
+  }
+
   return <>{children}</>;
+};
+
+// Layout wrapper that only shows Navbar on certain routes
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  const hideNavbarPaths = ['/', '/auth'];
+  
+  return (
+    <>
+      {!hideNavbarPaths.includes(location.pathname) && <Navbar />}
+      <div className={!hideNavbarPaths.includes(location.pathname) ? "pt-16" : ""}>
+        {children}
+      </div>
+    </>
+  );
 };
 
 const App = () => (
@@ -81,60 +120,42 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="min-h-screen">
-          <Navbar />
-          <div className="pt-16">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/complete-profile" element={<CompleteProfile />} />
-              {/* Protected Routes */}
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/project-management"
-                element={
-                  <ProtectedRoute>
-                    <ProjectManagement />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/messages"
-                element={
-                  <ProtectedRoute>
-                    <div className="p-8">Messages feature coming soon!</div>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/notifications"
-                element={
-                  <ProtectedRoute>
-                    <div className="p-8">Notifications feature coming soon!</div>
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
-        </div>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/complete-profile" element={
+              <ProtectedRoute>
+                <CompleteProfile />
+              </ProtectedRoute>
+            } />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/project-management"
+              element={
+                <ProtectedRoute>
+                  <ProjectManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Layout>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

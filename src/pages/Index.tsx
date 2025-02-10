@@ -1,7 +1,6 @@
 
-import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Users, Rocket, Brain } from "lucide-react";
+import { ArrowRight, Users, Rocket, Brain, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
@@ -9,7 +8,32 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <header className="bg-white/80 backdrop-blur-md shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex-shrink-0">
+              <img 
+                src="/lovable-uploads/93a57052-fc29-4425-9b65-2a5b0d987b96.png" 
+                alt="Rocket Logo" 
+                className="h-20 w-auto"
+              />
+            </div>
+            <div className="flex gap-4">
+              <Button 
+                variant="ghost"
+                onClick={() => navigate("/auth")}
+              >
+                Sign In
+              </Button>
+              <Button 
+                onClick={() => navigate("/auth")}
+              >
+                Get Started
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
       
       <main>
         {/* Hero Section */}
@@ -33,7 +57,7 @@ const Index = () => {
               <Button 
                 size="lg" 
                 className="bg-primary hover:bg-primary/90 text-white"
-                onClick={() => navigate("/signup")}
+                onClick={() => navigate("/auth")}
               >
                 Get Started <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -74,23 +98,41 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Mission Statement */}
+        {/* How It Works Section */}
         <section className="py-20 bg-accent/10">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold text-primary mb-6">Our Mission</h2>
-            <p className="text-lg text-secondary-foreground">
-              At Rocket, we understand that finding those early team members is vital to building a successful team. 
-              We use machine learning to not only find people with the skills you need but also match you 
-              to people with similar interests and experiences. We believe by creating the right matches we can 
-              kickstart success through empowered collaboration.
-            </p>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center text-primary mb-12">
+              How It Works
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <StepCard 
+                number="1"
+                title="Create Profile"
+                description="Sign up and tell us about your skills, experience, and vision."
+              />
+              <StepCard 
+                number="2"
+                title="Get Matched"
+                description="Our AI algorithm finds potential co-founders based on compatibility."
+              />
+              <StepCard 
+                number="3"
+                title="Connect"
+                description="Review matches and connect with potential partners."
+              />
+              <StepCard 
+                number="4"
+                title="Collaborate"
+                description="Start working together to bring your ideas to life."
+              />
+            </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 bg-primary">
+        <section className="py-20 bg-primary text-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-6">
+            <h2 className="text-3xl font-bold mb-6">
               Ready to Find Your Perfect Match?
             </h2>
             <p className="text-xl text-white/90 mb-8">
@@ -98,14 +140,61 @@ const Index = () => {
             </p>
             <Button 
               size="lg" 
-              className="bg-primary hover:bg-primary/90 text-white"
-              onClick={() => navigate("/signup")}
+              className="bg-white text-primary hover:bg-white/90"
+              onClick={() => navigate("/auth")}
             >
               Get Started Now <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
         </section>
       </main>
+
+      {/* Footer */}
+      <footer className="bg-white/80 backdrop-blur-md py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <img 
+                src="/lovable-uploads/93a57052-fc29-4425-9b65-2a5b0d987b96.png" 
+                alt="Rocket Logo" 
+                className="h-16 w-auto mb-4"
+              />
+              <p className="text-secondary-foreground">
+                Connecting ambitious founders with their perfect co-founder match.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Product</h3>
+              <ul className="space-y-2">
+                <li>Features</li>
+                <li>How it Works</li>
+                <li>Pricing</li>
+                <li>FAQ</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Company</h3>
+              <ul className="space-y-2">
+                <li>About</li>
+                <li>Blog</li>
+                <li>Careers</li>
+                <li>Contact</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li>Privacy Policy</li>
+                <li>Terms of Service</li>
+                <li>Cookie Policy</li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-8 pt-8 border-t text-center text-secondary-foreground">
+            © {new Date().getFullYear()} Rocket. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
@@ -122,6 +211,24 @@ const FeatureCard = ({
   <div className="p-6 rounded-lg bg-white shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
     <div className="text-primary mb-4">{icon}</div>
     <h3 className="text-xl font-semibold text-primary mb-2">{title}</h3>
+    <p className="text-secondary-foreground">{description}</p>
+  </div>
+);
+
+const StepCard = ({ 
+  number, 
+  title, 
+  description 
+}: { 
+  number: string; 
+  title: string; 
+  description: string;
+}) => (
+  <div className="relative p-6 rounded-lg bg-white shadow-lg">
+    <div className="absolute -top-4 -left-4 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold">
+      {number}
+    </div>
+    <h3 className="text-xl font-semibold text-primary mb-2 mt-2">{title}</h3>
     <p className="text-secondary-foreground">{description}</p>
   </div>
 );
