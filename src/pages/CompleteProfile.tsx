@@ -1,306 +1,29 @@
 
-import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileForm from "@/components/profile/ProfileForm";
+import { useProfileData } from "@/hooks/useProfileData";
+import { useProfileActions } from "@/hooks/useProfileActions";
+import { useProfileForm } from "@/hooks/useProfileForm";
 
 const CompleteProfile = () => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [profileData, setProfileData] = useState<any>(null);
-  const [editMode, setEditMode] = useState<string | null>(null);
-  const [editedValues, setEditedValues] = useState({
-    first_name: "",
-    last_name: "",
-    title: "",
-    location: "",
-    bio: "",
-  });
-  const [formData, setFormData] = useState({
-    about: "",
-    skills: "",
-    background: "",
-    interests: "",
-    resume: null as File | null,
-    linkedinUrl: "",
-    street: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "",
-    dateOfBirth: "",
-  });
+  const { 
+    profileData, 
+    editMode, 
+    editedValues, 
+    setEditMode, 
+    setEditedValues, 
+    handleSave 
+  } = useProfileData();
 
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          navigate('/auth');
-          return;
-        }
-
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (error) throw error;
-
-        setProfileData(profile);
-        setEditedValues({
-          first_name: profile?.first_name || "",
-          last_name: profile?.last_name || "",
-          title: profile?.title || "",
-          location: profile?.location || "",
-          bio: profile?.bio || "",
-        });
-      } catch (error) {
-        console.error('Error fetching profile:', error);
-      }
-    };
-
-    fetchProfileData();
-  }, [navigate]);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData({
-        ...formData,
-        resume: e.target.files[0],
-      });
-      toast({
-        title: "Resume uploaded",
-        description: "Your resume has been successfully uploaded.",
-      });
-    }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSave = async (section: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { error } = await supabase
-        .from('profiles')
-        .update(editedValues)
-        .eq('id', user.id);
-
-      if (error) throw error;
-
-      setProfileData(prev => ({ ...prev, ...editedValues }));
-      setEditMode(null);
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
-      });
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update profile",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Logged out successfully",
-        description: "Come back soon!",
-      });
-      navigate('/auth');
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to log out. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleResumeDownload = async () => {
-    if (!profileData?.resume_url) return;
-
-    try {
-      const { data, error } = await supabase.storage
-        .from('resumes')
-        .download(profileData.resume_url);
-
-      if (error) throw error;
-
-      const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = profileData.resume_url.split('/').pop() || 'resume';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading resume:', error);
-      toast({
-        title: "Error",
-        description: "Failed to download resume",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        throw new Error("No user found");
-      }
-
-      const location = [formData.city, formData.state, formData.country]
-        .filter(Boolean)
-        .join(", ");
-
-      // Update the profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          bio: formData.about,
-          background: formData.background,
-          location: location,
-          skills: formData.skills.split(',').map(skill => skill.trim()),
-          interests: formData.interests.split(',').map(interest => interest.trim()),
-          onboarding_completed: true
-        })
-        .eq('id', user.id);
-
-      if (profileError) {
-        throw profileError;
-      }
-
-      // Add skills
-      const skillsToAdd = formData.skills.split(',').map(skill => skill.trim());
-      for (const skillName of skillsToAdd) {
-        if (!skillName) continue;
-        
-        // First, ensure the skill exists in the skills table
-        const { data: skillData, error: skillError } = await supabase
-          .from('skills')
-          .select('id')
-          .eq('name', skillName)
-          .single();
-
-        if (skillError && skillError.code !== 'PGRST116') {
-          console.error('Error checking skill:', skillError);
-          continue;
-        }
-
-        let skillId;
-        if (!skillData) {
-          // Create new skill
-          const { data: newSkill, error: createSkillError } = await supabase
-            .from('skills')
-            .insert({ name: skillName })
-            .select('id')
-            .single();
-
-          if (createSkillError) {
-            console.error('Error creating skill:', createSkillError);
-            continue;
-          }
-          skillId = newSkill.id;
-        } else {
-          skillId = skillData.id;
-        }
-
-        // Add user_skill
-        await supabase
-          .from('user_skills')
-          .insert({
-            user_id: user.id,
-            skill_id: skillId
-          });
-      }
-
-      // Add interests
-      const interestsToAdd = formData.interests.split(',').map(interest => interest.trim());
-      for (const interestName of interestsToAdd) {
-        if (!interestName) continue;
-
-        // First, ensure the interest exists in the interests table
-        const { data: interestData, error: interestError } = await supabase
-          .from('interests')
-          .select('id')
-          .eq('name', interestName)
-          .single();
-
-        if (interestError && interestError.code !== 'PGRST116') {
-          console.error('Error checking interest:', interestError);
-          continue;
-        }
-
-        let interestId;
-        if (!interestData) {
-          // Create new interest
-          const { data: newInterest, error: createInterestError } = await supabase
-            .from('interests')
-            .insert({ name: interestName })
-            .select('id')
-            .single();
-
-          if (createInterestError) {
-            console.error('Error creating interest:', createInterestError);
-            continue;
-          }
-          interestId = newInterest.id;
-        } else {
-          interestId = interestData.id;
-        }
-
-        // Add user_interest
-        await supabase
-          .from('user_interests')
-          .insert({
-            user_id: user.id,
-            interest_id: interestId
-          });
-      }
-      
-      toast({
-        title: "Profile completed!",
-        description: "Your profile has been successfully updated.",
-      });
-      navigate("/dashboard");
-    } catch (error: any) {
-      console.error('Profile completion error:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update profile. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { handleLogout, handleResumeDownload } = useProfileActions();
+  const { 
+    formData, 
+    isLoading, 
+    handleFileChange, 
+    handleChange, 
+    handleSubmit 
+  } = useProfileForm();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-accent/10 to-secondary/10 py-12">
@@ -332,4 +55,3 @@ const CompleteProfile = () => {
 };
 
 export default CompleteProfile;
-
