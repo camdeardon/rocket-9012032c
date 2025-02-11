@@ -18,6 +18,14 @@ export const useProfileData = () => {
     location: "",
     bio: "",
     background: "",
+    street: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "",
+    dateOfBirth: "",
+    skills: [] as string[],
+    interests: [] as string[],
     preferred_work_timezone: "",
     work_style: "",
     preferred_communication: [] as string[],
@@ -39,7 +47,6 @@ export const useProfileData = () => {
           return;
         }
 
-        // Fetch profile data
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -48,7 +55,6 @@ export const useProfileData = () => {
 
         if (profileError) throw profileError;
 
-        // Fetch user skills with skill names
         const { data: skills, error: skillsError } = await supabase
           .from('user_skills')
           .select(`
@@ -65,7 +71,6 @@ export const useProfileData = () => {
 
         if (skillsError) throw skillsError;
 
-        // Fetch user interests with interest names
         const { data: interests, error: interestsError } = await supabase
           .from('user_interests')
           .select(`
@@ -83,24 +88,35 @@ export const useProfileData = () => {
         setProfileData(profile);
         setUserSkills(skills || []);
         setUserInterests(interests || []);
-        setEditedValues({
-          first_name: profile?.first_name || "",
-          last_name: profile?.last_name || "",
-          title: profile?.title || "",
-          location: profile?.location || "",
-          bio: profile?.bio || "",
-          background: profile?.background || "",
-          preferred_work_timezone: profile?.preferred_work_timezone || "",
-          work_style: profile?.work_style || "",
-          preferred_communication: profile?.preferred_communication || [],
-          preferred_team_size: profile?.preferred_team_size || "",
-          availability_hours: profile?.availability_hours || 0,
-          remote_preference: profile?.remote_preference || "",
-          business_focus: profile?.business_focus || [],
-          investment_preferences: profile?.investment_preferences || [],
-          entrepreneurial_experience: profile?.entrepreneurial_experience || "",
-          core_values: profile?.core_values || [],
-        });
+        
+        if (profile) {
+          setEditedValues({
+            first_name: profile.first_name || "",
+            last_name: profile.last_name || "",
+            title: profile.title || "",
+            location: profile.location || "",
+            bio: profile.bio || "",
+            background: profile.background || "",
+            street: "",
+            city: "",
+            state: "",
+            zipCode: "",
+            country: "",
+            dateOfBirth: "",
+            skills: profile.skills || [],
+            interests: profile.interests || [],
+            preferred_work_timezone: profile.preferred_work_timezone || "",
+            work_style: profile.work_style || "",
+            preferred_communication: profile.preferred_communication || [],
+            preferred_team_size: profile.preferred_team_size || "",
+            availability_hours: profile.availability_hours || 0,
+            remote_preference: profile.remote_preference || "",
+            business_focus: profile.business_focus || [],
+            investment_preferences: profile.investment_preferences || [],
+            entrepreneurial_experience: profile.entrepreneurial_experience || "",
+            core_values: profile.core_values || [],
+          });
+        }
       } catch (error) {
         console.error('Error fetching profile:', error);
         toast({
@@ -113,6 +129,44 @@ export const useProfileData = () => {
 
     fetchProfileData();
   }, [navigate, toast]);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0]) return;
+
+    try {
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('resumes')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ resume_url: filePath })
+        .eq('id', profileData.id);
+
+      if (updateError) throw updateError;
+
+      setProfileData(prev => ({ ...prev, resume_url: filePath }));
+
+      toast({
+        title: "Success",
+        description: "Resume uploaded successfully",
+      });
+    } catch (error) {
+      console.error('Error uploading resume:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload resume",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSave = async (section: string) => {
     try {
@@ -151,6 +205,7 @@ export const useProfileData = () => {
     setEditMode,
     setEditedValues,
     handleSave,
+    handleFileChange,
     setProfileData,
   };
 };

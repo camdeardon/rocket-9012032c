@@ -20,19 +20,6 @@ const Profile = () => {
           return;
         }
 
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('onboarding_completed')
-          .eq('id', user.id)
-          .single();
-
-        if (profileError) throw profileError;
-
-        if (!profile.onboarding_completed) {
-          navigate('/complete-profile');
-          return;
-        }
-
         setIsLoading(false);
       } catch (error) {
         console.error('Error checking auth:', error);

@@ -6,6 +6,10 @@ import ProfileSkills from "@/components/profile/ProfileSkills";
 import ProfileInterests from "@/components/profile/ProfileInterests";
 import ProfileWorkPreferences from "@/components/profile/ProfileWorkPreferences";
 import ProfileBusinessDetails from "@/components/profile/ProfileBusinessDetails";
+import AboutSection from "@/components/profile/AboutSection";
+import LocationSection from "@/components/profile/LocationSection";
+import BackgroundSection from "@/components/profile/BackgroundSection";
+import ProfileEnhancement from "@/components/profile/ProfileEnhancement";
 import { useProfileData } from "@/hooks/useProfileData";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -23,6 +27,7 @@ const ProfileContainer = () => {
     setEditMode,
     setEditedValues,
     handleSave,
+    handleFileChange,
     setProfileData,
   } = useProfileData();
 
@@ -90,13 +95,44 @@ const ProfileContainer = () => {
         <div className="grid grid-cols-1 lg:grid-cols-[2fr,1fr] gap-8">
           <div className="space-y-8">
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
-              <ProfileBackground
-                profileData={profileData}
-                editMode={editMode}
-                editedValues={editedValues}
-                setEditMode={setEditMode}
-                setEditedValues={setEditedValues}
-                handleSave={handleSave}
+              <AboutSection
+                about={editedValues.bio || ""}
+                skills={editedValues.skills?.join(", ") || ""}
+                onChange={(e) => setEditedValues(prev => ({
+                  ...prev,
+                  [e.target.name === "about" ? "bio" : e.target.name]: 
+                  e.target.name === "skills" ? e.target.value.split(",").map(s => s.trim()) : e.target.value
+                }))}
+              />
+            </Card>
+
+            <Card className="p-6 bg-white/90 backdrop-blur-sm">
+              <LocationSection
+                formData={{
+                  street: editedValues.street || "",
+                  city: editedValues.city || "",
+                  state: editedValues.state || "",
+                  zipCode: editedValues.zipCode || "",
+                  country: editedValues.country || "",
+                }}
+                onChange={(e) => setEditedValues(prev => ({
+                  ...prev,
+                  [e.target.name]: e.target.value,
+                }))}
+              />
+            </Card>
+
+            <Card className="p-6 bg-white/90 backdrop-blur-sm">
+              <BackgroundSection
+                background={editedValues.background || ""}
+                interests={editedValues.interests?.join(", ") || ""}
+                dateOfBirth={editedValues.dateOfBirth || ""}
+                onChange={(e) => setEditedValues(prev => ({
+                  ...prev,
+                  [e.target.name]: e.target.name === "interests" 
+                    ? e.target.value.split(",").map(i => i.trim()) 
+                    : e.target.value
+                }))}
               />
             </Card>
 
@@ -129,9 +165,15 @@ const ProfileContainer = () => {
                 editMode={editMode}
                 onChange={(e) => setEditedValues(prev => ({
                   ...prev,
-                  [e.target.name]: e.target.value
+                  [e.target.name]: e.target.name === "entrepreneurial_experience" 
+                    ? e.target.value 
+                    : e.target.value.split(",").map(v => v.trim())
                 }))}
               />
+            </Card>
+
+            <Card className="p-6 bg-white/90 backdrop-blur-sm">
+              <ProfileEnhancement onFileChange={handleFileChange} />
             </Card>
           </div>
 
