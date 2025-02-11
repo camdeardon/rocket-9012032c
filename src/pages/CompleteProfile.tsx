@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +25,23 @@ const CompleteProfile = () => {
     country: "",
     dateOfBirth: "",
   });
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to complete your profile.",
+          variant: "destructive",
+        });
+        navigate('/auth');
+      }
+    };
+    
+    checkAuth();
+  }, [navigate, toast]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -53,37 +70,40 @@ const CompleteProfile = () => {
     setIsLoading(true);
     
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
       
-      if (!user) {
+      if (userError || !user) {
         throw new Error('No authenticated user found');
       }
 
       const location = `${formData.city}, ${formData.state}, ${formData.country}`.trim();
       
       // Update profile with all relevant fields and mark onboarding as completed
-      const { error } = await supabase
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({
           bio: formData.about,
           background: formData.background,
           location: location,
-          onboarding_completed: true, // This is crucial - marks profile as complete
+          onboarding_completed: true,
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (updateError) {
+        console.error('Profile update error:', updateError);
+        throw new Error(updateError.message);
+      }
       
       toast({
         title: "Profile completed!",
         description: "Your profile has been successfully updated.",
       });
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error('Profile completion error:', error);
       toast({
         title: "Error",
-        description: "Failed to update profile. Please try again.",
+        description: error.message || "Failed to update profile. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -112,4 +132,3 @@ const CompleteProfile = () => {
 };
 
 export default CompleteProfile;
-
