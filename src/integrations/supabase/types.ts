@@ -380,7 +380,41 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      match_details: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          first_name: string | null
+          interests: string[] | null
+          interests_match_score: number | null
+          last_name: string | null
+          location: string | null
+          match_id: string | null
+          match_score: number | null
+          matched_user_id: string | null
+          skills: string[] | null
+          skills_match_score: number | null
+          status: string | null
+          title: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_matched_user_id_fkey"
+            columns: ["matched_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       binary_quantize:

@@ -1,56 +1,28 @@
 
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useMatchData } from "@/hooks/useMatchData";
 import { ProfileSummary } from "@/components/dashboard/ProfileSummary";
 import { MatchProfile } from "@/components/dashboard/MatchProfile";
 import { MatchesPanel } from "@/components/dashboard/MatchesPanel";
 import { Button } from "@/components/ui/button";
 import { Briefcase } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-// Mock data for demonstration
-const mockUser = {
-  id: "1",
-  name: "John Doe",
-  avatar: "/placeholder.svg",
-  bio: "Full-stack developer passionate about creating great user experiences",
-  location: "San Francisco, CA",
-  skills: ["React", "Node.js", "TypeScript"],
-  interests: ["Web Development", "UI/UX Design", "Open Source"]
-};
-
-const mockMatches = [
-  {
-    id: "2",
-    name: "Jane Smith",
-    avatar: "/placeholder.svg",
-    bio: "UX Designer with 5 years of experience",
-    location: "New York, NY",
-    skills: ["UI Design", "User Research", "Figma"],
-    interests: ["Design Systems", "Accessibility", "User Testing"],
-    matchScore: {
-      skillsMatch: 85,
-      interestsMatch: 90,
-      locationMatch: 70,
-      experienceMatch: 80,
-      overallMatch: 85
-    }
-  },
-  // Add more mock matches as needed
-];
+import { useProfileData } from "@/hooks/useProfileData";
 
 const Dashboard = () => {
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { matches, isLoading: matchesLoading } = useMatchData();
+  const { profileData, userSkills, userInterests } = useProfileData();
 
   const handleLike = () => {
     toast({
       title: "It's a match! 🎉",
-      description: `You and ${mockMatches[currentMatchIndex].name} have been matched!`,
+      description: `You and ${matches[currentMatchIndex].name} have been matched!`,
     });
     setCurrentMatchIndex(prev => prev + 1);
   };
@@ -74,13 +46,27 @@ const Dashboard = () => {
     navigate('/project-management');
   };
 
-  const currentMatch = mockMatches[currentMatchIndex];
+  const currentMatch = matches[currentMatchIndex];
+
+  if (!profileData) {
+    return null; // Or loading state
+  }
+
+  const userProfile = {
+    id: profileData.id,
+    name: `${profileData.first_name} ${profileData.last_name}`,
+    avatar: profileData.avatar_url || "/placeholder.svg",
+    bio: profileData.bio,
+    location: profileData.location,
+    skills: userSkills.map(s => s.skill.name),
+    interests: userInterests.map(i => i.interest.name),
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-4 md:py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
-          <ProfileSummary user={mockUser} />
+          <ProfileSummary user={userProfile} />
           <Button onClick={goToProjects} className="hover:scale-105 transition-transform w-full md:w-auto">
             <Briefcase className="mr-2 h-4 w-4" />
             View Projects
@@ -89,7 +75,11 @@ const Dashboard = () => {
         
         <div className={`${isMobile ? 'space-y-6' : 'grid grid-cols-[1fr,400px] gap-8'} mt-8`}>
           <div>
-            {currentMatch ? (
+            {matchesLoading ? (
+              <div className="flex items-center justify-center h-[400px]">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : currentMatch ? (
               <MatchProfile
                 match={currentMatch}
                 onLike={handleLike}
@@ -108,7 +98,7 @@ const Dashboard = () => {
           </div>
           
           <MatchesPanel 
-            matches={mockMatches} 
+            matches={matches} 
             onMessage={handleMessage}
           />
         </div>
