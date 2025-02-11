@@ -102,23 +102,35 @@ const ProfileContainer = () => {
 
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
               <ProfileWorkPreferences
-                profileData={profileData}
+                formData={{
+                  preferred_work_timezone: editedValues.preferred_work_timezone,
+                  work_style: editedValues.work_style,
+                  preferred_communication: editedValues.preferred_communication,
+                  preferred_team_size: editedValues.preferred_team_size,
+                  availability_hours: editedValues.availability_hours,
+                  remote_preference: editedValues.remote_preference,
+                }}
                 editMode={editMode}
-                editedValues={editedValues}
-                setEditMode={setEditMode}
-                setEditedValues={setEditedValues}
-                handleSave={handleSave}
+                onChange={(e) => setEditedValues(prev => ({
+                  ...prev,
+                  [e.target.name]: e.target.value
+                }))}
               />
             </Card>
 
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
               <ProfileBusinessDetails
-                profileData={profileData}
+                formData={{
+                  business_focus: editedValues.business_focus,
+                  investment_preferences: editedValues.investment_preferences,
+                  entrepreneurial_experience: editedValues.entrepreneurial_experience,
+                  core_values: editedValues.core_values,
+                }}
                 editMode={editMode}
-                editedValues={editedValues}
-                setEditMode={setEditMode}
-                setEditedValues={setEditedValues}
-                handleSave={handleSave}
+                onChange={(e) => setEditedValues(prev => ({
+                  ...prev,
+                  [e.target.name]: e.target.value
+                }))}
               />
             </Card>
           </div>
