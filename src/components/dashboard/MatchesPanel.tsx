@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle } from "lucide-react";
 
 interface Match {
-  id: number;
+  id: string;
   name: string;
   avatar: string;
   skills: string[];
@@ -22,7 +22,7 @@ interface Match {
 
 interface MatchesPanelProps {
   matches: Match[];
-  onMessage: (matchId: number) => void;
+  onMessage: (matchId: string) => void;
 }
 
 export const MatchesPanel = ({ matches, onMessage }: MatchesPanelProps) => {
