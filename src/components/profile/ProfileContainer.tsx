@@ -4,6 +4,8 @@ import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileBackground from "@/components/profile/ProfileBackground";
 import ProfileSkills from "@/components/profile/ProfileSkills";
 import ProfileInterests from "@/components/profile/ProfileInterests";
+import ProfileWorkPreferences from "@/components/profile/ProfileWorkPreferences";
+import ProfileBusinessDetails from "@/components/profile/ProfileBusinessDetails";
 import { useProfileData } from "@/hooks/useProfileData";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -85,10 +87,32 @@ const ProfileContainer = () => {
           />
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-[2fr,1fr] gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr,1fr] gap-8">
           <div className="space-y-8">
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
               <ProfileBackground
+                profileData={profileData}
+                editMode={editMode}
+                editedValues={editedValues}
+                setEditMode={setEditMode}
+                setEditedValues={setEditedValues}
+                handleSave={handleSave}
+              />
+            </Card>
+
+            <Card className="p-6 bg-white/90 backdrop-blur-sm">
+              <ProfileWorkPreferences
+                profileData={profileData}
+                editMode={editMode}
+                editedValues={editedValues}
+                setEditMode={setEditMode}
+                setEditedValues={setEditedValues}
+                handleSave={handleSave}
+              />
+            </Card>
+
+            <Card className="p-6 bg-white/90 backdrop-blur-sm">
+              <ProfileBusinessDetails
                 profileData={profileData}
                 editMode={editMode}
                 editedValues={editedValues}

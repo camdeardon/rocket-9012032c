@@ -80,40 +80,58 @@ export type Database = {
       }
       matches: {
         Row: {
+          availability_match: number | null
+          business_focus_match: number | null
           created_at: string
+          experience_match: number | null
           id: string
           interests_match_score: number | null
           match_score: number | null
           matched_user_id: string
+          personality_match: number | null
           project_id: string | null
           skills_match_score: number | null
           status: string
           updated_at: string
           user_id: string
+          values_match: number | null
+          work_style_match: number | null
         }
         Insert: {
+          availability_match?: number | null
+          business_focus_match?: number | null
           created_at?: string
+          experience_match?: number | null
           id?: string
           interests_match_score?: number | null
           match_score?: number | null
           matched_user_id: string
+          personality_match?: number | null
           project_id?: string | null
           skills_match_score?: number | null
           status?: string
           updated_at?: string
           user_id: string
+          values_match?: number | null
+          work_style_match?: number | null
         }
         Update: {
+          availability_match?: number | null
+          business_focus_match?: number | null
           created_at?: string
+          experience_match?: number | null
           id?: string
           interests_match_score?: number | null
           match_score?: number | null
           matched_user_id?: string
+          personality_match?: number | null
           project_id?: string | null
           skills_match_score?: number | null
           status?: string
           updated_at?: string
           user_id?: string
+          values_match?: number | null
+          work_style_match?: number | null
         }
         Relationships: [
           {
@@ -141,61 +159,97 @@ export type Database = {
       }
       profiles: {
         Row: {
+          availability_hours: number | null
           avatar_url: string | null
           background: string | null
           bio: string | null
+          business_focus: string[] | null
+          collaboration_style: string | null
+          core_values: string[] | null
           created_at: string
           email: string | null
           embedding: string | null
           embedding_updated_at: string | null
+          entrepreneurial_experience: string | null
           first_name: string | null
           id: string
           interests: string[] | null
+          investment_preferences: string[] | null
           last_name: string | null
           location: string | null
           onboarding_completed: boolean | null
+          personality_traits: string[] | null
+          preferred_communication: string[] | null
+          preferred_team_size: string | null
+          preferred_work_timezone: string | null
+          remote_preference: string | null
           resume_url: string | null
           skills: string[] | null
           title: string | null
           updated_at: string
+          work_style: string | null
         }
         Insert: {
+          availability_hours?: number | null
           avatar_url?: string | null
           background?: string | null
           bio?: string | null
+          business_focus?: string[] | null
+          collaboration_style?: string | null
+          core_values?: string[] | null
           created_at?: string
           email?: string | null
           embedding?: string | null
           embedding_updated_at?: string | null
+          entrepreneurial_experience?: string | null
           first_name?: string | null
           id: string
           interests?: string[] | null
+          investment_preferences?: string[] | null
           last_name?: string | null
           location?: string | null
           onboarding_completed?: boolean | null
+          personality_traits?: string[] | null
+          preferred_communication?: string[] | null
+          preferred_team_size?: string | null
+          preferred_work_timezone?: string | null
+          remote_preference?: string | null
           resume_url?: string | null
           skills?: string[] | null
           title?: string | null
           updated_at?: string
+          work_style?: string | null
         }
         Update: {
+          availability_hours?: number | null
           avatar_url?: string | null
           background?: string | null
           bio?: string | null
+          business_focus?: string[] | null
+          collaboration_style?: string | null
+          core_values?: string[] | null
           created_at?: string
           email?: string | null
           embedding?: string | null
           embedding_updated_at?: string | null
+          entrepreneurial_experience?: string | null
           first_name?: string | null
           id?: string
           interests?: string[] | null
+          investment_preferences?: string[] | null
           last_name?: string | null
           location?: string | null
           onboarding_completed?: boolean | null
+          personality_traits?: string[] | null
+          preferred_communication?: string[] | null
+          preferred_team_size?: string | null
+          preferred_work_timezone?: string | null
+          remote_preference?: string | null
           resume_url?: string | null
           skills?: string[] | null
           title?: string | null
           updated_at?: string
+          work_style?: string | null
         }
         Relationships: []
       }
@@ -380,6 +434,66 @@ export type Database = {
       }
     }
     Views: {
+      match_analysis: {
+        Row: {
+          availability_match: number | null
+          business_focus_match: number | null
+          experience_match: number | null
+          interests_match_score: number | null
+          match_id: string | null
+          matched_user_id: string | null
+          overall_match_score: number | null
+          personality_match: number | null
+          skills_match_score: number | null
+          user_id: string | null
+          values_match: number | null
+          work_style_match: number | null
+        }
+        Insert: {
+          availability_match?: number | null
+          business_focus_match?: number | null
+          experience_match?: number | null
+          interests_match_score?: number | null
+          match_id?: string | null
+          matched_user_id?: string | null
+          overall_match_score?: never
+          personality_match?: number | null
+          skills_match_score?: number | null
+          user_id?: string | null
+          values_match?: number | null
+          work_style_match?: number | null
+        }
+        Update: {
+          availability_match?: number | null
+          business_focus_match?: number | null
+          experience_match?: number | null
+          interests_match_score?: number | null
+          match_id?: string | null
+          matched_user_id?: string | null
+          overall_match_score?: never
+          personality_match?: number | null
+          skills_match_score?: number | null
+          user_id?: string | null
+          values_match?: number | null
+          work_style_match?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_matched_user_id_fkey"
+            columns: ["matched_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       match_details: {
         Row: {
           avatar_url: string | null

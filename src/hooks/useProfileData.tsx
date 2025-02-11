@@ -18,6 +18,16 @@ export const useProfileData = () => {
     location: "",
     bio: "",
     background: "",
+    preferred_work_timezone: "",
+    work_style: "",
+    preferred_communication: [] as string[],
+    preferred_team_size: "",
+    availability_hours: 0,
+    remote_preference: "",
+    business_focus: [] as string[],
+    investment_preferences: [] as string[],
+    entrepreneurial_experience: "",
+    core_values: [] as string[],
   });
 
   useEffect(() => {
@@ -80,6 +90,16 @@ export const useProfileData = () => {
           location: profile?.location || "",
           bio: profile?.bio || "",
           background: profile?.background || "",
+          preferred_work_timezone: profile?.preferred_work_timezone || "",
+          work_style: profile?.work_style || "",
+          preferred_communication: profile?.preferred_communication || [],
+          preferred_team_size: profile?.preferred_team_size || "",
+          availability_hours: profile?.availability_hours || 0,
+          remote_preference: profile?.remote_preference || "",
+          business_focus: profile?.business_focus || [],
+          investment_preferences: profile?.investment_preferences || [],
+          entrepreneurial_experience: profile?.entrepreneurial_experience || "",
+          core_values: profile?.core_values || [],
         });
       } catch (error) {
         console.error('Error fetching profile:', error);
