@@ -10,7 +10,7 @@ import ProfileForm from "@/components/profile/ProfileForm";
 const CompleteProfile = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
     about: "",
     skills: "",
@@ -26,21 +26,65 @@ const CompleteProfile = () => {
     dateOfBirth: "",
   });
 
-  // Check authentication status
+  // Check authentication and profile status
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error || !session) {
+    const checkAuthAndProfile = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
+        
+        if (!session) {
+          toast({
+            title: "Authentication required",
+            description: "Please sign in to complete your profile.",
+            variant: "destructive",
+          });
+          navigate('/auth');
+          return;
+        }
+
+        // Check if profile is already completed
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('onboarding_completed')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profileError) throw profileError;
+
+        if (profile?.onboarding_completed) {
+          toast({
+            title: "Profile already completed",
+            description: "Redirecting to dashboard...",
+          });
+          navigate('/dashboard');
+          return;
+        }
+
+        setIsLoading(false);
+      } catch (error: any) {
+        console.error('Auth/Profile check error:', error);
         toast({
-          title: "Authentication required",
-          description: "Please sign in to complete your profile.",
+          title: "Error",
+          description: "Failed to verify authentication status. Please try again.",
           variant: "destructive",
         });
         navigate('/auth');
       }
     };
-    
-    checkAuth();
+
+    const authListener = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        navigate('/auth');
+      }
+    });
+
+    checkAuthAndProfile();
+
+    return () => {
+      authListener.data.subscription.unsubscribe();
+    };
   }, [navigate, toast]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,12 +117,11 @@ const CompleteProfile = () => {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
       if (userError || !user) {
-        throw new Error('No authenticated user found');
+        throw new Error('Authentication required');
       }
 
       const location = `${formData.city}, ${formData.state}, ${formData.country}`.trim();
       
-      // Update profile with all relevant fields and mark onboarding as completed
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
@@ -90,8 +133,7 @@ const CompleteProfile = () => {
         .eq('id', user.id);
 
       if (updateError) {
-        console.error('Profile update error:', updateError);
-        throw new Error(updateError.message);
+        throw updateError;
       }
       
       toast({
@@ -110,6 +152,14 @@ const CompleteProfile = () => {
       setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-accent/10 to-secondary/10 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-accent/10 to-secondary/10 py-12">
