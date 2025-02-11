@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,15 @@ const CompleteProfile = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [profileData, setProfileData] = useState<any>(null);
+  const [editMode, setEditMode] = useState<string | null>(null);
+  const [editedValues, setEditedValues] = useState({
+    first_name: "",
+    last_name: "",
+    title: "",
+    location: "",
+    bio: "",
+  });
   const [formData, setFormData] = useState({
     about: "",
     skills: "",
@@ -25,6 +34,39 @@ const CompleteProfile = () => {
     country: "",
     dateOfBirth: "",
   });
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          navigate('/auth');
+          return;
+        }
+
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        setProfileData(profile);
+        setEditedValues({
+          first_name: profile?.first_name || "",
+          last_name: profile?.last_name || "",
+          title: profile?.title || "",
+          location: profile?.location || "",
+          bio: profile?.bio || "",
+        });
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+
+    fetchProfileData();
+  }, [navigate]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -46,6 +88,79 @@ const CompleteProfile = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleSave = async (section: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('profiles')
+        .update(editedValues)
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      setProfileData(prev => ({ ...prev, ...editedValues }));
+      setEditMode(null);
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Logged out successfully",
+        description: "Come back soon!",
+      });
+      navigate('/auth');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleResumeDownload = async () => {
+    if (!profileData?.resume_url) return;
+
+    try {
+      const { data, error } = await supabase.storage
+        .from('resumes')
+        .download(profileData.resume_url);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = profileData.resume_url.split('/').pop() || 'resume';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading resume:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download resume",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -191,7 +306,16 @@ const CompleteProfile = () => {
     <div className="min-h-screen bg-gradient-to-b from-accent/10 to-secondary/10 py-12">
       <div className="max-w-4xl mx-auto px-4">
         <div className="space-y-8">
-          <ProfileHeader />
+          <ProfileHeader 
+            profileData={profileData}
+            editMode={editMode}
+            editedValues={editedValues}
+            setEditMode={setEditMode}
+            setEditedValues={setEditedValues}
+            handleSave={handleSave}
+            handleLogout={handleLogout}
+            handleResumeDownload={handleResumeDownload}
+          />
           <Card className="p-8 space-y-8 bg-white/95 backdrop-blur-sm shadow-lg">
             <ProfileForm
               formData={formData}
@@ -208,3 +332,4 @@ const CompleteProfile = () => {
 };
 
 export default CompleteProfile;
+
