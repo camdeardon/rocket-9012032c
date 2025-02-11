@@ -21,12 +21,12 @@ const Index = () => {
             <div className="flex gap-4">
               <Button 
                 variant="ghost"
-                onClick={() => navigate("/auth")}
+                onClick={() => navigate("/auth?mode=signin")}
               >
                 Sign In
               </Button>
               <Button 
-                onClick={() => navigate("/auth")}
+                onClick={() => navigate("/auth?mode=signup")}
               >
                 Get Started
               </Button>
