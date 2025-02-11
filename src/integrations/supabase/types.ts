@@ -154,6 +154,7 @@ export type Database = {
           last_name: string | null
           location: string | null
           onboarding_completed: boolean | null
+          resume_url: string | null
           skills: string[] | null
           title: string | null
           updated_at: string
@@ -172,6 +173,7 @@ export type Database = {
           last_name?: string | null
           location?: string | null
           onboarding_completed?: boolean | null
+          resume_url?: string | null
           skills?: string[] | null
           title?: string | null
           updated_at?: string
@@ -190,6 +192,7 @@ export type Database = {
           last_name?: string | null
           location?: string | null
           onboarding_completed?: boolean | null
+          resume_url?: string | null
           skills?: string[] | null
           title?: string | null
           updated_at?: string

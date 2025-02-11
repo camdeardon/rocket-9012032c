@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { Briefcase, FileText, Heart, Image, MapPin, User, X, Plus, Save, Edit2, LogOut } from "lucide-react";
+import { Briefcase, FileText, Heart, Image, MapPin, User, X, Plus, Save, Edit2, LogOut, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -20,24 +21,8 @@ interface ProfileData {
   avatar_url: string | null;
   bio: string | null;
   background: string | null;
-}
-
-interface UserSkill {
-  id: string;
-  skill: {
-    name: string;
-    category: string;
-  };
-  proficiency_level: string;
-  years_experience: number;
-}
-
-interface UserInterest {
-  id: string;
-  interest: {
-    name: string;
-    category: string;
-  };
+  resume_url: string | null;
+  onboarding_completed: boolean | null;
 }
 
 const Profile = () => {
@@ -45,8 +30,8 @@ const Profile = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
-  const [userSkills, setUserSkills] = useState<UserSkill[]>([]);
-  const [userInterests, setUserInterests] = useState<UserInterest[]>([]);
+  const [userSkills, setUserSkills] = useState<any[]>([]);
+  const [userInterests, setUserInterests] = useState<any[]>([]);
   const [editMode, setEditMode] = useState<string | null>(null);
   const [editedValues, setEditedValues] = useState({
     first_name: "",
@@ -75,6 +60,12 @@ const Profile = () => {
           .single();
 
         if (profileError) throw profileError;
+
+        // If profile is not complete, redirect to complete profile
+        if (!profile.onboarding_completed) {
+          navigate('/complete-profile');
+          return;
+        }
 
         // Fetch user skills with skill details
         const { data: skills, error: skillsError } = await supabase
@@ -177,7 +168,6 @@ const Profile = () => {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      localStorage.removeItem('authToken');
       toast({
         title: "Logged out successfully",
         description: "Come back soon!",
@@ -187,6 +177,35 @@ const Profile = () => {
       toast({
         title: "Error",
         description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleResumeDownload = async () => {
+    if (!profileData?.resume_url) return;
+
+    try {
+      const { data, error } = await supabase.storage
+        .from('resumes')
+        .download(profileData.resume_url);
+
+      if (error) throw error;
+
+      // Create a download link
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = profileData.resume_url.split('/').pop() || 'resume';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading resume:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download resume",
         variant: "destructive",
       });
     }
@@ -303,6 +322,16 @@ const Profile = () => {
                     </div>
                     {profileData?.bio && (
                       <p className="mt-4 text-secondary-foreground">{profileData.bio}</p>
+                    )}
+                    {profileData?.resume_url && (
+                      <Button
+                        variant="outline"
+                        onClick={handleResumeDownload}
+                        className="mt-4"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Download Resume
+                      </Button>
                     )}
                   </div>
                 )}

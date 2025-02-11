@@ -14,7 +14,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
-            <Link to="/" className="flex-shrink-0 hover:opacity-80 transition-opacity pt-2">
+            <Link to="/dashboard" className="flex-shrink-0 hover:opacity-80 transition-opacity pt-2">
               <img 
                 src="/lovable-uploads/93a57052-fc29-4425-9b65-2a5b0d987b96.png" 
                 alt="Rocket Logo" 
@@ -24,7 +24,7 @@ const Navbar = () => {
           </div>
           
           <div className="hidden md:flex items-center space-x-8">
-            <NavLink onClick={() => handleNavigation('/')} icon={<Home className="w-6 h-6" />} label="Home" />
+            <NavLink onClick={() => handleNavigation('/dashboard')} icon={<Home className="w-6 h-6" />} label="Home" />
             <NavLink onClick={() => handleNavigation('/messages')} icon={<MessageSquare className="w-6 h-6" />} label="Messages" />
             <NavLink onClick={() => handleNavigation('/notifications')} icon={<Bell className="w-6 h-6" />} label="Notifications" />
             <NavLink onClick={() => handleNavigation('/profile')} icon={<UserCircle className="w-6 h-6" />} label="Profile" />
