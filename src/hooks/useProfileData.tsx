@@ -17,6 +17,7 @@ export const useProfileData = () => {
     title: "",
     location: "",
     bio: "",
+    background: "",
   });
 
   useEffect(() => {
@@ -78,6 +79,7 @@ export const useProfileData = () => {
           title: profile?.title || "",
           location: profile?.location || "",
           bio: profile?.bio || "",
+          background: profile?.background || "",
         });
       } catch (error) {
         console.error('Error fetching profile:', error);
