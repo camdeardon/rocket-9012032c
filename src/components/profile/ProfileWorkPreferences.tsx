@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,35 +6,22 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, Users, Globe, Briefcase, Edit2, Save } from "lucide-react";
 
 interface ProfileWorkPreferencesProps {
-  profileData: {
-    preferred_work_timezone?: string | null;
-    work_style?: string | null;
-    preferred_communication?: string[] | null;
-    preferred_team_size?: string | null;
-    availability_hours?: number | null;
-    remote_preference?: string | null;
-  } | null;
-  editMode: string | null;
-  editedValues: {
-    preferred_work_timezone: string;
-    work_style: string;
-    preferred_communication: string[];
-    preferred_team_size: string;
-    availability_hours: number;
-    remote_preference: string;
+  formData: {
+    preferred_work_timezone?: string;
+    work_style?: string;
+    preferred_communication?: string[];
+    preferred_team_size?: string;
+    availability_hours?: number;
+    remote_preference?: string;
   };
-  setEditMode: (mode: string | null) => void;
-  setEditedValues: (values: any) => void;
-  handleSave: (section: string) => void;
+  editMode: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
 const ProfileWorkPreferences = ({
-  profileData,
+  formData,
   editMode,
-  editedValues,
-  setEditMode,
-  setEditedValues,
-  handleSave,
+  onChange,
 }: ProfileWorkPreferencesProps) => {
   return (
     <div className="space-y-8">
@@ -47,7 +33,7 @@ const ProfileWorkPreferences = ({
         <Button 
           variant="ghost"
           size="icon"
-          onClick={() => setEditMode('work_preferences')}
+          onClick={() => {}}
         >
           <Edit2 className="h-4 w-4" />
         </Button>
@@ -59,22 +45,18 @@ const ProfileWorkPreferences = ({
             <div>
               <label className="text-sm font-medium">Preferred Timezone</label>
               <Input
-                value={editedValues.preferred_work_timezone}
-                onChange={(e) => setEditedValues(prev => ({
-                  ...prev,
-                  preferred_work_timezone: e.target.value
-                }))}
+                value={formData.preferred_work_timezone || ""}
+                onChange={onChange}
+                name="preferred_work_timezone"
                 placeholder="e.g., GMT-5, PST, etc."
               />
             </div>
             <div>
               <label className="text-sm font-medium">Work Style</label>
               <select
-                value={editedValues.work_style}
-                onChange={(e) => setEditedValues(prev => ({
-                  ...prev,
-                  work_style: e.target.value
-                }))}
+                value={formData.work_style || ""}
+                onChange={onChange}
+                name="work_style"
                 className="w-full rounded-md border border-input px-3 py-2"
               >
                 <option value="">Select work style</option>
@@ -88,11 +70,9 @@ const ProfileWorkPreferences = ({
           <div>
             <label className="text-sm font-medium">Remote Preference</label>
             <select
-              value={editedValues.remote_preference}
-              onChange={(e) => setEditedValues(prev => ({
-                ...prev,
-                remote_preference: e.target.value
-              }))}
+              value={formData.remote_preference || ""}
+              onChange={onChange}
+              name="remote_preference"
               className="w-full rounded-md border border-input px-3 py-2"
             >
               <option value="">Select preference</option>
@@ -105,11 +85,9 @@ const ProfileWorkPreferences = ({
           <div>
             <label className="text-sm font-medium">Preferred Team Size</label>
             <select
-              value={editedValues.preferred_team_size}
-              onChange={(e) => setEditedValues(prev => ({
-                ...prev,
-                preferred_team_size: e.target.value
-              }))}
+              value={formData.preferred_team_size || ""}
+              onChange={onChange}
+              name="preferred_team_size"
               className="w-full rounded-md border border-input px-3 py-2"
             >
               <option value="">Select team size</option>
@@ -124,22 +102,20 @@ const ProfileWorkPreferences = ({
             <label className="text-sm font-medium">Weekly Availability (hours)</label>
             <Input
               type="number"
-              value={editedValues.availability_hours}
-              onChange={(e) => setEditedValues(prev => ({
-                ...prev,
-                availability_hours: parseInt(e.target.value)
-              }))}
+              value={formData.availability_hours || 0}
+              onChange={onChange}
+              name="availability_hours"
               min={0}
               max={168}
             />
           </div>
 
           <div className="flex gap-2">
-            <Button onClick={() => handleSave('work_preferences')}>
+            <Button onClick={() => {}}>
               <Save className="h-4 w-4 mr-2" />
               Save Changes
             </Button>
-            <Button variant="outline" onClick={() => setEditMode(null)}>
+            <Button variant="outline" onClick={() => {}}>
               Cancel
             </Button>
           </div>
@@ -151,28 +127,28 @@ const ProfileWorkPreferences = ({
               <Globe className="h-4 w-4 inline mr-2" />
               Timezone
             </h3>
-            <p>{profileData?.preferred_work_timezone || "Not specified"}</p>
+            <p>{formData?.preferred_work_timezone || "Not specified"}</p>
           </div>
           <div>
             <h3 className="text-sm font-medium text-muted-foreground mb-2">
               <Briefcase className="h-4 w-4 inline mr-2" />
               Work Style
             </h3>
-            <p className="capitalize">{profileData?.work_style || "Not specified"}</p>
+            <p className="capitalize">{formData?.work_style || "Not specified"}</p>
           </div>
           <div>
             <h3 className="text-sm font-medium text-muted-foreground mb-2">
               <Users className="h-4 w-4 inline mr-2" />
               Team Size
             </h3>
-            <p className="capitalize">{profileData?.preferred_team_size || "Not specified"}</p>
+            <p className="capitalize">{formData?.preferred_team_size || "Not specified"}</p>
           </div>
           <div>
             <h3 className="text-sm font-medium text-muted-foreground mb-2">
               <Clock className="h-4 w-4 inline mr-2" />
               Weekly Availability
             </h3>
-            <p>{profileData?.availability_hours ? `${profileData.availability_hours} hours` : "Not specified"}</p>
+            <p>{formData?.availability_hours ? `${formData.availability_hours} hours` : "Not specified"}</p>
           </div>
         </div>
       )}

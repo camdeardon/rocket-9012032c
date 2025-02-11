@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,31 +5,20 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, LineChart, Edit2, Save, Target } from "lucide-react";
 
 interface ProfileBusinessDetailsProps {
-  profileData: {
-    business_focus?: string[] | null;
-    investment_preferences?: string[] | null;
-    entrepreneurial_experience?: string | null;
-    core_values?: string[] | null;
-  } | null;
-  editMode: string | null;
-  editedValues: {
-    business_focus: string[];
-    investment_preferences: string[];
-    entrepreneurial_experience: string;
-    core_values: string[];
+  formData: {
+    business_focus?: string[];
+    investment_preferences?: string[];
+    entrepreneurial_experience?: string;
+    core_values?: string[];
   };
-  setEditMode: (mode: string | null) => void;
-  setEditedValues: (values: any) => void;
-  handleSave: (section: string) => void;
+  editMode: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
 const ProfileBusinessDetails = ({
-  profileData,
+  formData,
   editMode,
-  editedValues,
-  setEditMode,
-  setEditedValues,
-  handleSave,
+  onChange,
 }: ProfileBusinessDetailsProps) => {
   return (
     <div className="space-y-8">
@@ -39,25 +27,23 @@ const ProfileBusinessDetails = ({
           <Building2 className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-semibold">Business Details</h2>
         </div>
-        <Button 
+        {/* <Button 
           variant="ghost"
           size="icon"
           onClick={() => setEditMode('business_details')}
         >
           <Edit2 className="h-4 w-4" />
-        </Button>
+        </Button> */}
       </div>
 
-      {editMode === 'business_details' ? (
+      {/* {editMode === 'business_details' ? ( */}
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium">Business Focus Areas</label>
             <Textarea
-              value={editedValues.business_focus.join(', ')}
-              onChange={(e) => setEditedValues(prev => ({
-                ...prev,
-                business_focus: e.target.value.split(',').map(item => item.trim())
-              }))}
+              value={formData.business_focus?.join(', ') || ''}
+              onChange={(e) => onChange(e)}
+              name="business_focus"
               placeholder="Enter business focus areas (comma-separated)"
             />
           </div>
@@ -65,11 +51,9 @@ const ProfileBusinessDetails = ({
           <div>
             <label className="text-sm font-medium">Investment Preferences</label>
             <Textarea
-              value={editedValues.investment_preferences.join(', ')}
-              onChange={(e) => setEditedValues(prev => ({
-                ...prev,
-                investment_preferences: e.target.value.split(',').map(item => item.trim())
-              }))}
+              value={formData.investment_preferences?.join(', ') || ''}
+              onChange={(e) => onChange(e)}
+              name="investment_preferences"
               placeholder="Enter investment preferences (comma-separated)"
             />
           </div>
@@ -77,11 +61,9 @@ const ProfileBusinessDetails = ({
           <div>
             <label className="text-sm font-medium">Entrepreneurial Experience</label>
             <Textarea
-              value={editedValues.entrepreneurial_experience}
-              onChange={(e) => setEditedValues(prev => ({
-                ...prev,
-                entrepreneurial_experience: e.target.value
-              }))}
+              value={formData.entrepreneurial_experience || ''}
+              onChange={(e) => onChange(e)}
+              name="entrepreneurial_experience"
               placeholder="Describe your entrepreneurial experience"
             />
           </div>
@@ -89,16 +71,14 @@ const ProfileBusinessDetails = ({
           <div>
             <label className="text-sm font-medium">Core Values</label>
             <Textarea
-              value={editedValues.core_values.join(', ')}
-              onChange={(e) => setEditedValues(prev => ({
-                ...prev,
-                core_values: e.target.value.split(',').map(item => item.trim())
-              }))}
+              value={formData.core_values?.join(', ') || ''}
+              onChange={(e) => onChange(e)}
+              name="core_values"
               placeholder="Enter core values (comma-separated)"
             />
           </div>
 
-          <div className="flex gap-2">
+          {/* <div className="flex gap-2">
             <Button onClick={() => handleSave('business_details')}>
               <Save className="h-4 w-4 mr-2" />
               Save Changes
@@ -106,9 +86,9 @@ const ProfileBusinessDetails = ({
             <Button variant="outline" onClick={() => setEditMode(null)}>
               Cancel
             </Button>
-          </div>
+          </div> */}
         </div>
-      ) : (
+      {/* ) : (
         <div className="space-y-6">
           <div>
             <h3 className="text-sm font-medium text-muted-foreground mb-2">
@@ -152,7 +132,7 @@ const ProfileBusinessDetails = ({
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
