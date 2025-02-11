@@ -11,7 +11,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Skill {
-  id: number;
+  id: string; // Updated from number to string
   skill: {
     name: string;
     category: string;
@@ -109,7 +109,7 @@ const ProfileSkills = ({ userSkills }: ProfileSkillsProps) => {
     }
   };
 
-  const handleRemoveSkill = async (skillId: number) => {
+  const handleRemoveSkill = async (skillId: string) => { // Updated from number to string
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");

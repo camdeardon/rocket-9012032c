@@ -10,7 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Interest {
-  id: number;
+  id: string; // Updated from number to string
   interest: {
     name: string;
     category: string;
@@ -98,7 +98,7 @@ const ProfileInterests = ({ userInterests }: ProfileInterestsProps) => {
     }
   };
 
-  const handleRemoveInterest = async (interestId: number) => {
+  const handleRemoveInterest = async (interestId: string) => { // Updated from number to string
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
