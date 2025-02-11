@@ -122,6 +122,7 @@ const CompleteProfile = () => {
 
       const location = `${formData.city}, ${formData.state}, ${formData.country}`.trim();
       
+      // Update profile with text ID
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
