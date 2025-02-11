@@ -23,32 +23,40 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const { data: { user }, error } = await supabase.auth.signInWithPassword({
+      // Simple password-based authentication
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
 
-      if (error) throw error;
+      if (signInError) throw signInError;
 
-      // Check if profile is complete
-      const { data: profile } = await supabase
+      // Only check profile status after successful authentication
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) throw new Error("No user found after authentication");
+
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('onboarding_completed')
-        .eq('id', user?.id)
+        .eq('id', user.id)
         .single();
+      
+      if (profileError) throw profileError;
       
       toast({
         title: "Welcome back!",
         description: "You've successfully logged in.",
       });
 
-      // Redirect based on profile completion status
+      // Simple redirect logic based on profile completion
       if (profile?.onboarding_completed) {
         navigate('/dashboard');
       } else {
         navigate('/complete-profile');
       }
     } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         title: "Error",
         description: error.message || "Invalid email or password. Please try again.",
