@@ -10,7 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Interest {
-  id: string; // Updated from number to string
+  id: string;
   interest: {
     name: string;
     category: string;
@@ -44,11 +44,15 @@ const ProfileInterests = ({ userInterests }: ProfileInterestsProps) => {
       if (!user) throw new Error("No user found");
 
       // First, check if the interest already exists
-      let { data: existingInterest } = await supabase
+      let { data: existingInterest, error: searchError } = await supabase
         .from('interests')
         .select('id')
-        .eq('name', newInterest.trim())
+        .ilike('name', newInterest.trim())
         .single();
+
+      if (searchError && searchError.code !== 'PGRST116') {
+        throw searchError;
+      }
 
       let interestId;
       
@@ -64,6 +68,24 @@ const ProfileInterests = ({ userInterests }: ProfileInterestsProps) => {
         interestId = newInterestData.id;
       } else {
         interestId = existingInterest.id;
+      }
+
+      // Check if user already has this interest
+      const { data: existingUserInterest } = await supabase
+        .from('user_interests')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('interest_id', interestId)
+        .single();
+
+      if (existingUserInterest) {
+        toast({
+          title: "Notice",
+          description: "You already have this interest added",
+        });
+        setIsOpen(false);
+        setNewInterest("");
+        return;
       }
 
       // Add user_interest association
@@ -98,7 +120,7 @@ const ProfileInterests = ({ userInterests }: ProfileInterestsProps) => {
     }
   };
 
-  const handleRemoveInterest = async (interestId: string) => { // Updated from number to string
+  const handleRemoveInterest = async (userInterestId: string) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
@@ -106,7 +128,8 @@ const ProfileInterests = ({ userInterests }: ProfileInterestsProps) => {
       const { error } = await supabase
         .from('user_interests')
         .delete()
-        .eq('id', interestId);
+        .eq('user_id', user.id)
+        .eq('id', userInterestId);
 
       if (error) throw error;
 
