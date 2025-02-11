@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle } from "lucide-react";
 
 interface Match {
-  id: string;
+  id: string;  // Changed from number to string
   name: string;
   avatar: string;
   skills: string[];
@@ -126,3 +126,4 @@ export const MatchesPanel = ({ matches, onMessage }: MatchesPanelProps) => {
     </Card>
   );
 };
+

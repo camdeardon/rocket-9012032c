@@ -7,7 +7,7 @@ import { Heart, X, MessageCircle } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer } from "recharts";
 
 interface MatchProfile {
-  id: number;
+  id: string;  // Changed from number to string
   name: string;
   avatar: string;
   bio: string;
@@ -125,3 +125,4 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
     </Card>
   );
 };
+
