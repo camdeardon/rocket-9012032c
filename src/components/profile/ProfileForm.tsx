@@ -38,10 +38,17 @@ interface ProfileFormProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
-  editMode?: boolean;
+  editMode: boolean;
 }
 
-const ProfileForm = ({ formData, isLoading, onChange, onFileChange, onSubmit, editMode = false }: ProfileFormProps) => {
+const ProfileForm = ({ 
+  formData, 
+  isLoading, 
+  onChange, 
+  onFileChange, 
+  onSubmit, 
+  editMode 
+}: ProfileFormProps) => {
   return (
     <form onSubmit={onSubmit} className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -65,13 +72,13 @@ const ProfileForm = ({ formData, isLoading, onChange, onFileChange, onSubmit, ed
           <ProfileWorkPreferences
             formData={formData}
             onChange={onChange}
-            editMode={editMode}
+            editMode={editMode ? "true" : "false"}  // Convert boolean to string
           />
 
           <ProfileBusinessDetails
             formData={formData}
             onChange={onChange}
-            editMode={editMode}
+            editMode={editMode ? "true" : "false"}  // Convert boolean to string
           />
         </div>
       </div>
@@ -91,3 +98,4 @@ const ProfileForm = ({ formData, isLoading, onChange, onFileChange, onSubmit, ed
 };
 
 export default ProfileForm;
+
