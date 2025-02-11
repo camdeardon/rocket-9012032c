@@ -31,7 +31,7 @@ interface ProfileHeaderProps {
   setEditedValues: (values: any) => void;
   handleSave: (section: string) => void;
   handleLogout: () => void;
-  handleResumeDownload: () => void;
+  handleResumeDownload: (resume_url: string | null) => Promise<void>;
 }
 
 const ProfileHeader = ({
@@ -148,7 +148,7 @@ const ProfileHeader = ({
               {profileData?.resume_url && (
                 <Button
                   variant="outline"
-                  onClick={handleResumeDownload}
+                  onClick={() => handleResumeDownload(profileData.resume_url)}
                   className="mt-4"
                 >
                   <Download className="h-4 w-4 mr-2" />
