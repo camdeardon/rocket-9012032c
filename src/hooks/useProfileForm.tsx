@@ -21,6 +21,16 @@ export const useProfileForm = () => {
     zipCode: "",
     country: "",
     dateOfBirth: "",
+    preferred_work_timezone: "",
+    work_style: "",
+    preferred_communication: [] as string[],
+    preferred_team_size: "",
+    availability_hours: 0,
+    remote_preference: "",
+    business_focus: [] as string[],
+    investment_preferences: [] as string[],
+    entrepreneurial_experience: "",
+    core_values: [] as string[],
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,10 +49,20 @@ export const useProfileForm = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    
+    // Handle array fields
+    if (['preferred_communication', 'business_focus', 'investment_preferences', 'core_values'].includes(name)) {
+      setFormData({
+        ...formData,
+        [name]: value.split(',').map(item => item.trim()),
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,101 +85,28 @@ export const useProfileForm = () => {
           location: location,
           skills: formData.skills.split(',').map(skill => skill.trim()),
           interests: formData.interests.split(',').map(interest => interest.trim()),
-          onboarding_completed: true
+          preferred_work_timezone: formData.preferred_work_timezone,
+          work_style: formData.work_style,
+          preferred_communication: formData.preferred_communication,
+          preferred_team_size: formData.preferred_team_size,
+          availability_hours: formData.availability_hours,
+          remote_preference: formData.remote_preference,
+          business_focus: formData.business_focus,
+          investment_preferences: formData.investment_preferences,
+          entrepreneurial_experience: formData.entrepreneurial_experience,
+          core_values: formData.core_values,
         })
         .eq('id', user.id);
 
       if (profileError) throw profileError;
-
-      // Add skills
-      const skillsToAdd = formData.skills.split(',').map(skill => skill.trim());
-      for (const skillName of skillsToAdd) {
-        if (!skillName) continue;
-        
-        const { data: skillData, error: skillError } = await supabase
-          .from('skills')
-          .select('id')
-          .eq('name', skillName)
-          .single();
-
-        if (skillError && skillError.code !== 'PGRST116') {
-          console.error('Error checking skill:', skillError);
-          continue;
-        }
-
-        let skillId;
-        if (!skillData) {
-          const { data: newSkill, error: createSkillError } = await supabase
-            .from('skills')
-            .insert({ name: skillName })
-            .select('id')
-            .single();
-
-          if (createSkillError) {
-            console.error('Error creating skill:', createSkillError);
-            continue;
-          }
-          skillId = newSkill.id;
-        } else {
-          skillId = skillData.id;
-        }
-
-        await supabase
-          .from('user_skills')
-          .insert({
-            user_id: user.id,
-            skill_id: skillId
-          });
-      }
-
-      // Add interests
-      const interestsToAdd = formData.interests.split(',').map(interest => interest.trim());
-      for (const interestName of interestsToAdd) {
-        if (!interestName) continue;
-
-        const { data: interestData, error: interestError } = await supabase
-          .from('interests')
-          .select('id')
-          .eq('name', interestName)
-          .single();
-
-        if (interestError && interestError.code !== 'PGRST116') {
-          console.error('Error checking interest:', interestError);
-          continue;
-        }
-
-        let interestId;
-        if (!interestData) {
-          const { data: newInterest, error: createInterestError } = await supabase
-            .from('interests')
-            .insert({ name: interestName })
-            .select('id')
-            .single();
-
-          if (createInterestError) {
-            console.error('Error creating interest:', createInterestError);
-            continue;
-          }
-          interestId = newInterest.id;
-        } else {
-          interestId = interestData.id;
-        }
-
-        await supabase
-          .from('user_interests')
-          .insert({
-            user_id: user.id,
-            interest_id: interestId
-          });
-      }
       
       toast({
-        title: "Profile completed!",
+        title: "Profile updated!",
         description: "Your profile has been successfully updated.",
       });
       navigate("/dashboard");
     } catch (error: any) {
-      console.error('Profile completion error:', error);
+      console.error('Profile update error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to update profile. Please try again.",

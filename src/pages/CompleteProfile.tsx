@@ -46,6 +46,7 @@ const CompleteProfile = () => {
               onChange={handleChange}
               onFileChange={handleFileChange}
               onSubmit={handleSubmit}
+              editMode={false}
             />
           </Card>
         </div>

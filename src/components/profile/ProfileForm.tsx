@@ -6,6 +6,8 @@ import AboutSection from "./AboutSection";
 import LocationSection from "./LocationSection";
 import BackgroundSection from "./BackgroundSection";
 import ProfileEnhancement from "./ProfileEnhancement";
+import ProfileWorkPreferences from "./ProfileWorkPreferences";
+import ProfileBusinessDetails from "./ProfileBusinessDetails";
 
 interface ProfileFormProps {
   formData: {
@@ -21,14 +23,25 @@ interface ProfileFormProps {
     country: string;
     dateOfBirth: string;
     resume: File | null;
+    preferred_work_timezone: string;
+    work_style: string;
+    preferred_communication: string[];
+    preferred_team_size: string;
+    availability_hours: number;
+    remote_preference: string;
+    business_focus: string[];
+    investment_preferences: string[];
+    entrepreneurial_experience: string;
+    core_values: string[];
   };
   isLoading: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
+  editMode?: boolean;
 }
 
-const ProfileForm = ({ formData, isLoading, onChange, onFileChange, onSubmit }: ProfileFormProps) => {
+const ProfileForm = ({ formData, isLoading, onChange, onFileChange, onSubmit, editMode = false }: ProfileFormProps) => {
   return (
     <form onSubmit={onSubmit} className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -41,12 +54,26 @@ const ProfileForm = ({ formData, isLoading, onChange, onFileChange, onSubmit }: 
           <LocationSection formData={formData} onChange={onChange} />
         </div>
 
-        <BackgroundSection
-          background={formData.background}
-          interests={formData.interests}
-          dateOfBirth={formData.dateOfBirth}
-          onChange={onChange}
-        />
+        <div className="space-y-8">
+          <BackgroundSection
+            background={formData.background}
+            interests={formData.interests}
+            dateOfBirth={formData.dateOfBirth}
+            onChange={onChange}
+          />
+          
+          <ProfileWorkPreferences
+            formData={formData}
+            onChange={onChange}
+            editMode={editMode}
+          />
+
+          <ProfileBusinessDetails
+            formData={formData}
+            onChange={onChange}
+            editMode={editMode}
+          />
+        </div>
       </div>
 
       <ProfileEnhancement onFileChange={onFileChange} />
@@ -56,7 +83,7 @@ const ProfileForm = ({ formData, isLoading, onChange, onFileChange, onSubmit }: 
         className="w-full text-lg py-6 bg-primary hover:bg-primary/90 transition-colors"
         disabled={isLoading}
       >
-        {isLoading ? "Updating..." : "Complete Profile"}
+        {isLoading ? "Updating..." : editMode ? "Save Changes" : "Complete Profile"}
         <ChevronRight className="ml-2" />
       </Button>
     </form>
