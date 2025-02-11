@@ -38,12 +38,12 @@ const AuthPage = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Button 
           variant="ghost" 
           onClick={() => navigate('/')}
-          className="mb-8"
+          className="mb-8 hover:bg-white/50"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home
@@ -55,16 +55,16 @@ const AuthPage = () => {
               <h1 className="text-5xl font-bold text-primary">
                 {mode === 'signin' ? 'Welcome Back' : 'Find Your Perfect Co-Founder'}
               </h1>
-              <p className="text-xl text-foreground leading-relaxed">
+              <p className="text-xl text-foreground/80 leading-relaxed">
                 {mode === 'signin' 
                   ? 'Sign in to connect with co-founders and continue building your dream team.'
                   : 'Join Rocket and connect with like-minded professionals who share your vision and passion.'}
               </p>
-              <div className="space-y-4 bg-white/80 backdrop-blur-sm p-6 rounded-lg">
+              <div className="space-y-4 bg-white/90 backdrop-blur-sm p-8 rounded-lg shadow-sm">
                 <h2 className="text-2xl font-semibold text-primary">
                   {mode === 'signin' ? "Don't have an account?" : 'Already have an account?'}
                 </h2>
-                <p className="text-foreground">
+                <p className="text-foreground/80">
                   {mode === 'signin' 
                     ? 'Join Rocket and start your journey to finding the perfect co-founder.'
                     : 'Sign in to continue building your dream team.'}
@@ -80,7 +80,9 @@ const AuthPage = () => {
             </div>
           </div>
 
-          {mode === 'signin' ? <Login /> : <SignUp />}
+          <div className="lg:pl-12">
+            {mode === 'signin' ? <Login /> : <SignUp />}
+          </div>
         </div>
       </div>
     </div>
@@ -88,3 +90,4 @@ const AuthPage = () => {
 };
 
 export default AuthPage;
+

@@ -67,15 +67,15 @@ const Login = () => {
   };
 
   return (
-    <Card className="p-8 shadow-lg bg-white/90 backdrop-blur-sm">
+    <Card className="p-8 shadow-lg bg-white/95 backdrop-blur-sm border-0">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2 text-center">
           <div className="flex justify-center">
             <LogIn className="h-12 w-12 text-primary" />
           </div>
-          <h2 className="text-3xl font-bold text-primary">Login</h2>
-          <p className="text-foreground">
-            Welcome back to your journey
+          <h2 className="text-3xl font-bold text-primary">Welcome Back</h2>
+          <p className="text-foreground/80">
+            Sign in to continue your journey
           </p>
         </div>
 
@@ -114,7 +114,7 @@ const Login = () => {
           className="w-full text-lg py-6 bg-primary hover:bg-primary/90" 
           disabled={isLoading}
         >
-          {isLoading ? "Logging in..." : "Login"}
+          {isLoading ? "Signing in..." : "Sign In"}
         </Button>
 
         <p className="text-sm text-center text-foreground/80">

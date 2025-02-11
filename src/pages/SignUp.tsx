@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const SignUp = () => {
@@ -42,10 +43,10 @@ const SignUp = () => {
         description: "Let's complete your profile to find your perfect match.",
       });
       navigate("/complete-profile");
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to create account. Please try again.",
+        description: error.message || "Failed to create account. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -61,122 +62,94 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8">
-            <div className="space-y-6">
-              <h1 className="text-5xl font-bold text-primary">
-                Find Your Perfect Co-Founder
-              </h1>
-              <p className="text-xl text-foreground leading-relaxed">
-                Join Rocket and connect with like-minded professionals who share your 
-                vision and passion. Our AI-powered matching algorithm helps you find 
-                the right people to build your dream team.
-              </p>
-              <div className="space-y-4 bg-white/80 backdrop-blur-sm p-6 rounded-lg">
-                <h2 className="text-2xl font-semibold text-primary">
-                  How it works:
-                </h2>
-                <ul className="space-y-3 text-foreground">
-                  <li className="flex items-start">
-                    <span className="font-bold mr-2">1.</span>
-                    Create your account
-                  </li>
-                  <li className="flex items-start">
-                    <span className="font-bold mr-2">2.</span>
-                    Complete your profile with your skills and interests
-                  </li>
-                  <li className="flex items-start">
-                    <span className="font-bold mr-2">3.</span>
-                    Get matched with potential co-founders
-                  </li>
-                </ul>
-              </div>
-            </div>
+    <Card className="p-8 shadow-lg bg-white/95 backdrop-blur-sm border-0">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-2 text-center">
+          <div className="flex justify-center">
+            <UserPlus className="h-12 w-12 text-primary" />
           </div>
-
-          <Card className="p-8 shadow-lg bg-white/90 backdrop-blur-sm">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2 text-center">
-                <h2 className="text-3xl font-bold text-primary">Get Started</h2>
-                <p className="text-foreground">
-                  Create your account in seconds
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    placeholder="John"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    required
-                    className="bg-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    name="lastName"
-                    placeholder="Doe"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    required
-                    className="bg-white"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="john@example.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="bg-white"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  className="bg-white"
-                />
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full text-lg py-6 bg-primary hover:bg-primary/90" 
-                disabled={isLoading}
-              >
-                {isLoading ? "Creating Account..." : "Create Account"}
-              </Button>
-
-              <p className="text-sm text-center text-foreground/80">
-                By signing up, you agree to our Terms of Service and Privacy Policy
-              </p>
-            </form>
-          </Card>
+          <h2 className="text-3xl font-bold text-primary">Create Account</h2>
+          <p className="text-foreground/80">
+            Join our community of entrepreneurs
+          </p>
         </div>
-      </div>
-    </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="firstName">First Name</Label>
+            <Input
+              id="firstName"
+              name="firstName"
+              placeholder="John"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+              className="bg-white"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lastName">Last Name</Label>
+            <Input
+              id="lastName"
+              name="lastName"
+              placeholder="Doe"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+              className="bg-white"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="john@example.com"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="bg-white"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="••••••••"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            className="bg-white"
+            minLength={6}
+          />
+          <p className="text-xs text-foreground/70">
+            Must be at least 6 characters
+          </p>
+        </div>
+
+        <Button 
+          type="submit" 
+          className="w-full text-lg py-6 bg-primary hover:bg-primary/90" 
+          disabled={isLoading}
+        >
+          {isLoading ? "Creating Account..." : "Create Account"}
+        </Button>
+
+        <p className="text-sm text-center text-foreground/80">
+          <Link to="/auth?mode=signin" className="text-primary hover:underline">
+            Already have an account? Sign in
+          </Link>
+        </p>
+      </form>
+    </Card>
   );
 };
 
 export default SignUp;
+
