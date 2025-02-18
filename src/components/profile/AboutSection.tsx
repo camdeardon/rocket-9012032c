@@ -36,11 +36,14 @@ const AboutSection = ({ about, skills, onChange }: AboutSectionProps) => {
         <Textarea
           id="skills"
           name="skills"
-          placeholder="List your technical skills, business expertise, or any other relevant abilities..."
+          placeholder="List your skills (e.g., 'Web Development, Project Management, Digital Marketing')"
           value={skills}
           onChange={onChange}
           className="min-h-[100px] bg-white"
         />
+        <p className="text-sm text-muted-foreground">
+          Separate multiple skills with commas. Spaces and multi-word skills are allowed.
+        </p>
       </div>
     </div>
   );
