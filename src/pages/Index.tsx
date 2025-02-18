@@ -1,7 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Rocket, Brain, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Landmark } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -191,8 +191,8 @@ const Index = () => {
               </ul>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t text-center text-secondary-foreground">
-            © {new Date().getFullYear()} Rocket. All rights reserved.
+          <div className="mt-8 pt-8 border-t text-center text-secondary-foreground flex items-center justify-center gap-2">
+            © {new Date().getFullYear()} Rocket. All rights reserved. Made in Toronto <Landmark className="h-4 w-4" />
           </div>
         </div>
       </footer>
