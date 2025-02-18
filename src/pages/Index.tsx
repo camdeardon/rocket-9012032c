@@ -190,8 +190,11 @@ const Index = () => {
               </ul>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t text-center text-secondary-foreground flex items-center justify-center gap-2">
-            © {new Date().getFullYear()} Rocket. All rights reserved. Made in Toronto <img src="/lovable-uploads/3b0b2a13-f0a5-4a38-921a-370c69894170.png" alt="CN Tower" className="h-4 w-4" />
+          <div className="mt-8 pt-8 border-t text-center text-secondary-foreground flex flex-col items-center justify-center gap-2">
+            <div>© {new Date().getFullYear()} Rocket. All rights reserved.</div>
+            <div className="flex items-center gap-2">
+              Made in Toronto <img src="/lovable-uploads/77973765-af65-439a-86f5-7dfabea65253.png" alt="CN Tower" className="h-5 w-auto" />
+            </div>
           </div>
         </div>
       </footer>
