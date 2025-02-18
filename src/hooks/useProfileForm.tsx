@@ -52,7 +52,7 @@ export const useProfileForm = () => {
     const { name, value } = e.target;
     
     // For array fields, split by commas and preserve spaces within items
-    if (['preferred_communication', 'business_focus', 'investment_preferences', 'core_values', 'skills'].includes(name)) {
+    if (['preferred_communication', 'business_focus', 'investment_preferences', 'core_values'].includes(name)) {
       setFormData({
         ...formData,
         [name]: value.split(',').map(item => item.trim()).filter(Boolean),
@@ -79,13 +79,13 @@ export const useProfileForm = () => {
         .join(", ");
 
       // For array fields, ensure we have arrays even if they're empty
-      const skillsArray = Array.isArray(formData.skills) 
-        ? formData.skills 
-        : formData.skills.split(',').map(skill => skill.trim()).filter(Boolean);
+      const skillsArray = formData.skills 
+        ? formData.skills.split(',').map(skill => skill.trim()).filter(Boolean)
+        : [];
 
-      const interestsArray = Array.isArray(formData.interests)
-        ? formData.interests
-        : formData.interests.split(',').map(interest => interest.trim()).filter(Boolean);
+      const interestsArray = formData.interests
+        ? formData.interests.split(',').map(interest => interest.trim()).filter(Boolean)
+        : [];
 
       const { error: profileError } = await supabase
         .from('profiles')
