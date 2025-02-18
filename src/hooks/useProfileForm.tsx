@@ -51,13 +51,14 @@ export const useProfileForm = () => {
   ) => {
     const { name, value } = e.target;
     
-    // Handle array fields
-    if (['preferred_communication', 'business_focus', 'investment_preferences', 'core_values'].includes(name)) {
+    // For array fields, split by commas and preserve spaces within items
+    if (['preferred_communication', 'business_focus', 'investment_preferences', 'core_values', 'skills'].includes(name)) {
       setFormData({
         ...formData,
-        [name]: value.split(',').map(item => item.trim()),
+        [name]: value.split(',').map(item => item.trim()).filter(Boolean),
       });
     } else {
+      // For regular text fields, preserve spaces
       setFormData({
         ...formData,
         [name]: value,
@@ -77,14 +78,23 @@ export const useProfileForm = () => {
         .filter(Boolean)
         .join(", ");
 
+      // For array fields, ensure we have arrays even if they're empty
+      const skillsArray = Array.isArray(formData.skills) 
+        ? formData.skills 
+        : formData.skills.split(',').map(skill => skill.trim()).filter(Boolean);
+
+      const interestsArray = Array.isArray(formData.interests)
+        ? formData.interests
+        : formData.interests.split(',').map(interest => interest.trim()).filter(Boolean);
+
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
           bio: formData.about,
           background: formData.background,
           location: location,
-          skills: formData.skills.split(',').map(skill => skill.trim()),
-          interests: formData.interests.split(',').map(interest => interest.trim()),
+          skills: skillsArray,
+          interests: interestsArray,
           preferred_work_timezone: formData.preferred_work_timezone,
           work_style: formData.work_style,
           preferred_communication: formData.preferred_communication,
