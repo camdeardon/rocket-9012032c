@@ -28,10 +28,21 @@ const ProfileInterests = ({ userInterests }: ProfileInterestsProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAddInterest = async () => {
-    if (!newInterest.trim()) {
+    const trimmedInterest = newInterest.trim();
+    
+    if (!trimmedInterest) {
       toast({
         title: "Error",
         description: "Please enter an interest",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (trimmedInterest.length < 2) {
+      toast({
+        title: "Error",
+        description: "Interest must be at least 2 characters long",
         variant: "destructive",
       });
       return;
@@ -47,7 +58,7 @@ const ProfileInterests = ({ userInterests }: ProfileInterestsProps) => {
       let { data: existingInterest, error: searchError } = await supabase
         .from('interests')
         .select('id')
-        .ilike('name', newInterest.trim())
+        .ilike('name', trimmedInterest)
         .single();
 
       if (searchError && searchError.code !== 'PGRST116') {
@@ -60,7 +71,7 @@ const ProfileInterests = ({ userInterests }: ProfileInterestsProps) => {
         // Create new interest if it doesn't exist
         const { data: newInterestData, error: interestError } = await supabase
           .from('interests')
-          .insert([{ name: newInterest.trim() }])
+          .insert([{ name: trimmedInterest }])
           .select('id')
           .single();
 
@@ -173,10 +184,14 @@ const ProfileInterests = ({ userInterests }: ProfileInterestsProps) => {
                 <Label htmlFor="interest">Interest Name</Label>
                 <Input
                   id="interest"
-                  placeholder="Enter interest"
+                  placeholder="Enter your interest (e.g., 'Web Development')"
                   value={newInterest}
                   onChange={(e) => setNewInterest(e.target.value)}
+                  className="w-full"
                 />
+                <p className="text-sm text-muted-foreground">
+                  Spaces are allowed. Enter a descriptive interest name.
+                </p>
               </div>
             </div>
             <Button
