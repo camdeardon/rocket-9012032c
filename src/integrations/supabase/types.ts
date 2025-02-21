@@ -159,97 +159,97 @@ export type Database = {
       }
       profiles: {
         Row: {
-          availability_hours: number | null
+          availability_hours: number
           avatar_url: string | null
-          background: string | null
-          bio: string | null
-          business_focus: string[] | null
-          collaboration_style: string | null
-          core_values: string[] | null
+          background: string
+          bio: string
+          business_focus: string[]
+          collaboration_style: string
+          core_values: string[]
           created_at: string
-          email: string | null
+          email: string
           embedding: string | null
           embedding_updated_at: string | null
-          entrepreneurial_experience: string | null
-          first_name: string | null
+          entrepreneurial_experience: string
+          first_name: string
           id: string
-          interests: string[] | null
-          investment_preferences: string[] | null
-          last_name: string | null
-          location: string | null
+          interests: string[]
+          investment_preferences: string[]
+          last_name: string
+          location: string
           onboarding_completed: boolean | null
-          personality_traits: string[] | null
-          preferred_communication: string[] | null
-          preferred_team_size: string | null
-          preferred_work_timezone: string | null
-          remote_preference: string | null
+          personality_traits: string[]
+          preferred_communication: string[]
+          preferred_team_size: string
+          preferred_work_timezone: string
+          remote_preference: string
           resume_url: string | null
-          skills: string[] | null
-          title: string | null
+          skills: string[]
+          title: string
           updated_at: string
-          work_style: string | null
+          work_style: string
         }
         Insert: {
-          availability_hours?: number | null
+          availability_hours?: number
           avatar_url?: string | null
-          background?: string | null
-          bio?: string | null
-          business_focus?: string[] | null
-          collaboration_style?: string | null
-          core_values?: string[] | null
+          background?: string
+          bio?: string
+          business_focus?: string[]
+          collaboration_style?: string
+          core_values?: string[]
           created_at?: string
-          email?: string | null
+          email?: string
           embedding?: string | null
           embedding_updated_at?: string | null
-          entrepreneurial_experience?: string | null
-          first_name?: string | null
+          entrepreneurial_experience?: string
+          first_name?: string
           id: string
-          interests?: string[] | null
-          investment_preferences?: string[] | null
-          last_name?: string | null
-          location?: string | null
+          interests?: string[]
+          investment_preferences?: string[]
+          last_name?: string
+          location?: string
           onboarding_completed?: boolean | null
-          personality_traits?: string[] | null
-          preferred_communication?: string[] | null
-          preferred_team_size?: string | null
-          preferred_work_timezone?: string | null
-          remote_preference?: string | null
+          personality_traits?: string[]
+          preferred_communication?: string[]
+          preferred_team_size?: string
+          preferred_work_timezone?: string
+          remote_preference?: string
           resume_url?: string | null
-          skills?: string[] | null
-          title?: string | null
+          skills?: string[]
+          title?: string
           updated_at?: string
-          work_style?: string | null
+          work_style?: string
         }
         Update: {
-          availability_hours?: number | null
+          availability_hours?: number
           avatar_url?: string | null
-          background?: string | null
-          bio?: string | null
-          business_focus?: string[] | null
-          collaboration_style?: string | null
-          core_values?: string[] | null
+          background?: string
+          bio?: string
+          business_focus?: string[]
+          collaboration_style?: string
+          core_values?: string[]
           created_at?: string
-          email?: string | null
+          email?: string
           embedding?: string | null
           embedding_updated_at?: string | null
-          entrepreneurial_experience?: string | null
-          first_name?: string | null
+          entrepreneurial_experience?: string
+          first_name?: string
           id?: string
-          interests?: string[] | null
-          investment_preferences?: string[] | null
-          last_name?: string | null
-          location?: string | null
+          interests?: string[]
+          investment_preferences?: string[]
+          last_name?: string
+          location?: string
           onboarding_completed?: boolean | null
-          personality_traits?: string[] | null
-          preferred_communication?: string[] | null
-          preferred_team_size?: string | null
-          preferred_work_timezone?: string | null
-          remote_preference?: string | null
+          personality_traits?: string[]
+          preferred_communication?: string[]
+          preferred_team_size?: string
+          preferred_work_timezone?: string
+          remote_preference?: string
           resume_url?: string | null
-          skills?: string[] | null
-          title?: string | null
+          skills?: string[]
+          title?: string
           updated_at?: string
-          work_style?: string | null
+          work_style?: string
         }
         Relationships: []
       }
