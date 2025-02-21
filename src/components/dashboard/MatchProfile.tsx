@@ -4,10 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Heart, X, MessageCircle } from "lucide-react";
-import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer } from "recharts";
+import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, PolarRadiusAxis } from "recharts";
 
 interface MatchProfile {
-  id: string;  // This stays as string since it's just for display
+  id: string;
   name: string;
   avatar: string;
   bio: string;
@@ -32,10 +32,10 @@ interface MatchProfileProps {
 
 export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileProps) => {
   const matchData = [
-    { subject: 'Skills', score: match.matchScore.skillsMatch, fullMark: 100 },
-    { subject: 'Interests', score: match.matchScore.interestsMatch, fullMark: 100 },
-    { subject: 'Location', score: match.matchScore.locationMatch, fullMark: 100 },
-    { subject: 'Experience', score: match.matchScore.experienceMatch, fullMark: 100 },
+    { subject: 'Skills', score: match.matchScore.skillsMatch },
+    { subject: 'Interests', score: match.matchScore.interestsMatch },
+    { subject: 'Location', score: match.matchScore.locationMatch },
+    { subject: 'Experience', score: match.matchScore.experienceMatch },
   ];
 
   return (
@@ -101,6 +101,7 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
               <RadarChart data={matchData}>
                 <PolarGrid />
                 <PolarAngleAxis dataKey="subject" />
+                <PolarRadiusAxis domain={[0, 100]} />
                 <Radar
                   name="Match"
                   dataKey="score"
@@ -113,12 +114,17 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
           </div>
           <div>
             <h4 className="font-semibold mb-2">Match Analysis</h4>
-            <p className="text-secondary-foreground">
-              Skills & Experience: Evaluating alignment with your project needs ({match.matchScore.skillsMatch}% match)
-            </p>
-            <p className="text-secondary-foreground">
-              Interests & Location: Personal compatibility ({match.matchScore.interestsMatch}% match)
-            </p>
+            <div className="space-y-2">
+              <p className="text-secondary-foreground">
+                Skills Match: {match.matchScore.skillsMatch}%
+              </p>
+              <p className="text-secondary-foreground">
+                Interests Match: {match.matchScore.interestsMatch}%
+              </p>
+              <p className="text-secondary-foreground">
+                Overall Match: {match.matchScore.overallMatch}%
+              </p>
+            </div>
           </div>
         </div>
       </div>

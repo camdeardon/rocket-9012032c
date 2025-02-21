@@ -544,6 +544,35 @@ export type Database = {
             }
             Returns: unknown
           }
+      calculate_match_scores: {
+        Args: {
+          user_id_param: string
+        }
+        Returns: {
+          matched_user_id: string
+          skills_match_score: number
+          interests_match_score: number
+          match_score: number
+        }[]
+      }
+      get_match_details: {
+        Args: {
+          user_id_param: string
+        }
+        Returns: {
+          match_id: string
+          first_name: string
+          last_name: string
+          avatar_url: string
+          bio: string
+          location: string
+          skills: string[]
+          interests: string[]
+          skills_match_score: number
+          interests_match_score: number
+          match_score: number
+        }[]
+      }
       halfvec_avg: {
         Args: {
           "": number[]

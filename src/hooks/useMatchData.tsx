@@ -14,23 +14,26 @@ export const useMatchData = () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data, error } = await supabase
-          .from('match_details')
-          .select('*')
-          .eq('user_id', user.id);
+        // First, ensure match scores are calculated
+        const { data: matchDetails, error: matchError } = await supabase
+          .rpc('get_match_details', { user_id_param: user.id });
 
-        if (error) throw error;
+        if (matchError) throw matchError;
 
-        const formattedMatches = data.map(match => ({
+        // Format the matches data
+        const formattedMatches = matchDetails.map(match => ({
           id: match.match_id,
           name: `${match.first_name} ${match.last_name}`,
           avatar: match.avatar_url || '/placeholder.svg',
+          bio: match.bio || '',
+          location: match.location || '',
           skills: match.skills || [],
+          interests: match.interests || [],
           matchScore: {
             skillsMatch: Number(match.skills_match_score) || 0,
             interestsMatch: Number(match.interests_match_score) || 0,
-            locationMatch: 75, // TODO: Implement location matching
-            experienceMatch: 80, // TODO: Implement experience matching
+            locationMatch: 75, // Placeholder until location matching is implemented
+            experienceMatch: 80, // Placeholder until experience matching is implemented
             overallMatch: Number(match.match_score) || 0,
           }
         }));
