@@ -12,9 +12,9 @@ import ProfileBusinessDetails from "./ProfileBusinessDetails";
 interface ProfileFormProps {
   formData: {
     about: string;
-    skills: string;
+    skills: string[] | string;
     background: string;
-    interests: string;
+    interests: string[] | string;
     linkedinUrl: string;
     street: string;
     city: string;
@@ -49,13 +49,21 @@ const ProfileForm = ({
   onSubmit, 
   editMode 
 }: ProfileFormProps) => {
+  // Convert arrays to comma-separated strings for display in inputs
+  const getInputValue = (value: string | string[]): string => {
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+    return value;
+  };
+
   return (
     <form onSubmit={onSubmit} className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-8">
           <AboutSection
             about={formData.about}
-            skills={formData.skills}
+            skills={getInputValue(formData.skills)}
             onChange={onChange}
           />
           <LocationSection formData={formData} onChange={onChange} />
@@ -64,7 +72,7 @@ const ProfileForm = ({
         <div className="space-y-8">
           <BackgroundSection
             background={formData.background}
-            interests={formData.interests}
+            interests={getInputValue(formData.interests)}
             dateOfBirth={formData.dateOfBirth}
             onChange={onChange}
           />
@@ -72,13 +80,13 @@ const ProfileForm = ({
           <ProfileWorkPreferences
             formData={formData}
             onChange={onChange}
-            editMode={editMode ? "true" : "false"}  // Convert boolean to string
+            editMode={editMode ? "true" : "false"}
           />
 
           <ProfileBusinessDetails
             formData={formData}
             onChange={onChange}
-            editMode={editMode ? "true" : "false"}  // Convert boolean to string
+            editMode={editMode ? "true" : "false"}
           />
         </div>
       </div>
@@ -98,4 +106,3 @@ const ProfileForm = ({
 };
 
 export default ProfileForm;
-
