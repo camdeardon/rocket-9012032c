@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,9 +10,9 @@ export const useProfileForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     about: "",
-    skills: "",
+    skills: [] as string[],
     background: "",
-    interests: "",
+    interests: [] as string[],
     resume: null as File | null,
     linkedinUrl: "",
     street: "",
@@ -32,6 +33,48 @@ export const useProfileForm = () => {
     core_values: [] as string[],
   });
 
+  // Fetch existing profile data when component mounts
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        if (profile) {
+          setFormData(prevData => ({
+            ...prevData,
+            about: profile.bio || "",
+            skills: profile.skills || [],
+            background: profile.background || "",
+            interests: profile.interests || [],
+            preferred_work_timezone: profile.preferred_work_timezone || "",
+            work_style: profile.work_style || "",
+            preferred_communication: profile.preferred_communication || [],
+            preferred_team_size: profile.preferred_team_size || "",
+            availability_hours: profile.availability_hours || 0,
+            remote_preference: profile.remote_preference || "",
+            business_focus: profile.business_focus || [],
+            investment_preferences: profile.investment_preferences || [],
+            entrepreneurial_experience: profile.entrepreneurial_experience || "",
+            core_values: profile.core_values || [],
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFormData({
@@ -50,21 +93,21 @@ export const useProfileForm = () => {
   ) => {
     const { name, value } = e.target;
     
-    // For array fields, split by commas and preserve multi-word items
     if (['preferred_communication', 'business_focus', 'investment_preferences', 'core_values', 'skills', 'interests'].includes(name)) {
-      // Split by commas but keep internal spaces
       const items = value.split(',').map(item => item.trim()).filter(Boolean);
-      setFormData({
-        ...formData,
+      setFormData(prev => ({
+        ...prev,
         [name]: items,
-      });
+      }));
     } else {
-      // For regular text fields, preserve all spaces
-      setFormData({
-        ...formData,
+      setFormData(prev => ({
+        ...prev,
         [name]: value,
-      });
+      }));
     }
+
+    // Log the updated form data for debugging
+    console.log(`Updated ${name}:`, value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -79,18 +122,12 @@ export const useProfileForm = () => {
         .filter(Boolean)
         .join(", ");
 
-      // Convert string inputs to arrays while preserving spaces
-      const skillsArray = formData.skills 
-        ? (typeof formData.skills === 'string' 
-          ? formData.skills.split(',').map(skill => skill.trim()).filter(Boolean)
-          : formData.skills)
-        : [];
-
-      const interestsArray = formData.interests
-        ? (typeof formData.interests === 'string'
-          ? formData.interests.split(',').map(interest => interest.trim()).filter(Boolean)
-          : formData.interests)
-        : [];
+      console.log('Submitting profile update with data:', {
+        bio: formData.about,
+        skills: formData.skills,
+        interests: formData.interests,
+        // Add other fields for debugging
+      });
 
       const { error: profileError } = await supabase
         .from('profiles')
@@ -98,8 +135,8 @@ export const useProfileForm = () => {
           bio: formData.about,
           background: formData.background,
           location: location,
-          skills: skillsArray,
-          interests: interestsArray,
+          skills: formData.skills,
+          interests: formData.interests,
           preferred_work_timezone: formData.preferred_work_timezone,
           work_style: formData.work_style,
           preferred_communication: formData.preferred_communication,
