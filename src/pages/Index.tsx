@@ -46,12 +46,13 @@ const Index = () => {
               />
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary">
-              Find Your Perfect Co-Founder Match
+              Build Your Dream Team
             </h1>
             <p className="text-xl text-foreground max-w-3xl mx-auto">
-              Using machine learning to connect ambitious founders with skilled professionals 
-              who share their vision, interests, and drive for success.
-              By creating the right matches Rocket helps you kickstart success through empowered collaboration.
+              Whether you're a startup founder, creative entrepreneur, or established business, 
+              Rocket connects you with the perfect team members who share your vision. We match 
+              skills, experience, and interests to help turn your ideas into reality through 
+              meaningful collaboration and future funding opportunities.
             </p>
             <div className="flex justify-center gap-4">
               <Button 
