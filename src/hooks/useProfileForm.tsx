@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -51,14 +50,16 @@ export const useProfileForm = () => {
   ) => {
     const { name, value } = e.target;
     
-    // For array fields, split by commas and preserve spaces within items
-    if (['preferred_communication', 'business_focus', 'investment_preferences', 'core_values'].includes(name)) {
+    // For array fields, split by commas and preserve multi-word items
+    if (['preferred_communication', 'business_focus', 'investment_preferences', 'core_values', 'skills', 'interests'].includes(name)) {
+      // Split by commas but keep internal spaces
+      const items = value.split(',').map(item => item.trim()).filter(Boolean);
       setFormData({
         ...formData,
-        [name]: value.split(',').map(item => item.trim()).filter(Boolean),
+        [name]: items,
       });
     } else {
-      // For regular text fields, preserve spaces
+      // For regular text fields, preserve all spaces
       setFormData({
         ...formData,
         [name]: value,
@@ -78,13 +79,17 @@ export const useProfileForm = () => {
         .filter(Boolean)
         .join(", ");
 
-      // For array fields, ensure we have arrays even if they're empty
+      // Convert string inputs to arrays while preserving spaces
       const skillsArray = formData.skills 
-        ? formData.skills.split(',').map(skill => skill.trim()).filter(Boolean)
+        ? (typeof formData.skills === 'string' 
+          ? formData.skills.split(',').map(skill => skill.trim()).filter(Boolean)
+          : formData.skills)
         : [];
 
       const interestsArray = formData.interests
-        ? formData.interests.split(',').map(interest => interest.trim()).filter(Boolean)
+        ? (typeof formData.interests === 'string'
+          ? formData.interests.split(',').map(interest => interest.trim()).filter(Boolean)
+          : formData.interests)
         : [];
 
       const { error: profileError } = await supabase
