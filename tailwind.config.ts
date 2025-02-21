@@ -28,6 +28,7 @@ export default {
         primary: {
           DEFAULT: "rgb(82, 147, 148)", // Turquoise
           foreground: "#ffffff",
+          hover: "rgb(150, 204, 233)", // New hover color
         },
         secondary: {
           DEFAULT: "#F3F2F0",
