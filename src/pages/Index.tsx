@@ -194,7 +194,7 @@ const Index = () => {
           <div className="mt-8 pt-8 border-t text-center text-secondary-foreground flex flex-col items-center justify-center gap-2">
             <div>© {new Date().getFullYear()} Rocket. All rights reserved.</div>
             <div className="flex items-center gap-2">
-              Made in Toronto 🇨🇦 className="h-5 w-auto" />
+              Made in Toronto 🇨🇦 className="h-5 w-auto"
             </div>
           </div>
         </div>
