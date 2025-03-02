@@ -1,9 +1,34 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Rocket, Brain, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const logoRef = useRef<HTMLImageElement>(null);
+  const [scrollPosition, setScrollPosition] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const position = window.scrollY;
+      setScrollPosition(position);
+      
+      if (logoRef.current) {
+        // Calculate movement based on scroll position
+        const rotationAmount = position * 0.1;
+        const xMovement = Math.sin(position * 0.01) * 100;
+        const yMovement = Math.cos(position * 0.01) * 50;
+        
+        logoRef.current.style.transform = `
+          translate(${xMovement}px, ${yMovement}px) 
+          rotate(${rotationAmount}deg)
+        `;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,12 +63,19 @@ const Index = () => {
         {/* Hero Section */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
           <div className="text-center space-y-8">
-            <div className="flex justify-center mb-8">
-              <img 
-                src="/lovable-uploads/35a51d87-fe5a-4e06-9a5a-ae308d831a6f.png" 
-                alt="Rocket Logo" 
-                className="h-24 w-auto animate-fade-in"
-              />
+            <div className="flex justify-center mb-8 relative">
+              <div className="w-24 h-24 relative overflow-visible">
+                <img 
+                  ref={logoRef}
+                  src="/lovable-uploads/35a51d87-fe5a-4e06-9a5a-ae308d831a6f.png" 
+                  alt="Rocket Logo" 
+                  className="h-24 w-auto absolute transition-transform duration-300 ease-out"
+                  style={{ 
+                    transformOrigin: 'center center',
+                    filter: 'drop-shadow(0 0 6px rgba(150, 204, 233, 0.5))'
+                  }}
+                />
+              </div>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary">
               Build Your Dream Team

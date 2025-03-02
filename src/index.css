@@ -44,3 +44,10 @@
 .hover-lift {
   @apply transition-transform duration-200 hover:-translate-y-1;
 }
+
+.flying-logo {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  z-index: 10;
+}
+
