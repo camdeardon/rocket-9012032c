@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -16,27 +17,31 @@ const Dashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { matches, isLoading: matchesLoading } = useMatchData();
+  const { matches, isLoading: matchesLoading, error: matchError } = useMatchData();
   const { profileData, userSkills, userInterests, isLoading: profileLoading } = useProfileData();
 
   const handleLike = () => {
-    toast({
-      title: "It's a match! 🎉",
-      description: `You and ${matches[currentMatchIndex].name} have been matched!`,
-    });
-    setCurrentMatchIndex(prev => 
-      prev + 1 >= matches.length ? prev : prev + 1
-    );
+    if (matches && matches.length > 0) {
+      toast({
+        title: "It's a match! 🎉",
+        description: `You and ${matches[currentMatchIndex].name} have been matched!`,
+      });
+      setCurrentMatchIndex(prev => 
+        prev + 1 >= matches.length ? prev : prev + 1
+      );
+    }
   };
 
   const handlePass = () => {
-    setCurrentMatchIndex(prev => 
-      prev + 1 >= matches.length ? prev : prev + 1
-    );
-    toast({
-      title: "Passed",
-      description: "We'll keep looking for better matches!",
-    });
+    if (matches && matches.length > 0) {
+      setCurrentMatchIndex(prev => 
+        prev + 1 >= matches.length ? prev : prev + 1
+      );
+      toast({
+        title: "Passed",
+        description: "We'll keep looking for better matches!",
+      });
+    }
   };
 
   const handleMessage = (matchId?: string) => {
@@ -58,13 +63,36 @@ const Dashboard = () => {
       });
       
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to refresh matches.",
+          variant: "destructive",
+        });
+        return;
+      }
       
       // Manually trigger recalculation of match scores
-      await supabase.rpc('calculate_match_scores', { user_id_param: user.id });
+      const { error } = await supabase.rpc('calculate_match_scores', { user_id_param: user.id });
+      
+      if (error) {
+        console.error('Error refreshing matches:', error);
+        toast({
+          title: "Error",
+          description: "Failed to refresh matches. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Success message
+      toast({
+        title: "Success",
+        description: "Your matches have been refreshed. Reloading...",
+      });
       
       // Reload page to refresh data
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 1500);
     } catch (error) {
       console.error('Error refreshing matches:', error);
       toast({
@@ -75,7 +103,9 @@ const Dashboard = () => {
     }
   };
 
-  const currentMatch = matches[currentMatchIndex];
+  const completeProfile = () => {
+    navigate('/complete-profile');
+  };
 
   if (profileLoading || matchesLoading) {
     return (
@@ -91,9 +121,13 @@ const Dashboard = () => {
         <AlertCircle className="h-12 w-12 text-primary mb-4" />
         <h2 className="text-2xl font-bold text-center mb-2">Profile Not Found</h2>
         <p className="text-center mb-6">We couldn't find your profile information.</p>
-        <Button onClick={() => navigate('/complete-profile')}>Complete Your Profile</Button>
+        <Button onClick={completeProfile}>Complete Your Profile</Button>
       </div>
     );
+  }
+
+  if (matchError) {
+    console.error('Match error in component:', matchError);
   }
 
   const userProfile = {
@@ -105,6 +139,9 @@ const Dashboard = () => {
     skills: userSkills.map(s => s.skill.name),
     interests: userInterests.map(i => i.interest.name),
   };
+
+  const hasMatches = matches && matches.length > 0;
+  const currentMatch = hasMatches ? matches[currentMatchIndex] : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-4 md:py-8">
@@ -133,7 +170,7 @@ const Dashboard = () => {
               <div className="flex items-center justify-center h-[400px]">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
-            ) : matches.length > 0 && currentMatch ? (
+            ) : hasMatches && currentMatch ? (
               <MatchProfile
                 match={currentMatch}
                 onLike={handleLike}
@@ -165,7 +202,7 @@ const Dashboard = () => {
           </div>
           
           <MatchesPanel 
-            matches={matches} 
+            matches={matches || []} 
             onMessage={handleMessage}
           />
         </div>

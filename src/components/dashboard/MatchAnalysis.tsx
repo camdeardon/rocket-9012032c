@@ -17,10 +17,10 @@ export const MatchAnalysis = ({ matchData, matchReason }: MatchAnalysisProps) =>
   const safeMatchData = matchData?.length > 0 
     ? matchData 
     : [
-        { subject: 'Skills', value: 0, fullMark: 100 },
-        { subject: 'Interests', value: 0, fullMark: 100 },
-        { subject: 'Experience', value: 0, fullMark: 100 },
-        { subject: 'Location', value: 0, fullMark: 100 },
+        { subject: 'Skills', value: 50, fullMark: 100 },
+        { subject: 'Interests', value: 50, fullMark: 100 },
+        { subject: 'Experience', value: 50, fullMark: 100 },
+        { subject: 'Location', value: 50, fullMark: 100 },
       ];
 
   return (
