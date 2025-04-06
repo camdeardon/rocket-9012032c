@@ -173,24 +173,60 @@ export const useProfileData = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      console.log('Saving profile with values:', editedValues);
+
+      // Prepare the data for update based on the section being edited
+      let updateData: any = {};
+
+      if (section === 'header') {
+        // For header section, update personal info
+        updateData = {
+          first_name: editedValues.first_name,
+          last_name: editedValues.last_name,
+          title: editedValues.title,
+          location: editedValues.location,
+          bio: editedValues.bio
+        };
+      } else {
+        // For other sections or if handling a full profile update
+        updateData = {
+          bio: editedValues.bio,
+          background: editedValues.background,
+          skills: editedValues.skills,
+          interests: editedValues.interests,
+          preferred_work_timezone: editedValues.preferred_work_timezone,
+          work_style: editedValues.work_style,
+          preferred_communication: editedValues.preferred_communication,
+          preferred_team_size: editedValues.preferred_team_size,
+          availability_hours: editedValues.availability_hours,
+          remote_preference: editedValues.remote_preference,
+          business_focus: editedValues.business_focus,
+          investment_preferences: editedValues.investment_preferences,
+          entrepreneurial_experience: editedValues.entrepreneurial_experience,
+          core_values: editedValues.core_values,
+        };
+      }
+
       const { error } = await supabase
         .from('profiles')
-        .update(editedValues)
+        .update(updateData)
         .eq('id', user.id);
 
       if (error) throw error;
 
-      setProfileData(prev => ({ ...prev, ...editedValues }));
+      // Update the local profile data to reflect changes
+      setProfileData(prev => ({ ...prev, ...updateData }));
       setEditMode(null);
+      
       toast({
         title: "Success",
         description: "Profile updated successfully",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
         title: "Error",
-        description: "Failed to update profile",
+        description: error.message || "Failed to update profile",
         variant: "destructive",
       });
     }
