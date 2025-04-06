@@ -173,7 +173,8 @@ export const useProfileData = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      console.log('Saving profile with values:', editedValues);
+      // Debug to see what's being saved
+      console.log('Saving profile with values for section:', section, editedValues);
 
       // Prepare the data for update based on the section being edited
       let updateData: any = {};
@@ -187,9 +188,50 @@ export const useProfileData = () => {
           location: editedValues.location,
           bio: editedValues.bio
         };
-      } else {
-        // For other sections or if handling a full profile update
+      } else if (section === 'about') {
         updateData = {
+          bio: editedValues.bio,
+          skills: editedValues.skills
+        };
+      } else if (section === 'location') {
+        // Combine location fields into a formatted string
+        const locationParts = [
+          editedValues.city,
+          editedValues.state,
+          editedValues.country
+        ].filter(Boolean);
+        
+        updateData = {
+          location: locationParts.join(', ')
+        };
+      } else if (section === 'background') {
+        updateData = {
+          background: editedValues.background,
+          interests: editedValues.interests
+        };
+      } else if (section === 'workPreferences') {
+        updateData = {
+          preferred_work_timezone: editedValues.preferred_work_timezone,
+          work_style: editedValues.work_style,
+          preferred_communication: editedValues.preferred_communication,
+          preferred_team_size: editedValues.preferred_team_size,
+          availability_hours: editedValues.availability_hours,
+          remote_preference: editedValues.remote_preference
+        };
+      } else if (section === 'businessDetails') {
+        updateData = {
+          business_focus: editedValues.business_focus,
+          investment_preferences: editedValues.investment_preferences,
+          entrepreneurial_experience: editedValues.entrepreneurial_experience,
+          core_values: editedValues.core_values
+        };
+      } else {
+        // For a full profile update or unknown section
+        updateData = {
+          first_name: editedValues.first_name,
+          last_name: editedValues.last_name,
+          title: editedValues.title,
+          location: editedValues.location,
           bio: editedValues.bio,
           background: editedValues.background,
           skills: editedValues.skills,
@@ -207,12 +249,20 @@ export const useProfileData = () => {
         };
       }
 
-      const { error } = await supabase
+      console.log('Updating profile with data:', updateData);
+
+      const { data, error } = await supabase
         .from('profiles')
         .update(updateData)
-        .eq('id', user.id);
+        .eq('id', user.id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase update error:', error);
+        throw error;
+      }
+
+      console.log('Update successful, response:', data);
 
       // Update the local profile data to reflect changes
       setProfileData(prev => ({ ...prev, ...updateData }));

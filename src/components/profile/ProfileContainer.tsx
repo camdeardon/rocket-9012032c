@@ -14,6 +14,7 @@ import { useProfileData } from "@/hooks/useProfileData";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const ProfileContainer = () => {
   const navigate = useNavigate();
@@ -104,6 +105,16 @@ const ProfileContainer = () => {
                   e.target.name === "skills" ? e.target.value.split(/\s*,\s*/).filter(Boolean) : e.target.value
                 }))}
               />
+              {editMode === 'about' && (
+                <div className="mt-4 flex justify-end">
+                  <Button 
+                    onClick={() => handleSave('about')}
+                    className="bg-primary hover:bg-primary/90 text-white"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              )}
             </Card>
 
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
@@ -120,6 +131,16 @@ const ProfileContainer = () => {
                   [e.target.name]: e.target.value,
                 }))}
               />
+              {editMode === 'location' && (
+                <div className="mt-4 flex justify-end">
+                  <Button 
+                    onClick={() => handleSave('location')}
+                    className="bg-primary hover:bg-primary/90 text-white"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              )}
             </Card>
 
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
@@ -134,6 +155,16 @@ const ProfileContainer = () => {
                     : e.target.value
                 }))}
               />
+              {editMode === 'background' && (
+                <div className="mt-4 flex justify-end">
+                  <Button 
+                    onClick={() => handleSave('background')}
+                    className="bg-primary hover:bg-primary/90 text-white"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              )}
             </Card>
 
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
@@ -149,9 +180,21 @@ const ProfileContainer = () => {
                 editMode={editMode}
                 onChange={(e) => setEditedValues(prev => ({
                   ...prev,
-                  [e.target.name]: e.target.value
+                  [e.target.name]: e.target.name === "preferred_communication"
+                    ? e.target.value.split(/\s*,\s*/).filter(Boolean)
+                    : e.target.value
                 }))}
               />
+              {editMode === 'workPreferences' && (
+                <div className="mt-4 flex justify-end">
+                  <Button 
+                    onClick={() => handleSave('workPreferences')}
+                    className="bg-primary hover:bg-primary/90 text-white"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              )}
             </Card>
 
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
@@ -170,6 +213,16 @@ const ProfileContainer = () => {
                     : e.target.value.split(/\s*,\s*/).filter(Boolean)
                 }))}
               />
+              {editMode === 'businessDetails' && (
+                <div className="mt-4 flex justify-end">
+                  <Button 
+                    onClick={() => handleSave('businessDetails')}
+                    className="bg-primary hover:bg-primary/90 text-white"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              )}
             </Card>
 
             <Card className="p-6 bg-white/90 backdrop-blur-sm">
