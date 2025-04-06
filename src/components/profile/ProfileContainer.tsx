@@ -101,7 +101,7 @@ const ProfileContainer = () => {
                 onChange={(e) => setEditedValues(prev => ({
                   ...prev,
                   [e.target.name === "about" ? "bio" : e.target.name]: 
-                  e.target.name === "skills" ? e.target.value.split(",").map(s => s.trim()) : e.target.value
+                  e.target.name === "skills" ? e.target.value.split(/\s*,\s*/).filter(Boolean) : e.target.value
                 }))}
               />
             </Card>
@@ -130,7 +130,7 @@ const ProfileContainer = () => {
                 onChange={(e) => setEditedValues(prev => ({
                   ...prev,
                   [e.target.name]: e.target.name === "interests" 
-                    ? e.target.value.split(",").map(i => i.trim()) 
+                    ? e.target.value.split(/\s*,\s*/).filter(Boolean) 
                     : e.target.value
                 }))}
               />
@@ -167,7 +167,7 @@ const ProfileContainer = () => {
                   ...prev,
                   [e.target.name]: e.target.name === "entrepreneurial_experience" 
                     ? e.target.value 
-                    : e.target.value.split(",").map(v => v.trim())
+                    : e.target.value.split(/\s*,\s*/).filter(Boolean)
                 }))}
               />
             </Card>

@@ -94,7 +94,8 @@ export const useProfileForm = () => {
     const { name, value } = e.target;
     
     if (['preferred_communication', 'business_focus', 'investment_preferences', 'core_values', 'skills', 'interests'].includes(name)) {
-      const items = value.split(',').map(item => item.trim()).filter(Boolean);
+      // Fix: Correctly split by commas while preserving spaces within items
+      const items = value.split(/\s*,\s*/).filter(Boolean);
       setFormData(prev => ({
         ...prev,
         [name]: items,
