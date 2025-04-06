@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { SkillsList } from "./SkillsList";
-import AddSkillDialog from "./AddSkillDialog";
+import { AddSkillDialog } from "./AddSkillDialog";
 
 interface ProfileSkillsProps {
   userSkills: any[];
