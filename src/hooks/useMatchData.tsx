@@ -17,10 +17,12 @@ export const useMatchData = () => {
           return;
         }
 
-        console.log("Fetching matches for user:", user.id);
-
         // First, manually trigger the calculation of match scores
-        await supabase.rpc('calculate_match_scores', { user_id_param: user.id });
+        const { error: calcError } = await supabase.rpc('calculate_match_scores', { user_id_param: user.id });
+        if (calcError) {
+          console.error('Error calculating match scores:', calcError);
+          throw calcError;
+        }
 
         // Then fetch match scores with the profile information joined
         const { data: matchScores, error: matchScoresError } = await supabase
@@ -40,18 +42,71 @@ export const useMatchData = () => {
           throw matchScoresError;
         }
 
-        console.log("Match scores:", matchScores);
+        console.log("Match scores found:", matchScores?.length || 0);
 
-        // If no match scores were found
+        // If no match scores were found, try to get all other users as potential matches
         if (!matchScores || matchScores.length === 0) {
-          console.log("No matches found for user");
+          console.log("No match scores found, fetching all potential users");
+          
+          // Get all users except the current user
+          const { data: otherUsers, error: usersError } = await supabase
+            .from('profiles')
+            .select(`
+              id,
+              first_name,
+              last_name,
+              avatar_url,
+              bio,
+              location,
+              skills,
+              interests
+            `)
+            .neq('id', user.id);
+            
+          if (usersError) {
+            console.error('Error fetching other users:', usersError);
+            throw usersError;
+          }
+
+          console.log("Other users found:", otherUsers?.length || 0);
+          
+          if (otherUsers && otherUsers.length > 0) {
+            // Create placeholder match data for users
+            const formattedMatches = otherUsers.map(profile => {
+              return {
+                id: profile.id,
+                name: `${profile.first_name} ${profile.last_name}`,
+                avatar: profile.avatar_url || '/placeholder.svg',
+                bio: profile.bio || '',
+                location: profile.location || '',
+                skills: profile.skills || [],
+                interests: profile.interests || [],
+                matchScore: {
+                  skillsMatch: 50, // Default placeholder score
+                  interestsMatch: 50, // Default placeholder score
+                  locationMatch: 50, // Placeholder
+                  experienceMatch: 50, // Placeholder
+                  overallMatch: 50, // Default placeholder score
+                }
+              };
+            });
+            
+            console.log("Created placeholder matches:", formattedMatches.length);
+            setMatches(formattedMatches);
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        // Fetch profile details for all matched users
+        const matchedUserIds = matchScores?.map(match => match.matched_user_id) || [];
+        
+        if (matchedUserIds.length === 0) {
           setMatches([]);
           setIsLoading(false);
           return;
         }
-
-        // Fetch profile details for all matched users
-        const matchedUserIds = matchScores.map(match => match.matched_user_id);
+        
         const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
           .select(`
@@ -71,10 +126,8 @@ export const useMatchData = () => {
           throw profilesError;
         }
 
-        console.log("Matched profiles:", profiles);
-
         // Combine scores with profile information
-        const formattedMatches = matchScores.map(score => {
+        const formattedMatches = matchScores?.map(score => {
           const profile = profiles?.find(p => p.id === score.matched_user_id);
           
           if (!profile) {
@@ -84,7 +137,7 @@ export const useMatchData = () => {
           
           return {
             id: score.id,
-            name: `${profile.first_name} ${profile.last_name}`,
+            name: `${profile.first_name || 'User'} ${profile.last_name || ''}`.trim() || 'Anonymous User',
             avatar: profile.avatar_url || '/placeholder.svg',
             bio: profile.bio || '',
             location: profile.location || '',
@@ -98,9 +151,9 @@ export const useMatchData = () => {
               overallMatch: Number(score.similarity_score) || 0,
             }
           };
-        }).filter(Boolean); // Remove any null entries
+        }).filter(Boolean) || []; // Remove any null entries
 
-        console.log("Formatted matches:", formattedMatches);
+        console.log("Formatted matches:", formattedMatches.length);
         setMatches(formattedMatches);
       } catch (error: any) {
         console.error('Error fetching matches:', error);
