@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import ProjectManagement from "./pages/ProjectManagement";
 import Profile from "./pages/Profile";
 import Navbar from "./components/Navbar";
+import AllMatches from "./pages/AllMatches";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/project-management" element={<ProjectManagement />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/all-matches" element={<AllMatches />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>

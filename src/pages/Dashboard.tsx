@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMatchData } from "@/hooks/useMatchData";
@@ -7,18 +7,44 @@ import { ProfileSummary } from "@/components/dashboard/ProfileSummary";
 import { MatchProfile } from "@/components/dashboard/MatchProfile";
 import { MatchesPanel } from "@/components/dashboard/MatchesPanel";
 import { Button } from "@/components/ui/button";
-import { Briefcase, RefreshCw, AlertCircle } from "lucide-react";
+import { Briefcase, RefreshCw, AlertCircle, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfileData } from "@/hooks/useProfileData";
 import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { matches, isLoading: matchesLoading, error: matchError } = useMatchData();
+  const { matches, isLoading: matchesLoading, error: matchError, refreshMatches: fetchMatchesAgain } = useMatchData();
   const { profileData, userSkills, userInterests, isLoading: profileLoading } = useProfileData();
+
+  useEffect(() => {
+    let intervalId: number;
+    if (autoRefresh) {
+      toast({
+        title: "Auto-refresh enabled",
+        description: "Matches will refresh automatically every 30 seconds",
+      });
+      
+      // Set up interval to refresh matches every 30 seconds
+      intervalId = window.setInterval(() => {
+        console.log("Auto-refreshing matches...");
+        fetchMatchesAgain();
+        toast({
+          title: "Matches refreshed",
+          description: "Your matches have been automatically updated",
+        });
+      }, 30000);
+    }
+
+    // Clean up interval on component unmount or when autoRefresh is turned off
+    return () => {
+      if (intervalId) window.clearInterval(intervalId);
+    };
+  }, [autoRefresh, fetchMatchesAgain, toast]);
 
   const handleLike = () => {
     if (matches && matches.length > 0) {
@@ -55,6 +81,10 @@ const Dashboard = () => {
     navigate('/project-management');
   };
 
+  const goToAllMatches = () => {
+    navigate('/all-matches');
+  };
+
   const refreshMatches = async () => {
     try {
       toast({
@@ -62,43 +92,28 @@ const Dashboard = () => {
         description: "Please wait while we update your matches...",
       });
       
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: "Error",
-          description: "You must be logged in to refresh matches.",
-          variant: "destructive",
-        });
-        return;
-      }
+      await fetchMatchesAgain();
       
-      // Manually trigger recalculation of match scores
-      const { error } = await supabase.rpc('calculate_match_scores', { user_id_param: user.id });
-      
-      if (error) {
-        console.error('Error refreshing matches:', error);
-        toast({
-          title: "Error",
-          description: "Failed to refresh matches. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      // Success message
       toast({
         title: "Success",
-        description: "Your matches have been refreshed. Reloading...",
+        description: "Your matches have been refreshed.",
       });
-      
-      // Reload page to refresh data
-      setTimeout(() => window.location.reload(), 1500);
     } catch (error) {
       console.error('Error refreshing matches:', error);
       toast({
         title: "Error",
         description: "Failed to refresh matches. Please try again.",
         variant: "destructive",
+      });
+    }
+  };
+
+  const toggleAutoRefresh = () => {
+    setAutoRefresh(prev => !prev);
+    if (autoRefresh) {
+      toast({
+        title: "Auto-refresh disabled",
+        description: "You've turned off automatic match refreshing",
       });
     }
   };
@@ -148,18 +163,32 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
           <ProfileSummary user={userProfile} />
-          <div className="flex gap-3 w-full md:w-auto">
-            <Button onClick={goToProjects} className="hover:scale-105 transition-transform w-full md:w-auto">
+          <div className="flex flex-wrap gap-3 w-full md:w-auto">
+            <Button onClick={goToProjects} className="hover:scale-105 transition-transform w-full sm:w-auto">
               <Briefcase className="mr-2 h-4 w-4" />
               View Projects
             </Button>
             <Button 
               variant="outline" 
               onClick={refreshMatches} 
-              className="hover:scale-105 transition-transform w-full md:w-auto"
+              className="hover:scale-105 transition-transform w-full sm:w-auto"
             >
-              <RefreshCw className="mr-2 h-4 w-4" />
+              <RefreshCw className={`mr-2 h-4 w-4 ${autoRefresh ? 'animate-spin' : ''}`} />
               Refresh Matches
+            </Button>
+            <Button 
+              variant={autoRefresh ? "default" : "outline"}
+              onClick={toggleAutoRefresh}
+              className="hover:scale-105 transition-transform w-full sm:w-auto"
+            >
+              {autoRefresh ? "Disable Auto-refresh" : "Enable Auto-refresh"}
+            </Button>
+            <Button 
+              onClick={goToAllMatches}
+              className="hover:scale-105 transition-transform w-full sm:w-auto"
+            >
+              <Users className="mr-2 h-4 w-4" />
+              View All Matches
             </Button>
           </div>
         </div>
