@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -61,7 +60,7 @@ const Dashboard = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       
-      // Force recalculation of match scores
+      // Manually trigger recalculation of match scores
       await supabase.rpc('calculate_match_scores', { user_id_param: user.id });
       
       // Reload page to refresh data
