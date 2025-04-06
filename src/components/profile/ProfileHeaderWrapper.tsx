@@ -11,7 +11,7 @@ interface ProfileHeaderWrapperProps {
   setEditMode: (mode: string | null) => void;
   setEditedValues: (values: any) => void;
   handleSave: (section: string) => void;
-  handleResumeDownload: () => Promise<void>;
+  handleResumeDownload: (resume_url: string | null) => Promise<void>;
 }
 
 const ProfileHeaderWrapper = ({
@@ -36,7 +36,7 @@ const ProfileHeaderWrapper = ({
           handleLogout={() => {}}
           handleResumeDownload={handleResumeDownload}
         />
-        <ProfileActions handleResumeDownload={handleResumeDownload} />
+        <ProfileActions handleResumeDownload={() => handleResumeDownload(profileData?.resume_url)} />
       </div>
     </Card>
   );
