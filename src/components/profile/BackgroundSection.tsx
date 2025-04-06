@@ -1,9 +1,9 @@
 
-import React from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Check, Calendar } from "lucide-react";
+import { Check } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface BackgroundSectionProps {
   background: string;
@@ -12,49 +12,70 @@ interface BackgroundSectionProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
-const BackgroundSection = ({ background, interests, dateOfBirth, onChange }: BackgroundSectionProps) => {
+const BackgroundSection = ({
+  background,
+  interests,
+  dateOfBirth,
+  onChange,
+}: BackgroundSectionProps) => {
+  const interestList = typeof interests === 'string' 
+    ? interests.split(',').map(i => i.trim()).filter(Boolean)
+    : [];
+  
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="space-y-4">
         <Label htmlFor="background" className="text-lg font-semibold flex items-center gap-2">
           <Check className="h-5 w-5 text-primary" />
-          Professional Background
+          Background & Experience
         </Label>
         <Textarea
           id="background"
           name="background"
-          placeholder="Share your work experience, education, and notable achievements..."
+          placeholder="Tell us about your professional background and experiences..."
           value={background}
           onChange={onChange}
-          className="min-h-[100px] bg-white"
+          className="min-h-[120px] bg-white"
         />
       </div>
 
       <div className="space-y-4">
         <Label htmlFor="interests" className="text-lg font-semibold flex items-center gap-2">
           <Check className="h-5 w-5 text-primary" />
-          What industries interest you?
+          Interests & Hobbies
         </Label>
         <Textarea
           id="interests"
           name="interests"
-          placeholder="Tell us about the industries, technologies, or business areas you're passionate about..."
+          placeholder="What are you passionate about? (e.g., 'Technology, Travel, Photography')"
           value={interests}
           onChange={onChange}
           className="min-h-[100px] bg-white"
         />
         <p className="text-sm text-muted-foreground">
-          Separate interests with commas. After saving, you can manage individual interests in the Interests section on the right.
+          Separate interests with commas. After saving, you can manage individual interests on the right.
         </p>
+        
+        {interestList.length > 0 && (
+          <div className="mt-3">
+            <p className="text-sm font-medium mb-2">Preview:</p>
+            <div className="flex flex-wrap gap-2">
+              {interestList.map((interest, index) => (
+                <Badge key={index} variant="outline">{interest}</Badge>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">
-        <Label className="text-lg font-semibold flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-primary" />
+        <Label htmlFor="dateOfBirth" className="text-lg font-semibold flex items-center gap-2">
+          <Check className="h-5 w-5 text-primary" />
           Date of Birth
         </Label>
         <Input
           type="date"
+          id="dateOfBirth"
           name="dateOfBirth"
           value={dateOfBirth}
           onChange={onChange}

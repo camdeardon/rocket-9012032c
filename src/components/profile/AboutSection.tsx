@@ -3,6 +3,8 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Check } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
 
 interface AboutSectionProps {
   about: string;
@@ -11,6 +13,8 @@ interface AboutSectionProps {
 }
 
 const AboutSection = ({ about, skills, onChange }: AboutSectionProps) => {
+  const skillList = typeof skills === 'string' ? skills.split(',').map(s => s.trim()).filter(Boolean) : [];
+  
   return (
     <div className="space-y-8">
       <div className="space-y-4">
@@ -44,6 +48,17 @@ const AboutSection = ({ about, skills, onChange }: AboutSectionProps) => {
         <p className="text-sm text-muted-foreground">
           Separate skills with commas. After saving, you can manage individual skills in the Skills section on the right.
         </p>
+        
+        {skillList.length > 0 && (
+          <div className="mt-3">
+            <p className="text-sm font-medium mb-2">Preview:</p>
+            <div className="flex flex-wrap gap-2">
+              {skillList.map((skill, index) => (
+                <Badge key={index} variant="secondary">{skill}</Badge>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

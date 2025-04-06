@@ -12,16 +12,30 @@ export const useMatchData = () => {
     const fetchMatches = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        if (!user) {
+          setIsLoading(false);
+          return;
+        }
+
+        console.log("Fetching matches for user:", user.id);
 
         // Call the get_match_details function to calculate and fetch matches
-        // This function has proper permissions set up in the database
         const { data: matchDetails, error: matchError } = await supabase
           .rpc('get_match_details', { user_id_param: user.id });
 
         if (matchError) {
           console.error('Match details error:', matchError);
           throw matchError;
+        }
+
+        console.log("Received match details:", matchDetails);
+
+        // If no matches were found
+        if (!matchDetails || matchDetails.length === 0) {
+          console.log("No matches found for user");
+          setMatches([]);
+          setIsLoading(false);
+          return;
         }
 
         // Format the matches data
@@ -42,6 +56,7 @@ export const useMatchData = () => {
           }
         }));
 
+        console.log("Formatted matches:", formattedMatches);
         setMatches(formattedMatches);
       } catch (error: any) {
         console.error('Error fetching matches:', error);

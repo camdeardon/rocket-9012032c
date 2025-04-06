@@ -1,122 +1,194 @@
 
-import { useState } from "react";
-import { useSkillManagement } from "@/hooks/useSkillManagement";
-import { AddSkillDialog } from "./AddSkillDialog";
-import { SkillsList } from "./SkillsList";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Plus, X } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-
-interface Skill {
-  id: string;
-  skill: {
-    name: string;
-    category: string;
-  };
-  proficiency_level?: string;
-  years_experience?: number;
-}
+import { PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { SkillsList } from "./SkillsList";
+import AddSkillDialog from "./AddSkillDialog";
 
 interface ProfileSkillsProps {
-  userSkills: Skill[];
+  userSkills: any[];
 }
 
 const ProfileSkills = ({ userSkills }: ProfileSkillsProps) => {
   const { toast } = useToast();
-  const [inputValue, setInputValue] = useState("");
-  const [tempSkills, setTempSkills] = useState<string[]>([]);
-  
-  const {
-    isOpen,
-    setIsOpen,
-    newSkill,
-    setNewSkill,
-    proficiencyLevel,
-    setProficiencyLevel,
-    yearsExperience,
-    setYearsExperience,
-    isLoading,
-    handleAddSkill,
-    handleRemoveSkill,
-  } = useSkillManagement({
-    onSuccess: () => window.location.reload(),
-  });
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [skills, setSkills] = useState<any[]>(userSkills);
+  const [availableSkills, setAvailableSkills] = useState<any[]>([]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-    
-    // If user types a comma, add the skill
-    if (e.target.value.includes(",")) {
-      const skills = e.target.value.split(",");
-      const lastSkill = skills.pop() || "";
-      
-      // Add all complete skills except the last one (which might be incomplete)
-      skills.forEach(skill => {
-        const trimmedSkill = skill.trim();
-        if (trimmedSkill && !tempSkills.includes(trimmedSkill)) {
-          setTempSkills(prev => [...prev, trimmedSkill]);
-        }
-      });
-      
-      // Set the input to the last part after the comma
-      setInputValue(lastSkill);
-    }
-  };
+  useEffect(() => {
+    setSkills(userSkills);
+  }, [userSkills]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Add skill on Enter key
-    if (e.key === "Enter" && inputValue.trim()) {
-      e.preventDefault();
-      const trimmedSkill = inputValue.trim();
-      if (!tempSkills.includes(trimmedSkill)) {
-        setTempSkills(prev => [...prev, trimmedSkill]);
-        setInputValue("");
+  useEffect(() => {
+    const fetchAvailableSkills = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('skills')
+          .select('id, name, category');
+
+        if (error) throw error;
+        setAvailableSkills(data || []);
+      } catch (error) {
+        console.error('Error fetching skills:', error);
       }
-    }
-  };
+    };
 
-  const removeSkill = (skillToRemove: string) => {
-    setTempSkills(tempSkills.filter(skill => skill !== skillToRemove));
-  };
+    fetchAvailableSkills();
+  }, []);
 
-  const handleAddTempSkills = async () => {
-    // Add any remaining skill in the input
-    const finalSkills = [...tempSkills];
-    if (inputValue.trim() && !finalSkills.includes(inputValue.trim())) {
-      finalSkills.push(inputValue.trim());
-    }
+  const handleAddSkill = async (
+    skillId: string, 
+    proficiencyLevel: string, 
+    yearsExperience: number
+  ) => {
+    try {
+      setIsLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("You must be logged in to add skills");
+      }
 
-    if (finalSkills.length === 0) {
+      // Check if the skill already exists for the user
+      const { data: existingSkill, error: checkError } = await supabase
+        .from('user_skills')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('skill_id', skillId)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      if (existingSkill) {
+        toast({
+          title: "Skill already added",
+          description: "You already have this skill in your profile",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Add the skill
+      const { data, error } = await supabase
+        .from('user_skills')
+        .insert({
+          user_id: user.id,
+          skill_id: skillId,
+          proficiency_level: proficiencyLevel,
+          years_experience: yearsExperience
+        })
+        .select(`
+          id,
+          proficiency_level,
+          years_experience,
+          skill:skills (
+            id,
+            name,
+            category
+          )
+        `)
+        .single();
+
+      if (error) throw error;
+
+      setSkills([...skills, data]);
+      
+      // Update skills array in the profiles table
+      const selectedSkill = availableSkills.find(s => s.id === skillId);
+      if (selectedSkill) {
+        const { data: profileData, error: profileErr } = await supabase
+          .from('profiles')
+          .select('skills')
+          .eq('id', user.id)
+          .single();
+        
+        if (profileErr) throw profileErr;
+        
+        const updatedSkills = [...(profileData.skills || []), selectedSkill.name];
+        
+        const { error: updateErr } = await supabase
+          .from('profiles')
+          .update({ skills: updatedSkills })
+          .eq('id', user.id);
+          
+        if (updateErr) throw updateErr;
+      }
+
       toast({
-        title: "Error",
-        description: "Please enter at least one skill",
+        title: "Skill added",
+        description: "Skill successfully added to your profile",
+      });
+
+      setShowAddDialog(false);
+    } catch (error: any) {
+      console.error('Error adding skill:', error);
+      toast({
+        title: "Error adding skill",
+        description: error.message || "An error occurred while adding the skill",
         variant: "destructive",
       });
-      return;
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    // Add each skill one by one
-    setIsLoading(true);
+  const handleRemoveSkill = async (skillId: string) => {
     try {
-      for (const skill of finalSkills) {
-        setNewSkill(skill);
-        await handleAddSkill();
-      }
+      setIsLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
       
-      // Clear temporary skills and input
-      setTempSkills([]);
-      setInputValue("");
+      if (!user) {
+        throw new Error("You must be logged in to remove skills");
+      }
+
+      // Remove the skill from user_skills table
+      const { error } = await supabase
+        .from('user_skills')
+        .delete()
+        .eq('id', skillId);
+
+      if (error) throw error;
+
+      // Update the local state
+      const updatedSkills = skills.filter(s => s.id !== skillId);
+      setSkills(updatedSkills);
+      
+      // Update skills array in the profiles table
+      const removedSkill = skills.find(s => s.id === skillId);
+      if (removedSkill) {
+        const { data: profileData, error: profileErr } = await supabase
+          .from('profiles')
+          .select('skills')
+          .eq('id', user.id)
+          .single();
+        
+        if (profileErr) throw profileErr;
+        
+        const updatedProfileSkills = (profileData.skills || []).filter(
+          (name: string) => name !== removedSkill.skill.name
+        );
+        
+        const { error: updateErr } = await supabase
+          .from('profiles')
+          .update({ skills: updatedProfileSkills })
+          .eq('id', user.id);
+          
+        if (updateErr) throw updateErr;
+      }
+
       toast({
-        title: "Success",
-        description: `Added ${finalSkills.length} skill(s)`,
+        title: "Skill removed",
+        description: "Skill successfully removed from your profile",
       });
-    } catch (error) {
-      console.error("Error adding skills:", error);
+    } catch (error: any) {
+      console.error('Error removing skill:', error);
       toast({
-        title: "Error",
-        description: "Failed to add all skills",
+        title: "Error removing skill",
+        description: error.message || "An error occurred while removing the skill",
         variant: "destructive",
       });
     } finally {
@@ -126,69 +198,27 @@ const ProfileSkills = ({ userSkills }: ProfileSkillsProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Skills</h2>
-        <AddSkillDialog
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-          newSkill={newSkill}
-          setNewSkill={setNewSkill}
-          proficiencyLevel={proficiencyLevel}
-          setProficiencyLevel={setProficiencyLevel}
-          yearsExperience={yearsExperience}
-          setYearsExperience={setYearsExperience}
-          isLoading={isLoading}
-          onAdd={handleAddSkill}
-        />
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Skills</h3>
+        <Button 
+          variant="ghost" 
+          className="text-primary flex items-center gap-1"
+          onClick={() => setShowAddDialog(true)}
+        >
+          <PlusCircle className="h-4 w-4" />
+          Add Skill
+        </Button>
       </div>
       
-      <div className="space-y-4">
-        <div className="flex flex-col space-y-2">
-          <div className="flex space-x-2">
-            <Input
-              placeholder="Enter skills separated by commas"
-              value={inputValue}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              className="flex-1"
-            />
-            <Button onClick={handleAddTempSkills} disabled={isLoading && tempSkills.length === 0}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add
-            </Button>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Type skill names and press Enter or comma (,) to add multiple skills
-          </p>
-        </div>
-        
-        {tempSkills.length > 0 && (
-          <div className="mt-2">
-            <p className="text-sm font-medium mb-1">Skills to add:</p>
-            <div className="flex flex-wrap gap-2">
-              {tempSkills.map((skill, index) => (
-                <Badge key={index} variant="secondary" className="flex items-center gap-2">
-                  {skill}
-                  <button 
-                    className="hover:text-destructive"
-                    onClick={() => removeSkill(skill)}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+      <SkillsList skills={skills} onRemove={handleRemoveSkill} />
       
-      <div className="mt-4">
-        <p className="text-sm font-medium mb-1">Your skills:</p>
-        <SkillsList 
-          skills={userSkills}
-          onRemove={handleRemoveSkill}
-        />
-      </div>
+      <AddSkillDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onAddSkill={handleAddSkill}
+        availableSkills={availableSkills}
+        isLoading={isLoading}
+      />
     </div>
   );
 };

@@ -10,6 +10,7 @@ export const useProfileData = () => {
   const [profileData, setProfileData] = useState<any>(null);
   const [userSkills, setUserSkills] = useState<any[]>([]);
   const [userInterests, setUserInterests] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [editMode, setEditMode] = useState<string | null>(null);
   const [editedValues, setEditedValues] = useState({
     first_name: "",
@@ -40,12 +41,15 @@ export const useProfileData = () => {
 
   useEffect(() => {
     const fetchProfileData = async () => {
+      setIsLoading(true);
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          navigate('/auth');
+          setIsLoading(false);
           return;
         }
+
+        console.log("Fetching profile for user:", user.id);
 
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
@@ -53,7 +57,16 @@ export const useProfileData = () => {
           .eq('id', user.id)
           .single();
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error('Profile error:', profileError);
+          if (profileError.code === 'PGRST116') {
+            // No profile found - should not happen due to trigger
+            console.log("No profile found for user");
+          }
+          throw profileError;
+        }
+
+        console.log("Received profile:", profile);
 
         const { data: skills, error: skillsError } = await supabase
           .from('user_skills')
@@ -69,7 +82,12 @@ export const useProfileData = () => {
           `)
           .eq('user_id', user.id);
 
-        if (skillsError) throw skillsError;
+        if (skillsError) {
+          console.error('Skills error:', skillsError);
+          throw skillsError;
+        }
+
+        console.log("Received skills:", skills);
 
         const { data: interests, error: interestsError } = await supabase
           .from('user_interests')
@@ -83,7 +101,12 @@ export const useProfileData = () => {
           `)
           .eq('user_id', user.id);
 
-        if (interestsError) throw interestsError;
+        if (interestsError) {
+          console.error('Interests error:', interestsError);
+          throw interestsError;
+        }
+
+        console.log("Received interests:", interests);
 
         setProfileData(profile);
         setUserSkills(skills || []);
@@ -124,6 +147,8 @@ export const useProfileData = () => {
           description: "Failed to load profile data",
           variant: "destructive",
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -286,6 +311,7 @@ export const useProfileData = () => {
     profileData,
     userSkills,
     userInterests,
+    isLoading,
     editMode,
     editedValues,
     setEditMode,
