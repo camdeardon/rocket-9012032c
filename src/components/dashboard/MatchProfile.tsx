@@ -3,7 +3,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, X, MessageCircle } from "lucide-react";
+import { Heart, X, MessageCircle, Info } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, PolarRadiusAxis, Tooltip } from "recharts";
 
 interface MatchProfile {
@@ -31,12 +31,24 @@ interface MatchProfileProps {
 }
 
 export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileProps) => {
+  // Ensure match data exists with fallbacks
+  const safeMatch = {
+    ...match,
+    matchScore: {
+      skillsMatch: match.matchScore?.skillsMatch || 0,
+      interestsMatch: match.matchScore?.interestsMatch || 0,
+      locationMatch: match.matchScore?.locationMatch || 0,
+      experienceMatch: match.matchScore?.experienceMatch || 0,
+      overallMatch: match.matchScore?.overallMatch || 0
+    }
+  };
+
   // Transform the data for the radar chart
   const matchData = [
-    { subject: 'Skills', value: match.matchScore.skillsMatch, fullMark: 100 },
-    { subject: 'Interests', value: match.matchScore.interestsMatch, fullMark: 100 },
-    { subject: 'Location', value: match.matchScore.locationMatch, fullMark: 100 },
-    { subject: 'Experience', value: match.matchScore.experienceMatch, fullMark: 100 },
+    { subject: 'Skills', value: safeMatch.matchScore.skillsMatch, fullMark: 100 },
+    { subject: 'Interests', value: safeMatch.matchScore.interestsMatch, fullMark: 100 },
+    { subject: 'Location', value: safeMatch.matchScore.locationMatch, fullMark: 100 },
+    { subject: 'Experience', value: safeMatch.matchScore.experienceMatch, fullMark: 100 },
   ];
 
   return (
@@ -45,32 +57,44 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
         <div className="space-y-6">
           <div className="text-center">
             <Avatar className="h-32 w-32 mx-auto mb-4">
-              <img src={match.avatar} alt={match.name} />
+              <img src={safeMatch.avatar} alt={safeMatch.name} />
             </Avatar>
-            <h2 className="text-2xl font-bold text-primary">{match.name}</h2>
-            <p className="text-secondary-foreground">{match.location}</p>
+            <h2 className="text-2xl font-bold text-primary">{safeMatch.name}</h2>
+            <p className="text-secondary-foreground">{safeMatch.location || "No location specified"}</p>
           </div>
           <div className="space-y-4">
-            <p className="text-secondary-foreground">{match.bio}</p>
+            <p className="text-secondary-foreground">{safeMatch.bio || "No bio available"}</p>
             <div>
               <h3 className="font-semibold mb-2">Skills</h3>
               <div className="flex flex-wrap gap-2">
-                {match.skills.slice(0, 5).map(skill => (
-                  <Badge key={skill} variant="secondary">{skill}</Badge>
-                ))}
-                {match.skills.length > 5 && (
-                  <Badge variant="outline">+{match.skills.length - 5} more</Badge>
+                {safeMatch.skills && safeMatch.skills.length > 0 ? (
+                  <>
+                    {safeMatch.skills.slice(0, 5).map(skill => (
+                      <Badge key={skill} variant="secondary">{skill}</Badge>
+                    ))}
+                    {safeMatch.skills.length > 5 && (
+                      <Badge variant="outline">+{safeMatch.skills.length - 5} more</Badge>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-sm text-muted-foreground">No skills listed</span>
                 )}
               </div>
             </div>
             <div>
               <h3 className="font-semibold mb-2">Interests</h3>
               <div className="flex flex-wrap gap-2">
-                {match.interests.slice(0, 5).map(interest => (
-                  <Badge key={interest} variant="outline">{interest}</Badge>
-                ))}
-                {match.interests.length > 5 && (
-                  <Badge variant="outline">+{match.interests.length - 5} more</Badge>
+                {safeMatch.interests && safeMatch.interests.length > 0 ? (
+                  <>
+                    {safeMatch.interests.slice(0, 5).map(interest => (
+                      <Badge key={interest} variant="outline">{interest}</Badge>
+                    ))}
+                    {safeMatch.interests.length > 5 && (
+                      <Badge variant="outline">+{safeMatch.interests.length - 5} more</Badge>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-sm text-muted-foreground">No interests listed</span>
                 )}
               </div>
             </div>
@@ -104,6 +128,12 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
 
         <div className="space-y-6">
           <div className="h-[300px]">
+            <div className="flex items-center justify-end mb-2">
+              <div className="flex items-center text-xs text-muted-foreground">
+                <Info className="h-3.5 w-3.5 mr-1" />
+                <span>Higher values indicate stronger matches</span>
+              </div>
+            </div>
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={matchData} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
                 <PolarGrid stroke="#e5e7eb" />
@@ -112,6 +142,12 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
                 <Tooltip 
                   formatter={(value) => [`${value}%`, 'Match Score']} 
                   labelFormatter={(label) => `${label} Match`}
+                  contentStyle={{ 
+                    backgroundColor: 'white', 
+                    borderRadius: '0.5rem',
+                    border: '1px solid #e5e7eb',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                  }}
                 />
                 <Radar
                   name="Match"
@@ -119,6 +155,7 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
                   stroke="#529493"
                   fill="#529493"
                   fillOpacity={0.6}
+                  animationDuration={1000}
                 />
               </RadarChart>
             </ResponsiveContainer>
@@ -127,13 +164,13 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
             <h4 className="font-semibold mb-2">Match Analysis</h4>
             <div className="space-y-2">
               <p className="text-secondary-foreground">
-                <span className="font-medium">Skills Match:</span> {match.matchScore.skillsMatch}%
+                <span className="font-medium">Skills Match:</span> {safeMatch.matchScore.skillsMatch}%
               </p>
               <p className="text-secondary-foreground">
-                <span className="font-medium">Interests Match:</span> {match.matchScore.interestsMatch}%
+                <span className="font-medium">Interests Match:</span> {safeMatch.matchScore.interestsMatch}%
               </p>
               <p className="text-secondary-foreground">
-                <span className="font-medium">Overall Match:</span> {match.matchScore.overallMatch}%
+                <span className="font-medium">Overall Match:</span> {safeMatch.matchScore.overallMatch}%
               </p>
               <p className="text-sm text-muted-foreground mt-4">
                 The radar chart shows compatibility across different dimensions.
