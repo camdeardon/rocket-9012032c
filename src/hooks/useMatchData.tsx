@@ -28,7 +28,7 @@ export const useMatchData = () => {
           throw calcError;
         }
 
-        // Then fetch match details with explicit table aliases to avoid ambiguity
+        // Then fetch match details with proper table aliasing
         const { data: matchDetails, error: matchError } = await supabase
           .from('match_scores')
           .select(`
@@ -65,23 +65,41 @@ export const useMatchData = () => {
           return;
         }
 
-        // Format the matches data
-        const formattedMatches = matchDetails.map(match => ({
-          id: match.id,
-          name: `${match.profiles.first_name} ${match.profiles.last_name}`,
-          avatar: match.profiles.avatar_url || '/placeholder.svg',
-          bio: match.profiles.bio || '',
-          location: match.profiles.location || '',
-          skills: match.profiles.skills || [],
-          interests: match.profiles.interests || [],
-          matchScore: {
-            skillsMatch: Number(match.skills_similarity) || 0,
-            interestsMatch: Number(match.interests_similarity) || 0,
-            locationMatch: 75, // Placeholder until location matching is implemented
-            experienceMatch: 80, // Placeholder until experience matching is implemented
-            overallMatch: Number(match.similarity_score) || 0,
+        // Format the matches data, ensuring proper type safety
+        const formattedMatches = matchDetails.map(match => {
+          // Handle type safely by checking if profiles exists
+          const profileData = match.profiles as {
+            first_name: string;
+            last_name: string;
+            avatar_url: string | null;
+            bio: string;
+            location: string;
+            skills: string[];
+            interests: string[];
+          } | null;
+
+          if (!profileData) {
+            console.warn(`No profile data found for match ${match.id}`);
+            return null;
           }
-        }));
+
+          return {
+            id: match.id,
+            name: `${profileData.first_name} ${profileData.last_name}`,
+            avatar: profileData.avatar_url || '/placeholder.svg',
+            bio: profileData.bio || '',
+            location: profileData.location || '',
+            skills: profileData.skills || [],
+            interests: profileData.interests || [],
+            matchScore: {
+              skillsMatch: Number(match.skills_similarity) || 0,
+              interestsMatch: Number(match.interests_similarity) || 0,
+              locationMatch: 75, // Placeholder until location matching is implemented
+              experienceMatch: 80, // Placeholder until experience matching is implemented
+              overallMatch: Number(match.similarity_score) || 0,
+            }
+          };
+        }).filter(Boolean); // Remove any null entries
 
         console.log("Formatted matches:", formattedMatches);
         setMatches(formattedMatches);
