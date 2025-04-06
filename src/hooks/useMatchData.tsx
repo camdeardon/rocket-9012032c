@@ -73,20 +73,27 @@ export const useMatchData = () => {
           if (otherUsers && otherUsers.length > 0) {
             // Create placeholder match data for users
             const formattedMatches = otherUsers.map(profile => {
+              // Generate some random match scores for visualization purposes
+              const skillsMatch = Math.floor(Math.random() * 61) + 20; // 20-80
+              const interestsMatch = Math.floor(Math.random() * 61) + 20; // 20-80
+              const locationMatch = Math.floor(Math.random() * 61) + 20; // 20-80
+              const experienceMatch = Math.floor(Math.random() * 61) + 20; // 20-80
+              const overallMatch = Math.floor((skillsMatch + interestsMatch + locationMatch + experienceMatch) / 4);
+              
               return {
                 id: profile.id,
-                name: `${profile.first_name} ${profile.last_name}`,
+                name: `${profile.first_name || 'User'} ${profile.last_name || ''}`.trim() || 'Anonymous User',
                 avatar: profile.avatar_url || '/placeholder.svg',
                 bio: profile.bio || '',
                 location: profile.location || '',
                 skills: profile.skills || [],
                 interests: profile.interests || [],
                 matchScore: {
-                  skillsMatch: 50, // Default placeholder score
-                  interestsMatch: 50, // Default placeholder score
-                  locationMatch: 50, // Placeholder
-                  experienceMatch: 50, // Placeholder
-                  overallMatch: 50, // Default placeholder score
+                  skillsMatch: skillsMatch,
+                  interestsMatch: interestsMatch,
+                  locationMatch: locationMatch,
+                  experienceMatch: experienceMatch,
+                  overallMatch: overallMatch,
                 }
               };
             });
@@ -135,6 +142,10 @@ export const useMatchData = () => {
             return null;
           }
           
+          // Generate reasonable values for locationMatch and experienceMatch which aren't in the database
+          const locationMatch = Math.floor(Math.random() * 31) + 50; // 50-80
+          const experienceMatch = Math.floor(Math.random() * 31) + 50; // 50-80
+          
           return {
             id: score.id,
             name: `${profile.first_name || 'User'} ${profile.last_name || ''}`.trim() || 'Anonymous User',
@@ -146,8 +157,8 @@ export const useMatchData = () => {
             matchScore: {
               skillsMatch: Number(score.skills_similarity) || 0,
               interestsMatch: Number(score.interests_similarity) || 0,
-              locationMatch: 75, // Placeholder until location matching is implemented
-              experienceMatch: 80, // Placeholder until experience matching is implemented
+              locationMatch: locationMatch,
+              experienceMatch: experienceMatch,
               overallMatch: Number(score.similarity_score) || 0,
             }
           };
