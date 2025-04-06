@@ -46,15 +46,50 @@ const Dashboard = () => {
     };
   }, [autoRefresh, fetchMatchesAgain, toast]);
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (matches && matches.length > 0) {
-      toast({
-        title: "It's a match! 🎉",
-        description: `You and ${matches[currentMatchIndex].name} have been matched!`,
-      });
-      setCurrentMatchIndex(prev => 
-        prev + 1 >= matches.length ? prev : prev + 1
-      );
+      const currentMatch = matches[currentMatchIndex];
+      
+      try {
+        // Save the match to the database
+        const { data, error } = await supabase
+          .from('matches')
+          .insert([
+            { 
+              user_id: profileData.id,
+              matched_user_id: currentMatch.id,
+              match_score: currentMatch.matchScore.overallMatch,
+              skills_match_score: currentMatch.matchScore.skillsMatch,
+              interests_match_score: currentMatch.matchScore.interestsMatch,
+              status: 'matched'
+            }
+          ]);
+        
+        if (error) {
+          console.error("Error saving match:", error);
+          toast({
+            title: "Error",
+            description: "Failed to save match. Please try again.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "It's a match! 🎉",
+            description: `You and ${currentMatch.name} have been matched!`,
+          });
+          // Move to the next match
+          setCurrentMatchIndex(prev => 
+            prev + 1 >= matches.length ? prev : prev + 1
+          );
+        }
+      } catch (error) {
+        console.error("Error in match process:", error);
+        toast({
+          title: "Error",
+          description: "Something went wrong. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
