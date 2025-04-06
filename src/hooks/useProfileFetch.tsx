@@ -22,8 +22,6 @@ export const useProfileFetch = () => {
           return;
         }
 
-        console.log("Fetching profile for user:", user.id);
-
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -32,14 +30,10 @@ export const useProfileFetch = () => {
 
         if (profileError) {
           console.error('Profile error:', profileError);
-          if (profileError.code === 'PGRST116') {
-            console.log("No profile found for user");
-          }
           throw profileError;
         }
 
-        console.log("Received profile:", profile);
-
+        // Get user skills
         const { data: skills, error: skillsError } = await supabase
           .from('user_skills')
           .select(`
@@ -59,8 +53,7 @@ export const useProfileFetch = () => {
           throw skillsError;
         }
 
-        console.log("Received skills:", skills);
-
+        // Get user interests
         const { data: interests, error: interestsError } = await supabase
           .from('user_interests')
           .select(`
@@ -77,8 +70,6 @@ export const useProfileFetch = () => {
           console.error('Interests error:', interestsError);
           throw interestsError;
         }
-
-        console.log("Received interests:", interests);
 
         setProfileData(profile);
         setUserSkills(skills || []);

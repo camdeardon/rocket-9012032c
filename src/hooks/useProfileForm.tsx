@@ -106,9 +106,6 @@ export const useProfileForm = () => {
         [name]: value,
       }));
     }
-
-    // Log the updated form data for debugging
-    console.log(`Updated ${name}:`, value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -122,13 +119,6 @@ export const useProfileForm = () => {
       const location = [formData.city, formData.state, formData.country]
         .filter(Boolean)
         .join(", ");
-
-      console.log('Submitting profile update with data:', {
-        bio: formData.about,
-        skills: formData.skills,
-        interests: formData.interests,
-        // Add other fields for debugging
-      });
 
       const { error: profileError } = await supabase
         .from('profiles')
