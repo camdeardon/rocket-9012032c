@@ -18,15 +18,22 @@ interface SkillsListProps {
 }
 
 export const SkillsList = ({ skills, onRemove }: SkillsListProps) => {
+  if (skills.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground italic">No skills added yet. Add skills above.</p>
+    );
+  }
+
   return (
     <div className="flex flex-wrap gap-2">
       {skills.map((userSkill) => (
-        <Badge key={userSkill.id} variant="secondary" className="flex items-center gap-2">
+        <Badge key={userSkill.id} variant="secondary" className="flex items-center gap-2 py-1 px-3">
           {userSkill.skill.name}
           {userSkill.proficiency_level && ` (${userSkill.proficiency_level})`}
           <button 
-            className="hover:text-destructive"
+            className="hover:text-destructive ml-1"
             onClick={() => onRemove(userSkill.id)}
+            aria-label={`Remove ${userSkill.skill.name}`}
           >
             <X className="h-3 w-3" />
           </button>

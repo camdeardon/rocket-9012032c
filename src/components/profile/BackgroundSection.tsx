@@ -43,6 +43,9 @@ const BackgroundSection = ({ background, interests, dateOfBirth, onChange }: Bac
           onChange={onChange}
           className="min-h-[100px] bg-white"
         />
+        <p className="text-sm text-muted-foreground">
+          Separate interests with commas. After saving, you can manage individual interests in the Interests section on the right.
+        </p>
       </div>
 
       <div className="space-y-4">

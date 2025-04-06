@@ -42,7 +42,7 @@ const AboutSection = ({ about, skills, onChange }: AboutSectionProps) => {
           className="min-h-[100px] bg-white"
         />
         <p className="text-sm text-muted-foreground">
-          Separate multiple skills with commas. Spaces and multi-word skills are allowed.
+          Separate skills with commas. After saving, you can manage individual skills in the Skills section on the right.
         </p>
       </div>
     </div>
