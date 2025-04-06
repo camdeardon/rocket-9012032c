@@ -28,77 +28,41 @@ export const useMatchData = () => {
           throw calcError;
         }
 
-        // Fetch match scores first
-        const { data: matchScores, error: matchScoresError } = await supabase
-          .from('match_scores')
-          .select(`
-            id,
-            matched_user_id,
-            skills_similarity,
-            interests_similarity,
-            similarity_score
-          `)
-          .eq('user_id', user.id)
-          .order('similarity_score', { ascending: false });
+        // Use get_match_details RPC function to avoid ambiguous column issues
+        const { data: matchDetails, error: matchError } = await supabase
+          .rpc('get_match_details', { user_id_param: user.id });
 
-        if (matchScoresError) {
-          console.error('Match scores error:', matchScoresError);
-          throw matchScoresError;
+        if (matchError) {
+          console.error('Match details error:', matchError);
+          throw matchError;
         }
 
-        if (!matchScores || matchScores.length === 0) {
+        console.log("Match details from RPC:", matchDetails);
+
+        // If no matches were found
+        if (!matchDetails || matchDetails.length === 0) {
           console.log("No matches found for user");
           setMatches([]);
           setIsLoading(false);
           return;
         }
 
-        // Get the matched user profiles separately
-        const matchedUserIds = matchScores.map(match => match.matched_user_id);
-        const { data: matchedProfiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select(`
-            id,
-            first_name,
-            last_name,
-            avatar_url,
-            bio,
-            location,
-            skills,
-            interests
-          `)
-          .in('id', matchedUserIds);
-
-        if (profilesError) {
-          console.error('Profiles error:', profilesError);
-          throw profilesError;
-        }
-
-        // Combine the data
-        const formattedMatches = matchScores.map(matchScore => {
-          const matchedProfile = matchedProfiles?.find(
-            profile => profile.id === matchScore.matched_user_id
-          );
-          
-          if (!matchedProfile) {
-            console.warn(`No profile found for match ${matchScore.id}`);
-            return null;
-          }
-
+        // Format the matches data
+        const formattedMatches = matchDetails.map(match => {
           return {
-            id: matchScore.id,
-            name: `${matchedProfile.first_name} ${matchedProfile.last_name}`,
-            avatar: matchedProfile.avatar_url || '/placeholder.svg',
-            bio: matchedProfile.bio || '',
-            location: matchedProfile.location || '',
-            skills: matchedProfile.skills || [],
-            interests: matchedProfile.interests || [],
+            id: match.match_id,
+            name: `${match.first_name} ${match.last_name}`,
+            avatar: match.avatar_url || '/placeholder.svg',
+            bio: match.bio || '',
+            location: match.location || '',
+            skills: match.skills || [],
+            interests: match.interests || [],
             matchScore: {
-              skillsMatch: Number(matchScore.skills_similarity) || 0,
-              interestsMatch: Number(matchScore.interests_similarity) || 0,
+              skillsMatch: Number(match.skills_match_score) || 0,
+              interestsMatch: Number(match.interests_match_score) || 0,
               locationMatch: 75, // Placeholder until location matching is implemented
               experienceMatch: 80, // Placeholder until experience matching is implemented
-              overallMatch: Number(matchScore.similarity_score) || 0,
+              overallMatch: Number(match.match_score) || 0,
             }
           };
         }).filter(Boolean); // Remove any null entries
