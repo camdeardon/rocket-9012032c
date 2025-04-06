@@ -14,11 +14,15 @@ export const useMatchData = () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // First, ensure match scores are calculated
+        // Call the get_match_details function to calculate and fetch matches
+        // This function has proper permissions set up in the database
         const { data: matchDetails, error: matchError } = await supabase
           .rpc('get_match_details', { user_id_param: user.id });
 
-        if (matchError) throw matchError;
+        if (matchError) {
+          console.error('Match details error:', matchError);
+          throw matchError;
+        }
 
         // Format the matches data
         const formattedMatches = matchDetails.map(match => ({
@@ -39,11 +43,11 @@ export const useMatchData = () => {
         }));
 
         setMatches(formattedMatches);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching matches:', error);
         toast({
           title: "Error",
-          description: "Failed to load matches",
+          description: error.message || "Failed to load matches",
           variant: "destructive",
         });
       } finally {
