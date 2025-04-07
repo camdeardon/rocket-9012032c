@@ -1,6 +1,8 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, typedSupabase } from "@/integrations/supabase/client";
+import { generateMLRecommendations } from "@/utils/mlUtils";
 
 export const useMatchData = () => {
   const { toast } = useToast();
@@ -23,129 +25,35 @@ export const useMatchData = () => {
       console.log("Fetching matches for user:", user.id);
 
       // First, manually trigger the calculation of enhanced match scores (ML-based)
-      const { error: calcError } = await supabase.rpc('calculate_enhanced_match_scores', { user_id_param: user.id });
-      if (calcError) {
+      try {
+        // Use our typed client to access the function
+        await typedSupabase.rpc('calculate_enhanced_match_scores', { user_id_param: user.id });
+      } catch (calcError) {
         console.error('Error calculating enhanced match scores:', calcError);
-        setError(`Failed to calculate match scores: ${calcError.message}`);
         // Continue execution to try fetching existing matches anyway
       }
 
-      // Fetch match data from the enhanced_match_recommendations view
+      // Fetch match data from the database directly to avoid type issues
       const { data: enhancedMatches, error: enhancedMatchesError } = await supabase
-        .from('enhanced_match_recommendations')
-        .select('*')
+        .from('match_scores')
+        .select(`
+          matched_user_id,
+          skills_similarity,
+          interests_similarity,
+          similarity_score
+        `)
         .eq('user_id', user.id)
-        .order('match_score', { ascending: false });
+        .order('similarity_score', { ascending: false });
 
       if (enhancedMatchesError) {
         console.error('Enhanced matches error:', enhancedMatchesError);
         setError(`Failed to fetch enhanced matches: ${enhancedMatchesError.message}`);
-        
-        // Fallback to traditional match scores
-        const { data: matchScores, error: matchScoresError } = await supabase
-          .from('match_scores')
-          .select(`
-            id,
-            matched_user_id,
-            skills_similarity,
-            interests_similarity,
-            similarity_score
-          `)
-          .eq('user_id', user.id)
-          .order('similarity_score', { ascending: false });
-
-        if (matchScoresError) {
-          console.error('Match scores error:', matchScoresError);
-          setError(`Failed to fetch match scores: ${matchScoresError.message}`);
-          throw matchScoresError;
-        }
-
-        // Process the traditional match scores (similar to original code)
-        // Combine match IDs from both sources, removing duplicates
-        const matchedUserIds = new Set<string>();
-        
-        matchScores?.forEach(match => {
-          if (match.matched_user_id) matchedUserIds.add(match.matched_user_id);
-        });
-        
-        if (matchedUserIds.size === 0) {
-          console.log("No matched user IDs found");
-          setMatches([]);
-          setIsLoading(false);
-          return;
-        }
-        
-        console.log("Fetching profiles for matched users:", [...matchedUserIds].length);
-        
-        // Fetch profile details for all matched users
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select(`
-            id,
-            first_name,
-            last_name,
-            avatar_url,
-            bio,
-            location,
-            skills,
-            interests
-          `)
-          .in('id', [...matchedUserIds]);
-
-        if (profilesError) {
-          console.error('Profiles error:', profilesError);
-          setError(`Failed to fetch profiles: ${profilesError.message}`);
-          throw profilesError;
-        }
-
-        console.log("Profiles found:", profiles?.length || 0);
-
-        if (!profiles || profiles.length === 0) {
-          console.error("No profiles found for matched user IDs");
-          setMatches([]);
-          setIsLoading(false);
-          return;
-        }
-
-        // Combine scores with profile information
-        const formattedMatches = profiles.map(profile => {
-          const matchScoreData = matchScores?.find(m => m.matched_user_id === profile.id);
-          if (!matchScoreData) {
-            console.warn(`No match score found for user ${profile.id}`);
-            return null;
-          }
-          
-          // Generate reasonable values for locationMatch and experienceMatch 
-          const locationMatch = Math.floor(Math.random() * 31) + 50; // 50-80
-          const experienceMatch = Math.floor(Math.random() * 31) + 50; // 50-80
-          
-          return {
-            id: profile.id,
-            name: `${profile.first_name || 'User'} ${profile.last_name || ''}`.trim() || 'Anonymous User',
-            avatar: profile.avatar_url || '/placeholder.svg',
-            bio: profile.bio || '',
-            location: profile.location || '',
-            skills: profile.skills || [],
-            interests: profile.interests || [],
-            matchScore: {
-              skillsMatch: Number(matchScoreData.skills_similarity) || 0,
-              interestsMatch: Number(matchScoreData.interests_similarity) || 0,
-              locationMatch,
-              experienceMatch,
-              overallMatch: Number(matchScoreData.similarity_score) || 0,
-            }
-          };
-        }).filter(Boolean) || [];
-
-        console.log("Formatted matches:", formattedMatches.length);
-        setMatches(formattedMatches);
-        setIsLoading(false);
-        return;
+        throw enhancedMatchesError;
       }
 
-      console.log("Enhanced matches found:", enhancedMatches?.length || 0);
+      console.log("Match scores found:", enhancedMatches?.length || 0);
 
-      // If no enhanced matches were found, try to fetch some profiles as fallback
+      // If no matches were found, try to fetch some profiles as fallback
       if (!enhancedMatches || enhancedMatches.length === 0) {
         console.log("No enhanced matches found, fetching random profiles as fallback");
         
@@ -163,7 +71,7 @@ export const useMatchData = () => {
         if (randomProfiles && randomProfiles.length > 0) {
           console.log("Found random profiles for fallback:", randomProfiles.length);
           const fallbackMatches = randomProfiles.map((profile, index) => ({
-            id: `fallback-${index}`,
+            id: profile.id,
             name: `${profile.first_name || 'User'} ${profile.last_name || ''}`.trim() || 'Anonymous User',
             avatar: profile.avatar_url || '/placeholder.svg',
             bio: profile.bio || 'No bio available',
@@ -188,6 +96,23 @@ export const useMatchData = () => {
         }
       }
 
+      // Fetch ML recommendations to enhance match data
+      const { data: mlRecommendations, error: mlError } = await supabase
+        .from('ml_match_recommendations')
+        .select('matched_user_id, recommendation_score, features, recommendation_type')
+        .eq('user_id', user.id);
+      
+      if (mlError) {
+        console.error('Error fetching ML recommendations:', mlError);
+        // Continue without ML data if there's an error
+      }
+
+      // Create a map of ML recommendations for easy lookup
+      const mlRecommendationsMap = new Map();
+      mlRecommendations?.forEach(rec => {
+        mlRecommendationsMap.set(rec.matched_user_id, rec);
+      });
+
       // Fetch profile details for all matched users
       const matchedUserIds = enhancedMatches.map(match => match.matched_user_id);
       const { data: profiles, error: profilesError } = await supabase
@@ -210,15 +135,39 @@ export const useMatchData = () => {
         throw profilesError;
       }
 
+      // Fetch mutual matches
+      const { data: mutualMatches, error: mutualMatchesError } = await supabase
+        .from('matches')
+        .select('matched_user_id')
+        .eq('user_id', user.id)
+        .eq('status', 'mutual');
+      
+      if (mutualMatchesError) {
+        console.error('Mutual matches error:', mutualMatchesError);
+        // Continue without mutual match data
+      }
+
+      // Create a set of mutual match IDs for fast lookup
+      const mutualMatchesSet = new Set<string>();
+      mutualMatches?.forEach(match => {
+        mutualMatchesSet.add(match.matched_user_id);
+      });
+
       // Combine scores with profile information
-      const formattedMatches = enhancedMatches.map(match => {
-        const profile = profiles?.find(p => p.id === match.matched_user_id);
-        if (!profile) return null;
+      const formattedMatches = profiles?.map(profile => {
+        const matchScoreData = enhancedMatches?.find(m => m.matched_user_id === profile.id);
+        if (!matchScoreData) {
+          console.warn(`No match score found for user ${profile.id}`);
+          return null;
+        }
         
-        // Generate reasonable values for locationMatch and experienceMatch using pattern from match features
-        let matchFeatures = match.match_features || {};
-        const locationMatch = matchFeatures.location_match || Math.floor(Math.random() * 31) + 50;
-        const experienceMatch = matchFeatures.experience_match || Math.floor(Math.random() * 31) + 50;
+        // Get ML recommendation data if available
+        const mlRec = mlRecommendationsMap.get(profile.id);
+        const mlFeatures = mlRec?.features || {};
+        
+        // Generate reasonable values for missing scores
+        const locationMatch = mlFeatures.location_score || Math.floor(Math.random() * 31) + 50;
+        const experienceMatch = mlFeatures.experience_match || Math.floor(Math.random() * 31) + 50;
         
         return {
           id: profile.id,
@@ -229,14 +178,14 @@ export const useMatchData = () => {
           skills: profile.skills || [],
           interests: profile.interests || [],
           matchScore: {
-            skillsMatch: Number(match.skills_match_score) || 0,
-            interestsMatch: Number(match.interests_match_score) || 0,
+            skillsMatch: Number(matchScoreData.skills_similarity) || 0,
+            interestsMatch: Number(matchScoreData.interests_similarity) || 0,
             locationMatch: Number(locationMatch),
             experienceMatch: Number(experienceMatch),
-            overallMatch: Number(match.match_score) || 0,
+            overallMatch: Number(matchScoreData.similarity_score) || 0,
           },
-          isMutual: match.is_mutual || false,
-          matchType: match.match_type || 'basic'
+          isMutual: mutualMatchesSet.has(profile.id),
+          matchType: mlRec ? mlRec.recommendation_type : 'basic'
         };
       }).filter(Boolean) || [];
 

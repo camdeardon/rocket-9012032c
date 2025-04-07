@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -10,6 +11,7 @@ import { Briefcase, RefreshCw, AlertCircle, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfileData } from "@/hooks/useProfileData";
 import { supabase } from "@/integrations/supabase/client";
+import { generateMLRecommendations } from "@/utils/mlUtils";
 
 const Dashboard = () => {
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);

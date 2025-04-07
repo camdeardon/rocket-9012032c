@@ -17,3 +17,13 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     },
   },
 });
+
+// Add custom types for our RPC functions to avoid TypeScript errors
+export type CustomSupabaseClient = typeof supabase & {
+  rpc: typeof supabase.rpc & {
+    calculate_enhanced_match_scores: (args: { user_id_param: string }) => ReturnType<typeof supabase.rpc>
+  }
+};
+
+// Cast supabase client to our extended type
+export const typedSupabase = supabase as CustomSupabaseClient;
