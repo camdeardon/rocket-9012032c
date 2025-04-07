@@ -1,4 +1,3 @@
-
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -50,7 +49,7 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
     { subject: 'Location', value: safeMatch.matchScore.locationMatch, fullMark: 100 },
     { subject: 'Experience', value: safeMatch.matchScore.experienceMatch, fullMark: 100 },
   ];
-
+  
   return (
     <Card className="p-6 bg-white/90 backdrop-blur-sm">
       <div className="grid grid-cols-1 lg:grid-cols-[1fr,1fr] gap-8">
