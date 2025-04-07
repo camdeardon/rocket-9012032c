@@ -9,6 +9,7 @@ import { useProfileForm } from "@/hooks/useProfileForm";
 const CompleteProfile = () => {
   const { 
     profileData, 
+    userSkills,
     editMode, 
     editedValues, 
     setEditMode, 
@@ -47,6 +48,7 @@ const CompleteProfile = () => {
               onFileChange={handleFileChange}
               onSubmit={handleSubmit}
               editMode={false}
+              userSkills={userSkills}
             />
           </Card>
         </div>

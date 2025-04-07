@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,11 +28,9 @@ const ProfileMainContent = ({
       <Card className="p-6 bg-white/90 backdrop-blur-sm">
         <AboutSection
           about={editedValues.bio || ""}
-          skills={editedValues.skills?.join(", ") || ""}
           onChange={(e) => setEditedValues(prev => ({
             ...prev,
-            [e.target.name === "about" ? "bio" : e.target.name]: 
-            e.target.name === "skills" ? e.target.value.split(/\s*,\s*/).filter(Boolean) : e.target.value
+            [e.target.name === "about" ? "bio" : e.target.name]: e.target.value
           }))}
         />
         {editMode === 'about' && (

@@ -8,6 +8,7 @@ import BackgroundSection from "./BackgroundSection";
 import ProfileEnhancement from "./ProfileEnhancement";
 import ProfileWorkPreferences from "./ProfileWorkPreferences";
 import ProfileBusinessDetails from "./ProfileBusinessDetails";
+import ProfileSkills from "./ProfileSkills";
 
 interface ProfileFormProps {
   formData: {
@@ -39,6 +40,7 @@ interface ProfileFormProps {
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   editMode: boolean;
+  userSkills?: any[];
 }
 
 const ProfileForm = ({ 
@@ -47,9 +49,10 @@ const ProfileForm = ({
   onChange, 
   onFileChange, 
   onSubmit, 
-  editMode 
+  editMode,
+  userSkills = []
 }: ProfileFormProps) => {
-  // Convert arrays to comma-separated strings for display in inputs
+  // Get input value for arrays
   const getInputValue = (value: string | string[]): string => {
     if (Array.isArray(value)) {
       return value.join(', ');
@@ -63,7 +66,6 @@ const ProfileForm = ({
         <div className="space-y-8">
           <AboutSection
             about={formData.about}
-            skills={getInputValue(formData.skills)}
             onChange={onChange}
           />
           <LocationSection formData={formData} onChange={onChange} />
@@ -88,6 +90,8 @@ const ProfileForm = ({
             onChange={onChange}
             editMode={editMode ? "true" : "false"}
           />
+          
+          <ProfileSkills userSkills={userSkills} />
         </div>
       </div>
 
