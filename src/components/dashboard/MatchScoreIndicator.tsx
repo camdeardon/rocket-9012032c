@@ -10,6 +10,13 @@ interface MatchScoreProps {
 }
 
 export const MatchScoreIndicator = ({ matchScore }: MatchScoreProps) => {
+  // Function to determine color based on score
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return "bg-primary";
+    if (score >= 60) return "bg-accent";
+    return "bg-coral";
+  };
+
   return (
     <div className="bg-slate-50/50 p-4 rounded-lg">
       <h4 className="font-semibold mb-2 text-sm uppercase tracking-wider text-primary/70">Match Analysis</h4>
@@ -19,7 +26,7 @@ export const MatchScoreIndicator = ({ matchScore }: MatchScoreProps) => {
           <div className="flex items-center gap-2">
             <div className="h-2 w-24 bg-gray-200 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-primary" 
+                className={`h-full ${getScoreColor(matchScore.skillsMatch)}`}
                 style={{ width: `${matchScore.skillsMatch}%` }}
               ></div>
             </div>
@@ -31,7 +38,7 @@ export const MatchScoreIndicator = ({ matchScore }: MatchScoreProps) => {
           <div className="flex items-center gap-2">
             <div className="h-2 w-24 bg-gray-200 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-primary" 
+                className={`h-full ${getScoreColor(matchScore.interestsMatch)}`}
                 style={{ width: `${matchScore.interestsMatch}%` }}
               ></div>
             </div>
@@ -43,7 +50,7 @@ export const MatchScoreIndicator = ({ matchScore }: MatchScoreProps) => {
           <div className="flex items-center gap-2">
             <div className="h-2 w-24 bg-gray-200 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-primary" 
+                className={`h-full ${getScoreColor(matchScore.overallMatch)}`}
                 style={{ width: `${matchScore.overallMatch}%` }}
               ></div>
             </div>

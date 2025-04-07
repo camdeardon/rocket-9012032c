@@ -35,10 +35,10 @@ export const MatchActionButtons = ({ onLike, onPass, onMessage }: MatchActionBut
       <Button
         size="lg"
         variant="outline"
-        className="rounded-full p-4 hover:bg-destructive/10 hover:border-destructive transition-colors"
+        className="rounded-full p-4 hover:bg-coral/10 hover:border-coral transition-colors"
         onClick={onPass}
       >
-        <X className="h-6 w-6" />
+        <X className="h-6 w-6 text-coral" />
       </Button>
       <Button
         size="lg"
@@ -51,10 +51,10 @@ export const MatchActionButtons = ({ onLike, onPass, onMessage }: MatchActionBut
       <Button
         size="lg"
         variant="outline"
-        className="rounded-full p-4 hover:bg-blue-500/10 hover:border-blue-500 transition-colors"
+        className="rounded-full p-4 hover:bg-accent/10 hover:border-accent transition-colors"
         onClick={onMessage}
       >
-        <MessageCircle className="h-6 w-6" />
+        <MessageCircle className="h-6 w-6 text-accent" />
       </Button>
     </div>
   );

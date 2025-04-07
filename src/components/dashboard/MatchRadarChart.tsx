@@ -40,8 +40,8 @@ export const MatchRadarChart = ({ matchData }: MatchRadarChartProps) => {
             <Radar
               name="Match"
               dataKey="value"
-              stroke="#529493"
-              fill="#529493"
+              stroke="rgb(82, 147, 148)"
+              fill="rgb(82, 147, 148)"
               fillOpacity={0.6}
               animationDuration={1000}
             />
