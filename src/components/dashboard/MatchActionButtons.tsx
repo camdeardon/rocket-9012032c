@@ -22,11 +22,11 @@ export const MatchActionButtons = ({ onLike, onPass, onMessage }: MatchActionBut
         title: "Match created!",
         description: "You've successfully matched with this person.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating match:", error);
       toast({
         title: "Failed to save match",
-        description: "There was an error connecting with this person. Please try again.",
+        description: error.message || "There was an error connecting with this person. Please try again.",
         variant: "destructive",
       });
     } finally {

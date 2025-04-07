@@ -34,7 +34,7 @@ const ProfileEnhancement = ({ onFileChange }: ProfileEnhancementProps) => {
     
     const file = e.target.files[0];
     const fileExt = file.name.split('.').pop();
-    const filePath = `profile-pictures/${uuidv4()}.${fileExt}`;
+    const filePath = `${uuidv4()}.${fileExt}`;
     
     setIsUploading(true);
     
@@ -54,14 +54,18 @@ const ProfileEnhancement = ({ onFileChange }: ProfileEnhancementProps) => {
       if (uploadError) throw uploadError;
       
       // Get public URL
-      const { data: publicURL } = supabase.storage
+      const { data: publicURLData } = supabase.storage
         .from('profiles')
         .getPublicUrl(filePath);
+      
+      if (!publicURLData || !publicURLData.publicUrl) {
+        throw new Error('Failed to get public URL for uploaded image');
+      }
       
       // Update user profile with new avatar URL
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ avatar_url: publicURL.publicUrl })
+        .update({ avatar_url: publicURLData.publicUrl })
         .eq('id', user.id);
       
       if (updateError) throw updateError;
