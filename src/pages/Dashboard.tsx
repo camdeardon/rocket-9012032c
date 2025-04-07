@@ -14,7 +14,7 @@ import { generateMLRecommendations } from "@/utils/mlUtils";
 
 const Dashboard = () => {
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
-  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -24,18 +24,9 @@ const Dashboard = () => {
   useEffect(() => {
     let intervalId: number;
     if (autoRefresh) {
-      toast({
-        title: "Auto-refresh enabled",
-        description: "Matches will refresh automatically every 30 seconds",
-      });
-      
       intervalId = window.setInterval(() => {
         console.log("Auto-refreshing matches...");
         fetchMatchesAgain();
-        toast({
-          title: "Matches refreshed",
-          description: "Your matches have been automatically updated",
-        });
       }, 30000);
     }
 
@@ -197,16 +188,6 @@ const Dashboard = () => {
     }
   };
 
-  const toggleAutoRefresh = () => {
-    setAutoRefresh(prev => !prev);
-    if (autoRefresh) {
-      toast({
-        title: "Auto-refresh disabled",
-        description: "You've turned off automatic match refreshing",
-      });
-    }
-  };
-
   const completeProfile = () => {
     navigate('/complete-profile');
   };
@@ -252,32 +233,33 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
           <ProfileSummary user={userProfile} />
-          <div className="flex flex-wrap gap-3 w-full md:w-auto">
-            <Button onClick={goToProjects} className="hover:scale-105 transition-transform w-full sm:w-auto">
-              <Briefcase className="mr-2 h-4 w-4" />
-              View Projects
-            </Button>
+          
+          <div className="flex flex-wrap gap-2 w-full md:w-auto bg-white/80 backdrop-blur-sm p-3 rounded-lg shadow-sm">
             <Button 
-              variant="outline" 
+              onClick={goToProjects} 
+              variant="ghost" 
+              className="hover:bg-primary/10 transition-all"
+            >
+              <Briefcase className="mr-2 h-4 w-4" />
+              Projects
+            </Button>
+            
+            <Button 
+              variant="ghost"
               onClick={refreshMatches} 
-              className="hover:scale-105 transition-transform w-full sm:w-auto"
+              className="hover:bg-primary/10 transition-all"
             >
               <RefreshCw className={`mr-2 h-4 w-4 ${autoRefresh ? 'animate-spin' : ''}`} />
-              Refresh Matches
+              Refresh
             </Button>
+            
             <Button 
-              variant={autoRefresh ? "default" : "outline"}
-              onClick={toggleAutoRefresh}
-              className="hover:scale-105 transition-transform w-full sm:w-auto"
-            >
-              {autoRefresh ? "Disable Auto-refresh" : "Enable Auto-refresh"}
-            </Button>
-            <Button 
+              variant="ghost"
               onClick={goToAllMatches}
-              className="hover:scale-105 transition-transform w-full sm:w-auto"
+              className="hover:bg-primary/10 transition-all"
             >
               <Users className="mr-2 h-4 w-4" />
-              View All Matches
+              All Matches
             </Button>
           </div>
         </div>
