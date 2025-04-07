@@ -114,12 +114,12 @@ const ProfileHeader = ({
   return (
     <div className="flex items-start justify-between mb-4">
       <div className="flex items-start gap-6">
-        <div className="relative">
+        <div className="relative group">
           <Avatar className="h-32 w-32">
             <img 
               src={profileData?.avatar_url || "/placeholder.svg"} 
               alt={`${profileData?.first_name} ${profileData?.last_name}`} 
-              className="object-cover" 
+              className="object-cover h-full w-full" 
             />
           </Avatar>
           <input
@@ -132,9 +132,10 @@ const ProfileHeader = ({
           <Button 
             variant="secondary" 
             size="icon" 
-            className="absolute bottom-0 right-0 rounded-full opacity-80 hover:opacity-100"
+            className="absolute bottom-0 right-0 rounded-full bg-primary/90 hover:bg-primary text-white opacity-90 group-hover:opacity-100 transition-opacity"
             onClick={() => document.getElementById("profile-picture")?.click()}
             disabled={isUploading}
+            aria-label="Change profile picture"
           >
             <Camera size={16} />
           </Button>
