@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -325,6 +326,8 @@ const Dashboard = () => {
           <MatchesPanel 
             matches={matches || []} 
             onMessage={handleMessage}
+            currentUserId={profileData.id}
+            onRefresh={fetchMatchesAgain}
           />
         </div>
       </div>

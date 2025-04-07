@@ -4,7 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Handshake } from "lucide-react";
+import { MessageCircle, Handshake, Heart } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Match {
   id: string;
@@ -24,10 +26,14 @@ interface Match {
 interface MatchesPanelProps {
   matches: Match[];
   onMessage: (matchId: string) => void;
+  currentUserId?: string;
+  onRefresh?: () => void;
 }
 
-export const MatchesPanel = ({ matches, onMessage }: MatchesPanelProps) => {
+export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: MatchesPanelProps) => {
   const [filterBy, setFilterBy] = useState<'overall' | 'skills' | 'interests' | 'location' | 'experience'>('overall');
+  const [savingMatch, setSavingMatch] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const sortedMatches = [...matches].sort((a, b) => {
     // Always prioritize mutual matches
@@ -48,6 +54,95 @@ export const MatchesPanel = ({ matches, onMessage }: MatchesPanelProps) => {
         return b.matchScore.overallMatch - a.matchScore.overallMatch;
     }
   });
+
+  const handleQuickMatch = async (matchId: string) => {
+    if (!currentUserId) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create matches",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setSavingMatch(matchId);
+      const matchedProfile = matches.find(match => match.id === matchId);
+      
+      if (!matchedProfile) {
+        throw new Error("User not found");
+      }
+      
+      // First check if this is already a mutual match (the other user already liked this user)
+      const { data: existingMatch, error: checkError } = await supabase
+        .from('matches')
+        .select('*')
+        .eq('user_id', matchId)
+        .eq('matched_user_id', currentUserId)
+        .single();
+        
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error("Error checking for existing match:", checkError);
+        throw checkError;
+      }
+      
+      // Save the match to the database
+      const { error } = await supabase
+        .from('matches')
+        .insert([
+          { 
+            user_id: currentUserId,
+            matched_user_id: matchId,
+            match_score: matchedProfile.matchScore.overallMatch,
+            skills_match_score: matchedProfile.matchScore.skillsMatch,
+            interests_match_score: matchedProfile.matchScore.interestsMatch,
+            status: existingMatch ? 'mutual' : 'matched'
+          }
+        ]);
+      
+      if (error) {
+        console.error("Error saving match:", error);
+        throw error;
+      }
+      
+      // If this completes a mutual match, update the other user's match status to mutual
+      if (existingMatch) {
+        const { error: updateError } = await supabase
+          .from('matches')
+          .update({ status: 'mutual' })
+          .eq('id', existingMatch.id);
+        
+        if (updateError) {
+          console.error("Error updating mutual match:", updateError);
+          // Continue despite the error
+        }
+        
+        toast({
+          title: "It's a Mutual Match! 🎉✨",
+          description: `You and ${matchedProfile.name} have matched with each other!`,
+        });
+      } else {
+        toast({
+          title: "Match Created! ⚡",
+          description: `You've matched with ${matchedProfile.name}!`,
+        });
+      }
+      
+      // Refresh the matches
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error: any) {
+      console.error("Error in match process:", error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingMatch(null);
+    }
+  };
 
   return (
     <Card className="p-6 bg-white/90 backdrop-blur-sm h-[calc(100vh-200px)] flex flex-col">
@@ -122,7 +217,7 @@ export const MatchesPanel = ({ matches, onMessage }: MatchesPanelProps) => {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <Badge variant={filterBy === 'skills' ? 'default' : 'outline'} className="text-sm">
                 {filterBy === 'overall' && `Overall: ${match.matchScore.overallMatch}%`}
                 {filterBy === 'skills' && `Skills: ${match.matchScore.skillsMatch}%`}
@@ -130,6 +225,15 @@ export const MatchesPanel = ({ matches, onMessage }: MatchesPanelProps) => {
                 {filterBy === 'location' && `Location: ${match.matchScore.locationMatch}%`}
                 {filterBy === 'experience' && `Experience: ${match.matchScore.experienceMatch}%`}
               </Badge>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-rose-500 hover:bg-rose-100"
+                onClick={() => handleQuickMatch(match.id)}
+                disabled={savingMatch === match.id || match.isMutual}
+              >
+                <Heart className={`h-5 w-5 ${savingMatch === match.id ? 'animate-pulse' : ''}`} />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -141,6 +245,15 @@ export const MatchesPanel = ({ matches, onMessage }: MatchesPanelProps) => {
             </div>
           </div>
         ))}
+
+        {sortedMatches.length === 0 && (
+          <div className="flex items-center justify-center h-40 text-center">
+            <div>
+              <p className="text-muted-foreground mb-2">No matches found</p>
+              <p className="text-sm text-muted-foreground">Try adjusting your profile to improve match results</p>
+            </div>
+          </div>
+        )}
       </div>
     </Card>
   );

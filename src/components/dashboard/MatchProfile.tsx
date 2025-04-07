@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { X, MessageCircle, Info, Zap } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, PolarRadiusAxis, Tooltip } from "recharts";
+import { useState } from "react";
 
 interface MatchProfile {
   id: string;
@@ -31,6 +32,8 @@ interface MatchProfileProps {
 }
 
 export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileProps) => {
+  const [isLiking, setIsLiking] = useState(false);
+  
   // Ensure match data exists with fallbacks
   const safeMatch = {
     ...match,
@@ -51,6 +54,15 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
     { subject: 'Experience', value: safeMatch.matchScore.experienceMatch, fullMark: 100 },
   ];
   
+  const handleLike = async () => {
+    setIsLiking(true);
+    try {
+      await onLike();
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
   return (
     <Card className="p-6 bg-white/90 backdrop-blur-sm">
       <div className="grid grid-cols-1 lg:grid-cols-[1fr,1fr] gap-8">
@@ -110,8 +122,9 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
             </Button>
             <Button
               size="lg"
-              className="rounded-full p-4 bg-primary animate-pulse"
-              onClick={onLike}
+              className={`rounded-full p-4 bg-primary ${isLiking ? '' : 'animate-pulse'}`}
+              onClick={handleLike}
+              disabled={isLiking}
             >
               <Zap className="h-6 w-6" />
             </Button>
