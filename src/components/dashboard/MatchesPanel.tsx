@@ -4,9 +4,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Handshake, Heart } from "lucide-react";
+import { MessageCircle, Handshake, Heart, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
 
 interface Match {
   id: string;
@@ -33,9 +34,15 @@ interface MatchesPanelProps {
 export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: MatchesPanelProps) => {
   const [filterBy, setFilterBy] = useState<'overall' | 'skills' | 'interests' | 'location' | 'experience'>('overall');
   const [savingMatch, setSavingMatch] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
-  const sortedMatches = [...matches].sort((a, b) => {
+  const filteredMatches = matches.filter(match => 
+    match.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    match.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+  
+  const sortedMatches = [...filteredMatches].sort((a, b) => {
     // Always prioritize mutual matches
     if (a.isMutual && !b.isMutual) return -1;
     if (!a.isMutual && b.isMutual) return 1;
@@ -145,14 +152,26 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
   };
 
   return (
-    <Card className="p-6 bg-white/90 backdrop-blur-sm h-[calc(100vh-200px)] flex flex-col">
+    <Card className="p-6 bg-white/90 backdrop-blur-sm h-[calc(100vh-200px)] flex flex-col shadow-md">
       <div className="space-y-4 mb-6">
         <h3 className="text-xl font-bold text-primary">Your Matches</h3>
+        
+        <div className="relative">
+          <Input 
+            placeholder="Search by name or skill..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pr-9"
+          />
+          <Search className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+        </div>
+        
         <div className="flex flex-wrap gap-2">
           <Button 
             variant={filterBy === 'overall' ? 'default' : 'outline'}
             onClick={() => setFilterBy('overall')}
             size="sm"
+            className="transition-all"
           >
             Overall
           </Button>
@@ -160,6 +179,7 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
             variant={filterBy === 'skills' ? 'default' : 'outline'}
             onClick={() => setFilterBy('skills')}
             size="sm"
+            className="transition-all"
           >
             Skills
           </Button>
@@ -167,34 +187,30 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
             variant={filterBy === 'interests' ? 'default' : 'outline'}
             onClick={() => setFilterBy('interests')}
             size="sm"
+            className="transition-all"
           >
             Interests
-          </Button>
-          <Button 
-            variant={filterBy === 'location' ? 'default' : 'outline'}
-            onClick={() => setFilterBy('location')}
-            size="sm"
-          >
-            Location
           </Button>
           <Button 
             variant={filterBy === 'experience' ? 'default' : 'outline'}
             onClick={() => setFilterBy('experience')}
             size="sm"
+            className="transition-all"
           >
             Experience
           </Button>
         </div>
       </div>
-      <div className="space-y-4 overflow-y-auto flex-1">
+      
+      <div className="space-y-2 overflow-y-auto flex-1 pr-1">
         {sortedMatches.map((match) => (
           <div 
             key={match.id} 
-            className={`flex items-center justify-between p-4 border rounded-lg hover:bg-secondary/20 transition-colors ${match.isMutual ? 'border-primary/50 bg-primary/5' : ''}`}
+            className={`flex items-center justify-between p-3 border rounded-lg hover:bg-secondary/10 transition-colors ${match.isMutual ? 'border-primary/50 bg-primary/5 shadow-sm' : ''}`}
           >
-            <div className="flex items-center gap-4">
-              <Avatar className="h-12 w-12 relative">
-                <img src={match.avatar} alt={match.name} />
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10 relative">
+                <img src={match.avatar} alt={match.name} className="object-cover" />
                 {match.isMutual && (
                   <div className="absolute -top-1 -right-1 bg-primary text-white rounded-full p-1">
                     <Handshake className="h-3 w-3" />
@@ -203,54 +219,62 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
               </Avatar>
               <div>
                 <div className="flex items-center gap-2">
-                  <h4 className="font-semibold">{match.name}</h4>
+                  <h4 className="font-semibold text-sm">{match.name}</h4>
                   {match.isMutual && (
-                    <Badge variant="default" className="text-xs">Mutual</Badge>
+                    <Badge variant="default" className="text-[10px] py-0 h-4">Mutual</Badge>
                   )}
                 </div>
-                <div className="flex gap-2 mt-1">
+                <div className="flex gap-1 mt-0.5">
                   {match.skills.slice(0, 2).map((skill) => (
-                    <Badge key={skill} variant="secondary" className="text-xs">
+                    <Badge key={skill} variant="secondary" className="text-[10px] py-0 h-4">
                       {skill}
                     </Badge>
                   ))}
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant={filterBy === 'skills' ? 'default' : 'outline'} className="text-sm">
-                {filterBy === 'overall' && `Overall: ${match.matchScore.overallMatch}%`}
-                {filterBy === 'skills' && `Skills: ${match.matchScore.skillsMatch}%`}
-                {filterBy === 'interests' && `Interests: ${match.matchScore.interestsMatch}%`}
-                {filterBy === 'location' && `Location: ${match.matchScore.locationMatch}%`}
-                {filterBy === 'experience' && `Experience: ${match.matchScore.experienceMatch}%`}
+            <div className="flex items-center gap-1">
+              <Badge variant={filterBy === 'skills' ? 'default' : 'outline'} className="text-xs">
+                {filterBy === 'overall' && `${match.matchScore.overallMatch}%`}
+                {filterBy === 'skills' && `${match.matchScore.skillsMatch}%`}
+                {filterBy === 'interests' && `${match.matchScore.interestsMatch}%`}
+                {filterBy === 'experience' && `${match.matchScore.experienceMatch}%`}
               </Badge>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-rose-500 hover:bg-rose-100"
+                className="text-rose-500 hover:bg-rose-100 h-7 w-7"
                 onClick={() => handleQuickMatch(match.id)}
                 disabled={savingMatch === match.id || match.isMutual}
               >
-                <Heart className={`h-5 w-5 ${savingMatch === match.id ? 'animate-pulse' : ''}`} />
+                <Heart className={`h-4 w-4 ${savingMatch === match.id ? 'animate-pulse' : ''}`} />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => onMessage(match.id)}
-                className="text-primary"
+                className="text-primary h-7 w-7"
               >
-                <MessageCircle className="h-5 w-5" />
+                <MessageCircle className="h-4 w-4" />
               </Button>
             </div>
           </div>
         ))}
 
         {sortedMatches.length === 0 && (
-          <div className="flex items-center justify-center h-40 text-center">
-            <div>
-              <p className="text-muted-foreground mb-2">No matches found</p>
-              <p className="text-sm text-muted-foreground">Try adjusting your profile to improve match results</p>
+          <div className="flex flex-col items-center justify-center h-40 text-center bg-slate-50/70 rounded-lg p-4">
+            <div className="text-muted-foreground">
+              {searchQuery ? (
+                <>
+                  <p className="font-medium mb-2">No matches found for "{searchQuery}"</p>
+                  <p className="text-sm">Try adjusting your search term</p>
+                </>
+              ) : (
+                <>
+                  <p className="font-medium mb-2">No matches found</p>
+                  <p className="text-sm">Try adjusting your profile to improve match results</p>
+                </>
+              )}
             </div>
           </div>
         )}
