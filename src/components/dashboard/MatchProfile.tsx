@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { X, MessageCircle, Info, Zap } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, PolarRadiusAxis, Tooltip } from "recharts";
 import { useState } from "react";
+import { ChartContainer } from "@/components/ui/chart";
 
 interface MatchProfile {
   id: string;
@@ -152,9 +153,9 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
                 <span>Higher values indicate stronger matches</span>
               </div>
             </div>
-            <div className="bg-white/50 rounded-lg p-4 shadow-sm">
+            <div className="bg-white/50 rounded-lg p-4 shadow-sm h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
-                <RadarChart data={matchData} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
+                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={matchData}>
                   <PolarGrid stroke="#e5e7eb" />
                   <PolarAngleAxis dataKey="subject" tick={{ fill: '#6b7280', fontSize: 12 }} />
                   <PolarRadiusAxis domain={[0, 100]} tick={{ fill: '#6b7280', fontSize: 10 }} />
