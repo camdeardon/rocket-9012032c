@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -51,13 +50,22 @@ const ProfileHeader = ({
   const [isUploading, setIsUploading] = useState(false);
   
   const handleProfilePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
+    if (!e.target.files || e.target.files.length === 0) {
+      console.log("No file selected");
+      return;
+    }
     
     const file = e.target.files[0];
+    console.log("File selected:", file.name, file.type, file.size);
+    
     const fileExt = file.name.split('.').pop();
-    const filePath = `${uuidv4()}.${fileExt}`;
+    const fileName = `${uuidv4()}.${fileExt}`;
     
     setIsUploading(true);
+    toast({
+      title: "Uploading...",
+      description: "Please wait while we upload your profile picture.",
+    });
     
     try {
       // Get current user
@@ -67,21 +75,46 @@ const ProfileHeader = ({
         throw new Error('User not authenticated');
       }
       
+      // First, ensure the bucket exists
+      const { data: bucketData, error: bucketError } = await supabase.storage.getBucket('profiles');
+      if (bucketError && bucketError.message.includes('does not exist')) {
+        console.log("Creating profiles bucket...");
+        const { error: createBucketError } = await supabase.storage.createBucket('profiles', {
+          public: true,
+          fileSizeLimit: 5242880, // 5MB
+          allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+        });
+        if (createBucketError) throw createBucketError;
+      } else if (bucketError) {
+        throw bucketError;
+      }
+      
       // Upload file to storage
+      console.log("Uploading file to profiles bucket:", fileName);
       const { error: uploadError } = await supabase.storage
         .from('profiles')
-        .upload(filePath, file);
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
       
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        throw uploadError;
+      }
       
       // Get public URL
       const { data: publicURLData } = supabase.storage
         .from('profiles')
-        .getPublicUrl(filePath);
+        .getPublicUrl(fileName);
+      
+      console.log("Public URL data:", publicURLData);
       
       if (!publicURLData || !publicURLData.publicUrl) {
         throw new Error('Failed to get public URL for uploaded image');
       }
+      
+      console.log("Profile picture public URL:", publicURLData.publicUrl);
       
       // Update user profile with new avatar URL
       const { error: updateError } = await supabase
@@ -89,7 +122,10 @@ const ProfileHeader = ({
         .update({ avatar_url: publicURLData.publicUrl })
         .eq('id', user.id);
       
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error("Profile update error:", updateError);
+        throw updateError;
+      }
       
       toast({
         title: "Profile Picture Updated",
@@ -122,23 +158,30 @@ const ProfileHeader = ({
               className="object-cover h-full w-full" 
             />
           </Avatar>
-          <input
-            type="file"
-            id="profile-picture"
-            accept="image/*"
-            onChange={handleProfilePictureUpload}
-            className="hidden"
-          />
-          <Button 
-            variant="secondary" 
-            size="icon" 
-            className="absolute bottom-0 right-0 rounded-full bg-primary/90 hover:bg-primary text-white opacity-90 group-hover:opacity-100 transition-opacity"
-            onClick={() => document.getElementById("profile-picture")?.click()}
-            disabled={isUploading}
-            aria-label="Change profile picture"
-          >
-            <Camera size={16} />
-          </Button>
+          <label htmlFor="profile-picture" className="absolute bottom-0 right-0 cursor-pointer">
+            <input
+              type="file"
+              id="profile-picture"
+              accept="image/*"
+              onChange={handleProfilePictureUpload}
+              className="hidden"
+              disabled={isUploading}
+            />
+            <Button 
+              variant="secondary" 
+              size="icon" 
+              className="rounded-full bg-primary/90 hover:bg-primary text-white opacity-90 group-hover:opacity-100 transition-opacity"
+              disabled={isUploading}
+              aria-label="Change profile picture"
+              type="button"
+            >
+              {isUploading ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                <Camera size={16} />
+              )}
+            </Button>
+          </label>
         </div>
         <div className="flex-1">
           {editMode === 'header' ? (

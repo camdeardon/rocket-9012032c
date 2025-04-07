@@ -18,10 +18,6 @@ export const MatchActionButtons = ({ onLike, onPass, onMessage }: MatchActionBut
     setIsLiking(true);
     try {
       await onLike();
-      toast({
-        title: "Match created!",
-        description: "You've successfully matched with this person.",
-      });
     } catch (error: any) {
       console.error("Error creating match:", error);
       toast({

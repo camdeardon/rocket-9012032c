@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -129,6 +128,8 @@ const Dashboard = () => {
           setCurrentMatchIndex(prev => 
             prev + 1 >= matches.length ? prev : prev + 1
           );
+          
+          await fetchMatchesAgain();
         }
       } catch (error) {
         console.error("Error in match process:", error);
