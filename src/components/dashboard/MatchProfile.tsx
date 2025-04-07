@@ -55,10 +55,6 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage, currentUserId }
     { subject: 'Experience', value: safeMatch.matchScore.experienceMatch, fullMark: 100 },
   ];
 
-  const handleRefreshMatches = () => {
-    // This would be implemented if we wanted to refresh matches after ML generation
-  };
-
   return (
     <Card className="p-6 bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow">
       {safeMatch.matchType !== 'basic' && (
@@ -85,6 +81,8 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage, currentUserId }
             onLike={onLike}
             onPass={onPass}
             onMessage={onMessage}
+            matchId={safeMatch.id}
+            matchName={safeMatch.name}
           />
         </div>
 

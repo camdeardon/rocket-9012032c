@@ -1,12 +1,14 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Handshake, Heart, Search, BrainCircuit } from "lucide-react";
+import { MessageCircle, Handshake, UserCheck, Search, BrainCircuit } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 
 interface Match {
   id: string;
@@ -36,6 +38,7 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
   const [savingMatch, setSavingMatch] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const filteredMatches = matches.filter(match => 
     match.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -70,106 +73,9 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
     }
   });
 
-  const handleQuickMatch = async (matchId: string) => {
-    if (!currentUserId) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to create matches",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setSavingMatch(matchId);
-      const matchedProfile = matches.find(match => match.id === matchId);
-      
-      if (!matchedProfile) {
-        throw new Error("User not found");
-      }
-
-      // Ensure we have valid match scores with fallbacks to prevent null/undefined values
-      const skillsMatchScore = matchedProfile.matchScore?.skillsMatch || 0;
-      const interestsMatchScore = matchedProfile.matchScore?.interestsMatch || 0;
-      const overallMatchScore = matchedProfile.matchScore?.overallMatch || 0;
-      
-      console.log("Creating match with:", {
-        user_id: currentUserId,
-        matched_user_id: matchId,
-        match_score: overallMatchScore,
-        skills_match_score: skillsMatchScore,
-        interests_match_score: interestsMatchScore
-      });
-      
-      // First check if this is already a mutual match (the other user already liked this user)
-      const { data: existingMatch, error: checkError } = await supabase
-        .from('matches')
-        .select('*')
-        .eq('user_id', matchId)
-        .eq('matched_user_id', currentUserId)
-        .maybeSingle();
-        
-      if (checkError) {
-        console.error("Error checking for existing match:", checkError);
-        throw checkError;
-      }
-      
-      // Save the match to the database
-      const { data, error } = await supabase
-        .from('matches')
-        .insert([
-          { 
-            user_id: currentUserId,
-            matched_user_id: matchId,
-            match_score: overallMatchScore,
-            skills_match_score: skillsMatchScore,
-            interests_match_score: interestsMatchScore,
-            status: existingMatch ? 'mutual' : 'matched'
-          }
-        ]);
-      
-      if (error) {
-        console.error("Error saving match:", error);
-        throw error;
-      }
-      
-      // If this completes a mutual match, update the other user's match status to mutual
-      if (existingMatch) {
-        const { error: updateError } = await supabase
-          .from('matches')
-          .update({ status: 'mutual' })
-          .eq('id', existingMatch.id);
-        
-        if (updateError) {
-          console.error("Error updating mutual match:", updateError);
-          // Continue despite the error
-        }
-        
-        toast({
-          title: "It's a Mutual Match! 🎉✨",
-          description: `You and ${matchedProfile.name} have matched with each other!`,
-        });
-      } else {
-        toast({
-          title: "Match Created! ⚡",
-          description: `You've matched with ${matchedProfile.name}!`,
-        });
-      }
-      
-      // Refresh the matches
-      if (onRefresh) {
-        onRefresh();
-      }
-    } catch (error: any) {
-      console.error("Error in match process:", error);
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setSavingMatch(null);
-    }
+  // Handle viewing a user's profile
+  const handleViewProfile = (matchId: string) => {
+    navigate(`/profile/${matchId}${!matches.find(m => m.id === matchId)?.isMutual ? '?connectionRequest=true' : ''}`);
   };
 
   return (
@@ -227,7 +133,8 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
         {sortedMatches.map((match) => (
           <div 
             key={match.id} 
-            className={`flex items-center justify-between p-3 border rounded-lg hover:bg-secondary/10 transition-colors ${match.isMutual ? 'border-primary/50 bg-primary/5 shadow-sm' : match.matchType && match.matchType !== 'basic' ? 'border-blue-300/50 bg-blue-50/30' : ''}`}
+            className={`flex items-center justify-between p-3 border rounded-lg hover:bg-secondary/10 transition-colors cursor-pointer ${match.isMutual ? 'border-primary/50 bg-primary/5 shadow-sm' : match.matchType && match.matchType !== 'basic' ? 'border-blue-300/50 bg-blue-50/30' : ''}`}
+            onClick={() => handleViewProfile(match.id)}
           >
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 relative">
@@ -269,23 +176,32 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
                 {filterBy === 'interests' && `${match.matchScore?.interestsMatch || 0}%`}
                 {filterBy === 'experience' && `${match.matchScore?.experienceMatch || 0}%`}
               </Badge>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-rose-500 hover:bg-rose-100 h-7 w-7"
-                onClick={() => handleQuickMatch(match.id)}
-                disabled={savingMatch === match.id || match.isMutual}
-              >
-                <Heart className={`h-4 w-4 ${savingMatch === match.id ? 'animate-pulse' : ''}`} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onMessage(match.id)}
-                className="text-primary h-7 w-7"
-              >
-                <MessageCircle className="h-4 w-4" />
-              </Button>
+              {match.isMutual && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMessage(match.id);
+                  }}
+                  className="text-primary h-7 w-7"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                </Button>
+              )}
+              {!match.isMutual && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleViewProfile(match.id);
+                  }}
+                  className="h-7 w-7 text-primary"
+                >
+                  <UserCheck className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
         ))}

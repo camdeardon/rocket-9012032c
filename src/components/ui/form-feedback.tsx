@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { CheckCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type FormFeedbackProps = {
@@ -24,6 +24,7 @@ export const FormFeedback = ({ type, message, className }: FormFeedbackProps) =>
     >
       {type === 'success' && <CheckCircle className="h-4 w-4" />}
       {type === 'error' && <AlertCircle className="h-4 w-4" />}
+      {type === 'neutral' && <Info className="h-4 w-4" />}
       <span>{message}</span>
     </div>
   );

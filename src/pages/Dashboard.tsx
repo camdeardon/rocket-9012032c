@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -101,7 +100,7 @@ const Dashboard = () => {
             match_score: overallMatchScore,
             skills_match_score: skillsMatchScore,
             interests_match_score: interestsMatchScore,
-            status: existingMatch ? 'mutual' : 'matched'
+            status: existingMatch ? 'mutual' : 'requested'
           }
         ]);
       
@@ -109,7 +108,7 @@ const Dashboard = () => {
         console.error("Error saving match:", error);
         toast({
           title: "Error",
-          description: "Failed to save match. Please try again.",
+          description: "Failed to save connection request. Please try again.",
           variant: "destructive",
         });
         return;
@@ -131,8 +130,8 @@ const Dashboard = () => {
         });
       } else {
         toast({
-          title: "Match Created! ⚡",
-          description: `You've matched with ${currentMatch.name}!`,
+          title: "Connection Request Sent! ⚡",
+          description: `A connection request has been sent to ${currentMatch.name}!`,
         });
       }
       
