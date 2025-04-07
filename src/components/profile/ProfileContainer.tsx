@@ -22,7 +22,7 @@ const ProfileContainer = () => {
   const { handleResumeDownload } = useProfileActions();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-6xl mx-auto px-4 space-y-8">
         <ProfileHeaderWrapper
           profileData={profileData}

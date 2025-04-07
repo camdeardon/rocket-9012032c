@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -211,7 +212,7 @@ const Dashboard = () => {
 
   if (profileLoading || matchesLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background py-8 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
@@ -219,7 +220,7 @@ const Dashboard = () => {
 
   if (!profileData) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-8 flex flex-col items-center justify-center px-4">
+      <div className="min-h-screen bg-background py-8 flex flex-col items-center justify-center px-4">
         <AlertCircle className="h-12 w-12 text-primary mb-4" />
         <h2 className="text-2xl font-bold text-center mb-2">Profile Not Found</h2>
         <p className="text-center mb-6">We couldn't find your profile information.</p>
@@ -246,7 +247,7 @@ const Dashboard = () => {
   const currentMatch = hasMatches ? matches[currentMatchIndex % matches.length] : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-4 md:py-8">
+    <div className="min-h-screen bg-background py-4 md:py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
           <ProfileSummary user={userProfile} />

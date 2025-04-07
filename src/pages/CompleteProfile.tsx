@@ -27,7 +27,7 @@ const CompleteProfile = () => {
   } = useProfileForm();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-accent/10 to-secondary/10 py-12">
+    <div className="min-h-screen bg-background py-12">
       <div className="max-w-4xl mx-auto px-4">
         <div className="space-y-8">
           <ProfileHeader 
