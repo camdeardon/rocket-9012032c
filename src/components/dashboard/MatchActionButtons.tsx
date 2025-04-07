@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { X, MessageCircle, Zap } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface MatchActionButtonsProps {
   onLike: () => Promise<void>;
@@ -11,11 +12,23 @@ interface MatchActionButtonsProps {
 
 export const MatchActionButtons = ({ onLike, onPass, onMessage }: MatchActionButtonsProps) => {
   const [isLiking, setIsLiking] = useState(false);
+  const { toast } = useToast();
   
   const handleLike = async () => {
     setIsLiking(true);
     try {
       await onLike();
+      toast({
+        title: "Match created!",
+        description: "You've successfully matched with this person.",
+      });
+    } catch (error) {
+      console.error("Error creating match:", error);
+      toast({
+        title: "Failed to save match",
+        description: "There was an error connecting with this person. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLiking(false);
     }
