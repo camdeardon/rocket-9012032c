@@ -42,11 +42,11 @@ export const MatchActionButtons = ({ onLike, onPass, onMessage }: MatchActionBut
       </Button>
       <Button
         size="lg"
-        className={`rounded-full p-4 bg-primary hover:bg-primary/90 transition-colors ${isLiking ? 'opacity-80' : ''}`}
+        className={`rounded-full p-4 bg-coral hover:bg-coral/90 transition-colors ${isLiking ? 'opacity-80' : ''}`}
         onClick={handleLike}
         disabled={isLiking}
       >
-        <Zap className={`h-6 w-6 ${isLiking ? '' : 'animate-pulse'}`} />
+        <Zap className={`h-6 w-6 text-white ${isLiking ? '' : 'animate-pulse'}`} />
       </Button>
       <Button
         size="lg"
