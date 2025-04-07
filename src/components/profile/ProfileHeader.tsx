@@ -1,10 +1,13 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Edit2, LogOut, Download, MapPin, Save } from "lucide-react";
+import { Edit2, LogOut, Download, MapPin, Save, Camera } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { v4 as uuidv4 } from 'uuid';
 
 interface ProfileData {
   id: string;
@@ -44,16 +47,98 @@ const ProfileHeader = ({
   handleLogout,
   handleResumeDownload,
 }: ProfileHeaderProps) => {
+  const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
+  
+  const handleProfilePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    
+    const file = e.target.files[0];
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${uuidv4()}.${fileExt}`;
+    
+    setIsUploading(true);
+    
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+      
+      // Upload file to storage
+      const { error: uploadError } = await supabase.storage
+        .from('profiles')
+        .upload(filePath, file);
+      
+      if (uploadError) throw uploadError;
+      
+      // Get public URL
+      const { data: publicURLData } = supabase.storage
+        .from('profiles')
+        .getPublicUrl(filePath);
+      
+      if (!publicURLData || !publicURLData.publicUrl) {
+        throw new Error('Failed to get public URL for uploaded image');
+      }
+      
+      // Update user profile with new avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicURLData.publicUrl })
+        .eq('id', user.id);
+      
+      if (updateError) throw updateError;
+      
+      toast({
+        title: "Profile Picture Updated",
+        description: "Your profile picture has been successfully updated.",
+      });
+      
+      // Reload the page to see changes
+      window.location.reload();
+      
+    } catch (error: any) {
+      console.error('Error uploading profile picture:', error);
+      toast({
+        title: "Upload Failed",
+        description: error.message || "There was a problem uploading your profile picture.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <div className="flex items-start justify-between mb-4">
       <div className="flex items-start gap-6">
-        <Avatar className="h-32 w-32">
-          <img 
-            src={profileData?.avatar_url || "/placeholder.svg"} 
-            alt={`${profileData?.first_name} ${profileData?.last_name}`} 
-            className="object-cover" 
+        <div className="relative">
+          <Avatar className="h-32 w-32">
+            <img 
+              src={profileData?.avatar_url || "/placeholder.svg"} 
+              alt={`${profileData?.first_name} ${profileData?.last_name}`} 
+              className="object-cover" 
+            />
+          </Avatar>
+          <input
+            type="file"
+            id="profile-picture"
+            accept="image/*"
+            onChange={handleProfilePictureUpload}
+            className="hidden"
           />
-        </Avatar>
+          <Button 
+            variant="secondary" 
+            size="icon" 
+            className="absolute bottom-0 right-0 rounded-full opacity-80 hover:opacity-100"
+            onClick={() => document.getElementById("profile-picture")?.click()}
+            disabled={isUploading}
+          >
+            <Camera size={16} />
+          </Button>
+        </div>
         <div className="flex-1">
           {editMode === 'header' ? (
             <div className="space-y-4">
