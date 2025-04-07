@@ -21,6 +21,16 @@ const ProfileSkills = ({ userSkills }: ProfileSkillsProps) => {
     handleRemoveSkill
   } = useSkillsManagement({ initialSkills: userSkills });
 
+  // Create a wrapper function to adapt the return type
+  const handleAddSkillWrapper = async (
+    skillId: string, 
+    proficiencyLevel: string, 
+    yearsExperience: number
+  ): Promise<void> => {
+    await handleAddSkill(skillId, proficiencyLevel, yearsExperience);
+    // We discard the boolean return value to match the expected Promise<void> type
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -40,7 +50,7 @@ const ProfileSkills = ({ userSkills }: ProfileSkillsProps) => {
       <AddSkillDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
-        onAddSkill={handleAddSkill}
+        onAddSkill={handleAddSkillWrapper}
         availableSkills={availableSkills}
         isLoading={isLoading}
       />

@@ -11,7 +11,7 @@ const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert"];
 interface AddSkillDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddSkill: (skillId: string, proficiencyLevel: string, yearsExperience: number) => Promise<void>;
+  onAddSkill: (skillId: string, proficiencyLevel: string, yearsExperience: number) => Promise<boolean | void>;
   availableSkills: any[];
   isLoading: boolean;
 }
