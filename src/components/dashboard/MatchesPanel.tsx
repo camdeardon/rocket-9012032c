@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -95,7 +94,7 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
         .select('*')
         .eq('user_id', matchId)
         .eq('matched_user_id', currentUserId)
-        .single();
+        .maybeSingle();
         
       if (checkError && checkError.code !== 'PGRST116') {
         console.error("Error checking for existing match:", checkError);
@@ -109,9 +108,9 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
           { 
             user_id: currentUserId,
             matched_user_id: matchId,
-            match_score: matchedProfile.matchScore.overallMatch,
-            skills_match_score: matchedProfile.matchScore.skillsMatch,
-            interests_match_score: matchedProfile.matchScore.interestsMatch,
+            match_score: matchedProfile.matchScore?.overallMatch || 0,
+            skills_match_score: matchedProfile.matchScore?.skillsMatch || 0,
+            interests_match_score: matchedProfile.matchScore?.interestsMatch || 0,
             status: existingMatch ? 'mutual' : 'matched'
           }
         ]);
@@ -252,10 +251,10 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
             </div>
             <div className="flex items-center gap-1">
               <Badge variant={filterBy === 'skills' ? 'default' : 'outline'} className="text-xs">
-                {filterBy === 'overall' && `${match.matchScore.overallMatch}%`}
-                {filterBy === 'skills' && `${match.matchScore.skillsMatch}%`}
-                {filterBy === 'interests' && `${match.matchScore.interestsMatch}%`}
-                {filterBy === 'experience' && `${match.matchScore.experienceMatch}%`}
+                {filterBy === 'overall' && `${match.matchScore?.overallMatch || 0}%`}
+                {filterBy === 'skills' && `${match.matchScore?.skillsMatch || 0}%`}
+                {filterBy === 'interests' && `${match.matchScore?.interestsMatch || 0}%`}
+                {filterBy === 'experience' && `${match.matchScore?.experienceMatch || 0}%`}
               </Badge>
               <Button
                 variant="ghost"

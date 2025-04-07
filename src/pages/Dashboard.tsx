@@ -63,73 +63,94 @@ const Dashboard = () => {
   }, [profileData?.id, toast, fetchMatchesAgain]);
 
   const handleLike = async () => {
-    if (matches && matches.length > 0) {
-      const currentMatch = matches[currentMatchIndex];
+    if (!matches || matches.length === 0 || !profileData?.id) {
+      toast({
+        title: "Error",
+        description: "Unable to create match. Please try again later.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const currentMatch = matches[currentMatchIndex];
+    
+    try {
+      console.log("Creating match with:", currentMatch.id);
       
-      try {
-        const { data: existingMatch, error: checkError } = await supabase
-          .from('matches')
-          .select('*')
-          .eq('user_id', currentMatch.id)
-          .eq('matched_user_id', profileData.id)
-          .single();
-          
-        const { data, error } = await supabase
-          .from('matches')
-          .insert([
-            { 
-              user_id: profileData.id,
-              matched_user_id: currentMatch.id,
-              match_score: currentMatch.matchScore.overallMatch,
-              skills_match_score: currentMatch.matchScore.skillsMatch,
-              interests_match_score: currentMatch.matchScore.interestsMatch,
-              status: existingMatch ? 'mutual' : 'matched'
-            }
-          ]);
-        
-        if (error) {
-          console.error("Error saving match:", error);
-          toast({
-            title: "Error",
-            description: "Failed to save match. Please try again.",
-            variant: "destructive",
-          });
-        } else {
-          if (existingMatch) {
-            const { error: updateError } = await supabase
-              .from('matches')
-              .update({ status: 'mutual' })
-              .eq('id', existingMatch.id);
-            
-            if (updateError) {
-              console.error("Error updating mutual match:", updateError);
-            }
-            
-            toast({
-              title: "It's a Mutual Match! 🎉✨",
-              description: `You and ${currentMatch.name} have matched with each other!`,
-            });
-          } else {
-            toast({
-              title: "Match Created! ⚡",
-              description: `You've matched with ${currentMatch.name}!`,
-            });
+      // First check if there's already a match from the other user to us
+      const { data: existingMatch, error: checkError } = await supabase
+        .from('matches')
+        .select('*')
+        .eq('user_id', currentMatch.id)
+        .eq('matched_user_id', profileData.id)
+        .maybeSingle();
+      
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error("Error checking for existing match:", checkError);
+        throw checkError;
+      }
+      
+      // Create our match to the other user
+      const { data, error } = await supabase
+        .from('matches')
+        .insert([
+          { 
+            user_id: profileData.id,
+            matched_user_id: currentMatch.id,
+            match_score: currentMatch.matchScore?.overallMatch || 0,
+            skills_match_score: currentMatch.matchScore?.skillsMatch || 0,
+            interests_match_score: currentMatch.matchScore?.interestsMatch || 0,
+            status: existingMatch ? 'mutual' : 'matched'
           }
-          
-          setCurrentMatchIndex(prev => 
-            prev + 1 >= matches.length ? prev : prev + 1
-          );
-          
-          await fetchMatchesAgain();
-        }
-      } catch (error) {
-        console.error("Error in match process:", error);
+        ]);
+      
+      if (error) {
+        console.error("Error saving match:", error);
         toast({
           title: "Error",
-          description: "Something went wrong. Please try again.",
+          description: "Failed to save match. Please try again.",
           variant: "destructive",
         });
+        return;
       }
+      
+      // If this was a mutual match, update the other user's match status
+      if (existingMatch) {
+        const { error: updateError } = await supabase
+          .from('matches')
+          .update({ status: 'mutual' })
+          .eq('id', existingMatch.id);
+        
+        if (updateError) {
+          console.error("Error updating mutual match:", updateError);
+          // Continue despite the error
+        }
+        
+        toast({
+          title: "It's a Mutual Match! 🎉✨",
+          description: `You and ${currentMatch.name} have matched with each other!`,
+        });
+      } else {
+        toast({
+          title: "Match Created! ⚡",
+          description: `You've matched with ${currentMatch.name}!`,
+        });
+      }
+      
+      // Move to the next match
+      setCurrentMatchIndex(prev => 
+        prev + 1 >= (matches?.length || 0) ? prev : prev + 1
+      );
+      
+      // Refresh matches data
+      await fetchMatchesAgain();
+    } catch (error) {
+      console.error("Error in match process:", error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
