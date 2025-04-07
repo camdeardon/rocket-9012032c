@@ -42,6 +42,11 @@ export default {
           DEFAULT: "#0FA0CE", // Darker sky blue
           foreground: "#ffffff",
         },
+        coral: {
+          DEFAULT: "#FF8A5B", // New coral/peach color
+          light: "#FFB097",
+          dark: "#E56E40",
+        },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -79,4 +84,3 @@ export default {
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
-
