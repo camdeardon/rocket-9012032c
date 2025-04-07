@@ -5,8 +5,14 @@ import ProfileForm from "@/components/profile/ProfileForm";
 import { useProfileData } from "@/hooks/useProfileData";
 import { useProfileActions } from "@/hooks/useProfileActions";
 import { useProfileForm } from "@/hooks/useProfileForm";
+import { useEffect, useState } from "react";
+import { ProfileSkeleton } from "@/components/ui/skeleton-loader";
+import { useToast } from "@/hooks/use-toast";
 
 const CompleteProfile = () => {
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const { toast } = useToast();
+  
   const { 
     profileData, 
     userSkills,
@@ -26,21 +32,52 @@ const CompleteProfile = () => {
     handleSubmit 
   } = useProfileForm();
 
+  useEffect(() => {
+    // Simulate a short loading time for smoother transitions
+    const timer = setTimeout(() => {
+      setIsPageLoading(false);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Notify users when they arrive on the page
+  useEffect(() => {
+    if (!isPageLoading) {
+      toast({
+        title: "Let's complete your profile",
+        description: "This information will help us match you with compatible partners.",
+      });
+    }
+  }, [isPageLoading, toast]);
+
+  if (isPageLoading) {
+    return (
+      <div className="min-h-screen bg-background py-12 animate-fade-in">
+        <div className="max-w-4xl mx-auto px-4">
+          <ProfileSkeleton />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background py-12">
       <div className="max-w-4xl mx-auto px-4">
         <div className="space-y-8">
-          <ProfileHeader 
-            profileData={profileData}
-            editMode={editMode}
-            editedValues={editedValues}
-            setEditMode={setEditMode}
-            setEditedValues={setEditedValues}
-            handleSave={handleSave}
-            handleLogout={handleLogout}
-            handleResumeDownload={handleResumeDownload}
-          />
-          <Card className="p-8 space-y-8 bg-white/95 backdrop-blur-sm shadow-lg">
+          <div className="animate-slide-in-top">
+            <ProfileHeader 
+              profileData={profileData}
+              editMode={editMode}
+              editedValues={editedValues}
+              setEditMode={setEditMode}
+              setEditedValues={setEditedValues}
+              handleSave={handleSave}
+              handleLogout={handleLogout}
+              handleResumeDownload={handleResumeDownload}
+            />
+          </div>
+          <Card className="p-8 space-y-8 bg-white/95 backdrop-blur-sm shadow-lg card-shadow animate-fade-in">
             <ProfileForm
               formData={formData}
               isLoading={isLoading}

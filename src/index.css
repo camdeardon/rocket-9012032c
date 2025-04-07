@@ -59,3 +59,54 @@
 .coral-hover {
   @apply transition-colors duration-200 hover:bg-coral/80;
 }
+
+/* Enhanced animation utilities */
+.fade-in {
+  @apply opacity-0 animate-fade-in;
+}
+
+.slide-in-bottom {
+  @apply transform translate-y-4 opacity-0 animate-slide-in-bottom;
+}
+
+.slide-in-top {
+  @apply transform -translate-y-4 opacity-0 animate-slide-in-top;
+}
+
+.slide-in-left {
+  @apply transform -translate-x-4 opacity-0 animate-slide-in-left;
+}
+
+.slide-in-right {
+  @apply transform translate-x-4 opacity-0 animate-slide-in-right;
+}
+
+.pulse {
+  @apply animate-pulse;
+}
+
+.card-hover {
+  @apply transition-all duration-200 hover:shadow-md hover:bg-white/95;
+}
+
+.form-input-focus {
+  @apply focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 focus:ring-offset-background transition-all duration-200;
+}
+
+/* Form feedback styles */
+.form-success {
+  @apply border-green-500 ring-1 ring-green-500/30;
+}
+
+.form-error {
+  @apply border-red-500 ring-1 ring-red-500/30;
+}
+
+.card-shadow {
+  @apply shadow-md shadow-black/5;
+}
+
+.animate-soft {
+  @apply transition-all duration-300 ease-in-out;
+}
+
