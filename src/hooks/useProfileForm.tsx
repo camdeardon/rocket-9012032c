@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -10,6 +11,7 @@ export const useProfileForm = () => {
   const [formData, setFormData] = useState({
     about: "",
     background: "",
+    skills: [] as string[], // Keep this for compatibility
     interests: [] as string[],
     resume: null as File | null,
     linkedinUrl: "",
@@ -51,6 +53,7 @@ export const useProfileForm = () => {
             ...prevData,
             about: profile.bio || "",
             background: profile.background || "",
+            skills: profile.skills || [], // Keep this for compatibility
             interests: profile.interests || [],
             preferred_work_timezone: profile.preferred_work_timezone || "",
             work_style: profile.work_style || "",

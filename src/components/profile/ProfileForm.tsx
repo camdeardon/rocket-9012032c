@@ -13,7 +13,7 @@ import ProfileSkills from "./ProfileSkills";
 interface ProfileFormProps {
   formData: {
     about: string;
-    skills: string[] | string;
+    skills?: string[] | string; // Made skills optional
     background: string;
     interests: string[] | string;
     linkedinUrl: string;
