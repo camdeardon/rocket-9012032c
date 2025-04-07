@@ -3,7 +3,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { X, MessageCircle, Info, LightningBolt } from "lucide-react";
+import { X, MessageCircle, Info, Zap } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, PolarRadiusAxis, Tooltip } from "recharts";
 
 interface MatchProfile {
@@ -113,7 +113,7 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
               className="rounded-full p-4 bg-primary animate-pulse"
               onClick={onLike}
             >
-              <LightningBolt className="h-6 w-6" />
+              <Zap className="h-6 w-6" />
             </Button>
             <Button
               size="lg"
