@@ -1,4 +1,5 @@
 
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -25,12 +26,21 @@ export const AddSkillDialog = ({
   const [selectedSkill, setSelectedSkill] = useState("");
   const [proficiencyLevel, setProficiencyLevel] = useState("Beginner");
   const [yearsExperience, setYearsExperience] = useState("1");
+  
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (open) {
+      setSelectedSkill("");
+      setProficiencyLevel("Beginner");
+      setYearsExperience("1");
+    }
+  }, [open]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedSkill) return;
     
     const years = parseInt(yearsExperience) || 0;
-    onAddSkill(selectedSkill, proficiencyLevel, years);
+    await onAddSkill(selectedSkill, proficiencyLevel, years);
   };
 
   return (
@@ -92,6 +102,3 @@ export const AddSkillDialog = ({
     </Dialog>
   );
 };
-
-// Add useState to the import
-import { useState } from "react";
