@@ -25,7 +25,7 @@ interface MatchProfile {
 
 interface MatchProfileProps {
   match: MatchProfile;
-  onLike: () => void;
+  onLike: () => Promise<void>;
   onPass: () => void;
   onMessage: () => void;
 }
