@@ -14,7 +14,6 @@ import { generateMLRecommendations } from "@/utils/mlUtils";
 
 const Dashboard = () => {
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
-  const [autoRefresh, setAutoRefresh] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -23,17 +22,16 @@ const Dashboard = () => {
 
   useEffect(() => {
     let intervalId: number;
-    if (autoRefresh) {
-      intervalId = window.setInterval(() => {
-        console.log("Auto-refreshing matches...");
-        fetchMatchesAgain();
-      }, 30000);
-    }
+    
+    intervalId = window.setInterval(() => {
+      console.log("Auto-refreshing matches...");
+      fetchMatchesAgain();
+    }, 30000);
 
     return () => {
       if (intervalId) window.clearInterval(intervalId);
     };
-  }, [autoRefresh, fetchMatchesAgain, toast]);
+  }, [fetchMatchesAgain]);
 
   useEffect(() => {
     if (!profileData?.id) return;
@@ -77,7 +75,10 @@ const Dashboard = () => {
     try {
       console.log("Creating match with:", currentMatch.id);
       
-      // First check if there's already a match from the other user to us
+      const skillsMatchScore = currentMatch.matchScore?.skillsMatch || 0;
+      const interestsMatchScore = currentMatch.matchScore?.interestsMatch || 0;
+      const overallMatchScore = currentMatch.matchScore?.overallMatch || 0;
+      
       const { data: existingMatch, error: checkError } = await supabase
         .from('matches')
         .select('*')
@@ -90,16 +91,15 @@ const Dashboard = () => {
         throw checkError;
       }
       
-      // Create our match to the other user
       const { data, error } = await supabase
         .from('matches')
         .insert([
           { 
             user_id: profileData.id,
             matched_user_id: currentMatch.id,
-            match_score: currentMatch.matchScore?.overallMatch || 0,
-            skills_match_score: currentMatch.matchScore?.skillsMatch || 0,
-            interests_match_score: currentMatch.matchScore?.interestsMatch || 0,
+            match_score: overallMatchScore,
+            skills_match_score: skillsMatchScore,
+            interests_match_score: interestsMatchScore,
             status: existingMatch ? 'mutual' : 'matched'
           }
         ]);
@@ -114,7 +114,6 @@ const Dashboard = () => {
         return;
       }
       
-      // If this was a mutual match, update the other user's match status
       if (existingMatch) {
         const { error: updateError } = await supabase
           .from('matches')
@@ -123,7 +122,6 @@ const Dashboard = () => {
         
         if (updateError) {
           console.error("Error updating mutual match:", updateError);
-          // Continue despite the error
         }
         
         toast({
@@ -137,12 +135,10 @@ const Dashboard = () => {
         });
       }
       
-      // Move to the next match
       setCurrentMatchIndex(prev => 
-        prev + 1 >= (matches?.length || 0) ? prev : prev + 1
+        prev + 1 >= (matches?.length || 0) ? 0 : prev + 1
       );
       
-      // Refresh matches data
       await fetchMatchesAgain();
     } catch (error) {
       console.error("Error in match process:", error);
@@ -157,7 +153,7 @@ const Dashboard = () => {
   const handlePass = () => {
     if (matches && matches.length > 0) {
       setCurrentMatchIndex(prev => 
-        prev + 1 >= matches.length ? prev : prev + 1
+        prev + 1 >= matches.length ? 0 : prev + 1
       );
       toast({
         title: "Passed",
@@ -247,7 +243,7 @@ const Dashboard = () => {
   };
 
   const hasMatches = matches && matches.length > 0;
-  const currentMatch = hasMatches ? matches[currentMatchIndex] : null;
+  const currentMatch = hasMatches ? matches[currentMatchIndex % matches.length] : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-accent/20 to-secondary/20 py-4 md:py-8">
@@ -270,7 +266,7 @@ const Dashboard = () => {
               onClick={refreshMatches} 
               className="hover:bg-primary/10 transition-all"
             >
-              <RefreshCw className={`mr-2 h-4 w-4 ${autoRefresh ? 'animate-spin' : ''}`} />
+              <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </Button>
             

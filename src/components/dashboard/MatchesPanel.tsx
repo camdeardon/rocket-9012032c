@@ -87,6 +87,19 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
       if (!matchedProfile) {
         throw new Error("User not found");
       }
+
+      // Ensure we have valid match scores with fallbacks to prevent null/undefined values
+      const skillsMatchScore = matchedProfile.matchScore?.skillsMatch || 0;
+      const interestsMatchScore = matchedProfile.matchScore?.interestsMatch || 0;
+      const overallMatchScore = matchedProfile.matchScore?.overallMatch || 0;
+      
+      console.log("Creating match with:", {
+        user_id: currentUserId,
+        matched_user_id: matchId,
+        match_score: overallMatchScore,
+        skills_match_score: skillsMatchScore,
+        interests_match_score: interestsMatchScore
+      });
       
       // First check if this is already a mutual match (the other user already liked this user)
       const { data: existingMatch, error: checkError } = await supabase
@@ -96,21 +109,21 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
         .eq('matched_user_id', currentUserId)
         .maybeSingle();
         
-      if (checkError && checkError.code !== 'PGRST116') {
+      if (checkError) {
         console.error("Error checking for existing match:", checkError);
         throw checkError;
       }
       
       // Save the match to the database
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('matches')
         .insert([
           { 
             user_id: currentUserId,
             matched_user_id: matchId,
-            match_score: matchedProfile.matchScore?.overallMatch || 0,
-            skills_match_score: matchedProfile.matchScore?.skillsMatch || 0,
-            interests_match_score: matchedProfile.matchScore?.interestsMatch || 0,
+            match_score: overallMatchScore,
+            skills_match_score: skillsMatchScore,
+            interests_match_score: interestsMatchScore,
             status: existingMatch ? 'mutual' : 'matched'
           }
         ]);

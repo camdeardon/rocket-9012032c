@@ -15,8 +15,8 @@ export const MatchActionButtons = ({ onLike, onPass, onMessage }: MatchActionBut
   const { toast } = useToast();
   
   const handleLike = async () => {
-    setIsLiking(true);
     try {
+      setIsLiking(true);
       await onLike();
     } catch (error: any) {
       console.error("Error creating match:", error);
@@ -42,11 +42,11 @@ export const MatchActionButtons = ({ onLike, onPass, onMessage }: MatchActionBut
       </Button>
       <Button
         size="lg"
-        className={`rounded-full p-4 bg-primary hover:bg-primary/90 transition-colors ${isLiking ? 'opacity-80' : 'animate-pulse'}`}
+        className={`rounded-full p-4 bg-primary hover:bg-primary/90 transition-colors ${isLiking ? 'opacity-80' : ''}`}
         onClick={handleLike}
         disabled={isLiking}
       >
-        <Zap className="h-6 w-6" />
+        <Zap className={`h-6 w-6 ${isLiking ? '' : 'animate-pulse'}`} />
       </Button>
       <Button
         size="lg"
