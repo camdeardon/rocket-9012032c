@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,11 +49,31 @@ export const useMatchData = () => {
         throw matchScoresError;
       }
 
-      console.log("Match scores found:", matchScores?.length || 0);
+      // Also fetch mutual matches from the matches table
+      const { data: mutualMatches, error: mutualMatchesError } = await supabase
+        .from('matches')
+        .select(`
+          id,
+          matched_user_id,
+          match_score,
+          skills_match_score,
+          interests_match_score,
+          status
+        `)
+        .eq('user_id', user.id)
+        .eq('status', 'mutual');
+        
+      if (mutualMatchesError) {
+        console.error('Mutual matches error:', mutualMatchesError);
+        // Continue with match scores, don't throw here
+      }
 
-      // If no match scores were found, try to fetch some profiles as fallback
-      if (!matchScores || matchScores.length === 0) {
-        console.log("No match scores found, fetching random profiles as fallback");
+      console.log("Match scores found:", matchScores?.length || 0);
+      console.log("Mutual matches found:", mutualMatches?.length || 0);
+
+      // If no match scores or mutual matches were found, try to fetch some profiles as fallback
+      if ((!matchScores || matchScores.length === 0) && (!mutualMatches || mutualMatches.length === 0)) {
+        console.log("No match scores or mutual matches found, fetching random profiles as fallback");
         
         const { data: randomProfiles, error: randomProfilesError } = await supabase
           .from('profiles')
@@ -95,18 +114,27 @@ export const useMatchData = () => {
         }
       }
 
-      // Fetch profile details for all matched users
-      const matchedUserIds = matchScores?.map(match => match.matched_user_id) || [];
+      // Combine match IDs from both sources, removing duplicates
+      const matchedUserIds = new Set<string>();
       
-      if (matchedUserIds.length === 0) {
+      matchScores?.forEach(match => {
+        if (match.matched_user_id) matchedUserIds.add(match.matched_user_id);
+      });
+      
+      mutualMatches?.forEach(match => {
+        if (match.matched_user_id) matchedUserIds.add(match.matched_user_id);
+      });
+      
+      if (matchedUserIds.size === 0) {
         console.log("No matched user IDs found");
         setMatches([]);
         setIsLoading(false);
         return;
       }
       
-      console.log("Fetching profiles for matched users:", matchedUserIds);
+      console.log("Fetching profiles for matched users:", [...matchedUserIds].length);
       
+      // Fetch profile details for all matched users
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select(`
@@ -119,7 +147,7 @@ export const useMatchData = () => {
           skills,
           interests
         `)
-        .in('id', matchedUserIds);
+        .in('id', [...matchedUserIds]);
 
       if (profilesError) {
         console.error('Profiles error:', profilesError);
@@ -155,42 +183,69 @@ export const useMatchData = () => {
         return;
       }
 
-      // Combine scores with profile information
-      const formattedMatches = matchScores!.map(score => {
-        const profile = profiles?.find(p => p.id === score.matched_user_id);
+      // Create a map for mutual match data
+      const mutualMatchesMap = new Map();
+      mutualMatches?.forEach(match => {
+        mutualMatchesMap.set(match.matched_user_id, {
+          id: match.id,
+          matchScore: {
+            skillsMatch: Number(match.skills_match_score) || 0,
+            interestsMatch: Number(match.interests_match_score) || 0,
+            overallMatch: Number(match.match_score) || 0,
+            locationMatch: Math.floor(Math.random() * 31) + 50,
+            experienceMatch: Math.floor(Math.random() * 31) + 50,
+          },
+          status: match.status
+        });
+      });
+
+      // Combine scores with profile information, prioritizing mutual matches
+      const formattedMatches = profiles.map(profile => {
+        const userId = profile.id;
+        const isMutualMatch = mutualMatchesMap.has(userId);
         
-        if (!profile) {
-          console.warn(`No profile found for match with ID ${score.matched_user_id}`);
-          return null;
+        let matchScore;
+        if (isMutualMatch) {
+          // Use data from mutual match
+          const mutualMatch = mutualMatchesMap.get(userId);
+          matchScore = mutualMatch.matchScore;
+        } else {
+          // Use data from match scores
+          const matchScoreData = matchScores?.find(m => m.matched_user_id === userId);
+          if (!matchScoreData) {
+            console.warn(`No match score found for user ${userId}`);
+            return null;
+          }
+          
+          // Generate reasonable values for locationMatch and experienceMatch 
+          const locationMatch = Math.floor(Math.random() * 31) + 50; // 50-80
+          const experienceMatch = Math.floor(Math.random() * 31) + 50; // 50-80
+          
+          const skillsMatch = Number(matchScoreData.skills_similarity) || 0;
+          const interestsMatch = Number(matchScoreData.interests_similarity) || 0;
+          const overallMatch = Number(matchScoreData.similarity_score) || 0;
+          
+          matchScore = {
+            skillsMatch,
+            interestsMatch,
+            locationMatch,
+            experienceMatch,
+            overallMatch,
+          };
         }
         
-        // Generate reasonable values for locationMatch and experienceMatch which aren't in the database
-        const locationMatch = Math.floor(Math.random() * 31) + 50; // 50-80
-        const experienceMatch = Math.floor(Math.random() * 31) + 50; // 50-80
-        
-        const skillsMatch = Number(score.skills_similarity) || 0;
-        const interestsMatch = Number(score.interests_similarity) || 0;
-        const overallMatch = Number(score.similarity_score) || 0;
-        
-        console.log(`Match with ${profile.first_name}: Skills ${skillsMatch}%, Interests ${interestsMatch}%, Overall ${overallMatch}%`);
-        
         return {
-          id: score.id,
+          id: userId,
           name: `${profile.first_name || 'User'} ${profile.last_name || ''}`.trim() || 'Anonymous User',
           avatar: profile.avatar_url || '/placeholder.svg',
           bio: profile.bio || '',
           location: profile.location || '',
           skills: profile.skills || [],
           interests: profile.interests || [],
-          matchScore: {
-            skillsMatch,
-            interestsMatch,
-            locationMatch,
-            experienceMatch,
-            overallMatch,
-          }
+          matchScore,
+          isMutual: isMutualMatch
         };
-      }).filter(Boolean) || []; // Remove any null entries
+      }).filter(Boolean) || [];
 
       console.log("Formatted matches:", formattedMatches.length);
       
@@ -216,13 +271,21 @@ export const useMatchData = () => {
         console.log("Using fallback matches as last resort");
         setMatches(fallbackMatches);
       } else {
-        setMatches(formattedMatches);
+        // Sort matches, prioritizing mutual matches
+        const sortedMatches = formattedMatches.sort((a, b) => {
+          // Mutual matches first
+          if (a.isMutual && !b.isMutual) return -1;
+          if (!a.isMutual && b.isMutual) return 1;
+          // Then by match score
+          return b.matchScore.overallMatch - a.matchScore.overallMatch;
+        });
+        
+        setMatches(sortedMatches);
       }
     } catch (error: any) {
       console.error('Error fetching matches:', error);
       setError(error.message || "Failed to load matches");
       
-      // Provide fallback data for testing the UI even when there's an error
       const fallbackMatches = Array(3).fill(0).map((_, i) => ({
         id: `fallback-${i}`,
         name: `Test User ${i+1}`,
@@ -249,6 +312,22 @@ export const useMatchData = () => {
 
   useEffect(() => {
     fetchMatches();
+  }, [fetchMatches]);
+
+  // Add a realtime subscription for matches updates
+  useEffect(() => {
+    const channel = supabase.channel('matches_changes')
+      .on('postgres_changes', 
+        { event: 'UPDATE', schema: 'public', table: 'matches' }, 
+        (payload) => {
+          console.log('Matches table updated:', payload);
+          fetchMatches();
+        })
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [fetchMatches]);
 
   const refreshMatches = useCallback(async () => {

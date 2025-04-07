@@ -4,13 +4,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Handshake } from "lucide-react";
 
 interface Match {
-  id: string;  // This stays as string for display purposes
+  id: string;
   name: string;
   avatar: string;
   skills: string[];
+  isMutual?: boolean;
   matchScore: {
     skillsMatch: number;
     interestsMatch: number;
@@ -29,6 +30,11 @@ export const MatchesPanel = ({ matches, onMessage }: MatchesPanelProps) => {
   const [filterBy, setFilterBy] = useState<'overall' | 'skills' | 'interests' | 'location' | 'experience'>('overall');
 
   const sortedMatches = [...matches].sort((a, b) => {
+    // Always prioritize mutual matches
+    if (a.isMutual && !b.isMutual) return -1;
+    if (!a.isMutual && b.isMutual) return 1;
+    
+    // Then sort by selected criteria
     switch (filterBy) {
       case 'skills':
         return b.matchScore.skillsMatch - a.matchScore.skillsMatch;
@@ -87,13 +93,26 @@ export const MatchesPanel = ({ matches, onMessage }: MatchesPanelProps) => {
       </div>
       <div className="space-y-4 overflow-y-auto flex-1">
         {sortedMatches.map((match) => (
-          <div key={match.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-secondary/20">
+          <div 
+            key={match.id} 
+            className={`flex items-center justify-between p-4 border rounded-lg hover:bg-secondary/20 transition-colors ${match.isMutual ? 'border-primary/50 bg-primary/5' : ''}`}
+          >
             <div className="flex items-center gap-4">
-              <Avatar className="h-12 w-12">
+              <Avatar className="h-12 w-12 relative">
                 <img src={match.avatar} alt={match.name} />
+                {match.isMutual && (
+                  <div className="absolute -top-1 -right-1 bg-primary text-white rounded-full p-1">
+                    <Handshake className="h-3 w-3" />
+                  </div>
+                )}
               </Avatar>
               <div>
-                <h4 className="font-semibold">{match.name}</h4>
+                <div className="flex items-center gap-2">
+                  <h4 className="font-semibold">{match.name}</h4>
+                  {match.isMutual && (
+                    <Badge variant="default" className="text-xs">Mutual</Badge>
+                  )}
+                </div>
                 <div className="flex gap-2 mt-1">
                   {match.skills.slice(0, 2).map((skill) => (
                     <Badge key={skill} variant="secondary" className="text-xs">

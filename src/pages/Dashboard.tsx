@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -46,11 +45,51 @@ const Dashboard = () => {
     };
   }, [autoRefresh, fetchMatchesAgain, toast]);
 
+  // Set up subscription for new matches
+  useEffect(() => {
+    if (!profileData?.id) return;
+
+    // Subscribe to changes in the matches table
+    const subscription = supabase
+      .channel('match_notifications')
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'matches', 
+        filter: `matched_user_id=eq.${profileData.id}` 
+      }, (payload) => {
+        // Someone has matched with this user
+        console.log('New match notification:', payload);
+        
+        // Show toast notification
+        toast({
+          title: "New Match! 🎉",
+          description: "Someone has matched with you! Check your matches list.",
+        });
+        
+        // Refresh matches to show the new match
+        fetchMatchesAgain();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, [profileData?.id, toast, fetchMatchesAgain]);
+
   const handleLike = async () => {
     if (matches && matches.length > 0) {
       const currentMatch = matches[currentMatchIndex];
       
       try {
+        // First check if this is already a mutual match (the other user already liked this user)
+        const { data: existingMatch, error: checkError } = await supabase
+          .from('matches')
+          .select('*')
+          .eq('user_id', currentMatch.id)
+          .eq('matched_user_id', profileData.id)
+          .single();
+          
         // Save the match to the database
         const { data, error } = await supabase
           .from('matches')
@@ -61,7 +100,7 @@ const Dashboard = () => {
               match_score: currentMatch.matchScore.overallMatch,
               skills_match_score: currentMatch.matchScore.skillsMatch,
               interests_match_score: currentMatch.matchScore.interestsMatch,
-              status: 'matched'
+              status: existingMatch ? 'mutual' : 'matched'
             }
           ]);
         
@@ -73,10 +112,28 @@ const Dashboard = () => {
             variant: "destructive",
           });
         } else {
-          toast({
-            title: "It's a match! 🎉",
-            description: `You and ${currentMatch.name} have been matched!`,
-          });
+          // If this completes a mutual match, update the other user's match status to mutual
+          if (existingMatch) {
+            const { error: updateError } = await supabase
+              .from('matches')
+              .update({ status: 'mutual' })
+              .eq('id', existingMatch.id);
+            
+            if (updateError) {
+              console.error("Error updating mutual match:", updateError);
+            }
+            
+            toast({
+              title: "It's a Mutual Match! 🎉✨",
+              description: `You and ${currentMatch.name} have matched with each other!`,
+            });
+          } else {
+            toast({
+              title: "Match Created! ⚡",
+              description: `You've matched with ${currentMatch.name}!`,
+            });
+          }
+          
           // Move to the next match
           setCurrentMatchIndex(prev => 
             prev + 1 >= matches.length ? prev : prev + 1
