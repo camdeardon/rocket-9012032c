@@ -5,6 +5,7 @@ import { MatchProfileHeader } from "./MatchProfileHeader";
 import { MatchActionButtons } from "./MatchActionButtons";
 import { MatchScoreIndicator } from "./MatchScoreIndicator";
 import { MatchRadarChart } from "./MatchRadarChart";
+import { MatchMLInsights } from "./MatchMLInsights";
 
 interface MatchProfile {
   id: string;
@@ -14,6 +15,7 @@ interface MatchProfile {
   location: string;
   skills: string[];
   interests: string[];
+  matchType?: string;
   matchScore: {
     skillsMatch: number;
     interestsMatch: number;
@@ -28,9 +30,10 @@ interface MatchProfileProps {
   onLike: () => Promise<void>;
   onPass: () => void;
   onMessage: () => void;
+  currentUserId?: string;
 }
 
-export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileProps) => {
+export const MatchProfile = ({ match, onLike, onPass, onMessage, currentUserId }: MatchProfileProps) => {
   // Ensure match data exists with fallbacks
   const safeMatch = {
     ...match,
@@ -40,7 +43,8 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
       locationMatch: match.matchScore?.locationMatch || 0,
       experienceMatch: match.matchScore?.experienceMatch || 0,
       overallMatch: match.matchScore?.overallMatch || 0
-    }
+    },
+    matchType: match.matchType || 'basic'
   };
 
   // Transform the data for the radar chart
@@ -51,8 +55,21 @@ export const MatchProfile = ({ match, onLike, onPass, onMessage }: MatchProfileP
     { subject: 'Experience', value: safeMatch.matchScore.experienceMatch, fullMark: 100 },
   ];
 
+  const handleRefreshMatches = () => {
+    // This would be implemented if we wanted to refresh matches after ML generation
+  };
+
   return (
     <Card className="p-6 bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow">
+      {safeMatch.matchType !== 'basic' && (
+        <div className="mb-4">
+          <MatchMLInsights 
+            userId={currentUserId} 
+            matchType={safeMatch.matchType}
+          />
+        </div>
+      )}
+      
       <div className="grid grid-cols-1 lg:grid-cols-[1fr,1fr] gap-8">
         <div className="space-y-6">
           <MatchProfileHeader 

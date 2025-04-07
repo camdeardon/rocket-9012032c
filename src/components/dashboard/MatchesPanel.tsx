@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Handshake, Heart, Search } from "lucide-react";
+import { MessageCircle, Handshake, Heart, Search, BrainCircuit } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ interface Match {
   avatar: string;
   skills: string[];
   isMutual?: boolean;
+  matchType?: string;
   matchScore: {
     skillsMatch: number;
     interestsMatch: number;
@@ -46,6 +47,14 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
     // Always prioritize mutual matches
     if (a.isMutual && !b.isMutual) return -1;
     if (!a.isMutual && b.isMutual) return 1;
+    
+    // Prioritize ML-enhanced matches if sorting by overall
+    if (filterBy === 'overall') {
+      const aIsML = a.matchType && a.matchType !== 'basic';
+      const bIsML = b.matchType && b.matchType !== 'basic';
+      if (aIsML && !bIsML) return -1;
+      if (!aIsML && bIsML) return 1;
+    }
     
     // Then sort by selected criteria
     switch (filterBy) {
@@ -206,7 +215,7 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
         {sortedMatches.map((match) => (
           <div 
             key={match.id} 
-            className={`flex items-center justify-between p-3 border rounded-lg hover:bg-secondary/10 transition-colors ${match.isMutual ? 'border-primary/50 bg-primary/5 shadow-sm' : ''}`}
+            className={`flex items-center justify-between p-3 border rounded-lg hover:bg-secondary/10 transition-colors ${match.isMutual ? 'border-primary/50 bg-primary/5 shadow-sm' : match.matchType && match.matchType !== 'basic' ? 'border-blue-300/50 bg-blue-50/30' : ''}`}
           >
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 relative">
@@ -216,12 +225,20 @@ export const MatchesPanel = ({ matches, onMessage, currentUserId, onRefresh }: M
                     <Handshake className="h-3 w-3" />
                   </div>
                 )}
+                {match.matchType && match.matchType !== 'basic' && (
+                  <div className="absolute -bottom-1 -left-1 bg-blue-500 text-white rounded-full p-1">
+                    <BrainCircuit className="h-3 w-3" />
+                  </div>
+                )}
               </Avatar>
               <div>
                 <div className="flex items-center gap-2">
                   <h4 className="font-semibold text-sm">{match.name}</h4>
                   {match.isMutual && (
                     <Badge variant="default" className="text-[10px] py-0 h-4">Mutual</Badge>
+                  )}
+                  {match.matchType && match.matchType !== 'basic' && (
+                    <Badge variant="secondary" className="text-[10px] py-0 h-4 bg-blue-100 text-blue-800">ML</Badge>
                   )}
                 </div>
                 <div className="flex gap-1 mt-0.5">

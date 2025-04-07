@@ -66,8 +66,36 @@ export type Database = {
             foreignKeyName: "match_scores_matched_user_id_fkey"
             columns: ["matched_user_id"]
             isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "match_scores_matched_user_id_fkey"
+            columns: ["matched_user_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["matched_user_id"]
+          },
+          {
+            foreignKeyName: "match_scores_matched_user_id_fkey"
+            columns: ["matched_user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_scores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "match_scores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["matched_user_id"]
           },
           {
             foreignKeyName: "match_scores_user_id_fkey"
@@ -138,6 +166,20 @@ export type Database = {
             foreignKeyName: "matches_matched_user_id_fkey"
             columns: ["matched_user_id"]
             isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "matches_matched_user_id_fkey"
+            columns: ["matched_user_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["matched_user_id"]
+          },
+          {
+            foreignKeyName: "matches_matched_user_id_fkey"
+            columns: ["matched_user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -152,10 +194,54 @@ export type Database = {
             foreignKeyName: "matches_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "matches_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["matched_user_id"]
+          },
+          {
+            foreignKeyName: "matches_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
+      }
+      ml_match_recommendations: {
+        Row: {
+          created_at: string | null
+          features: Json | null
+          id: string
+          matched_user_id: string
+          recommendation_score: number
+          recommendation_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          features?: Json | null
+          id?: string
+          matched_user_id: string
+          recommendation_score: number
+          recommendation_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          features?: Json | null
+          id?: string
+          matched_user_id?: string
+          recommendation_score?: number
+          recommendation_type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -337,6 +423,20 @@ export type Database = {
             foreignKeyName: "projects_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "projects_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["matched_user_id"]
+          },
+          {
+            foreignKeyName: "projects_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -357,6 +457,24 @@ export type Database = {
           category?: string | null
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      user_embeddings: {
+        Row: {
+          embedding: string | null
+          last_updated: string | null
+          user_id: string
+        }
+        Insert: {
+          embedding?: string | null
+          last_updated?: string | null
+          user_id: string
+        }
+        Update: {
+          embedding?: string | null
+          last_updated?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -383,6 +501,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "interests"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_interests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "user_interests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["matched_user_id"]
           },
           {
             foreignKeyName: "user_interests_user_id_fkey"
@@ -427,6 +559,20 @@ export type Database = {
             foreignKeyName: "user_skills_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "user_skills_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["matched_user_id"]
+          },
+          {
+            foreignKeyName: "user_skills_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -434,6 +580,23 @@ export type Database = {
       }
     }
     Views: {
+      enhanced_match_recommendations: {
+        Row: {
+          avatar_url: string | null
+          first_name: string | null
+          interests: string[] | null
+          is_mutual: boolean | null
+          last_name: string | null
+          location: string | null
+          match_features: Json | null
+          match_score: number | null
+          match_type: string | null
+          matched_user_id: string | null
+          skills: string[] | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       match_analysis: {
         Row: {
           availability_match: number | null
@@ -482,8 +645,36 @@ export type Database = {
             foreignKeyName: "matches_matched_user_id_fkey"
             columns: ["matched_user_id"]
             isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "matches_matched_user_id_fkey"
+            columns: ["matched_user_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["matched_user_id"]
+          },
+          {
+            foreignKeyName: "matches_matched_user_id_fkey"
+            columns: ["matched_user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "matches_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["matched_user_id"]
           },
           {
             foreignKeyName: "matches_user_id_fkey"
@@ -517,8 +708,36 @@ export type Database = {
             foreignKeyName: "matches_matched_user_id_fkey"
             columns: ["matched_user_id"]
             isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "matches_matched_user_id_fkey"
+            columns: ["matched_user_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["matched_user_id"]
+          },
+          {
+            foreignKeyName: "matches_matched_user_id_fkey"
+            columns: ["matched_user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "matches_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "enhanced_match_recommendations"
+            referencedColumns: ["matched_user_id"]
           },
           {
             foreignKeyName: "matches_user_id_fkey"
@@ -544,6 +763,18 @@ export type Database = {
             }
             Returns: unknown
           }
+      calculate_enhanced_match_scores: {
+        Args: {
+          user_id_param: string
+        }
+        Returns: {
+          matched_user_id: string
+          skills_match_score: number
+          interests_match_score: number
+          ml_recommendation_score: number
+          match_score: number
+        }[]
+      }
       calculate_match_scores: {
         Args: {
           user_id_param: string

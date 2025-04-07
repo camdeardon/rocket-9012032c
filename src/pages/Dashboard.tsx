@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -29,7 +28,6 @@ const Dashboard = () => {
         description: "Matches will refresh automatically every 30 seconds",
       });
       
-      // Set up interval to refresh matches every 30 seconds
       intervalId = window.setInterval(() => {
         console.log("Auto-refreshing matches...");
         fetchMatchesAgain();
@@ -40,17 +38,14 @@ const Dashboard = () => {
       }, 30000);
     }
 
-    // Clean up interval on component unmount or when autoRefresh is turned off
     return () => {
       if (intervalId) window.clearInterval(intervalId);
     };
   }, [autoRefresh, fetchMatchesAgain, toast]);
 
-  // Set up subscription for new matches
   useEffect(() => {
     if (!profileData?.id) return;
 
-    // Subscribe to changes in the matches table
     const subscription = supabase
       .channel('match_notifications')
       .on('postgres_changes', { 
@@ -59,16 +54,13 @@ const Dashboard = () => {
         table: 'matches', 
         filter: `matched_user_id=eq.${profileData.id}` 
       }, (payload) => {
-        // Someone has matched with this user
         console.log('New match notification:', payload);
         
-        // Show toast notification
         toast({
           title: "New Match! 🎉",
           description: "Someone has matched with you! Check your matches list.",
         });
         
-        // Refresh matches to show the new match
         fetchMatchesAgain();
       })
       .subscribe();
@@ -83,7 +75,6 @@ const Dashboard = () => {
       const currentMatch = matches[currentMatchIndex];
       
       try {
-        // First check if this is already a mutual match (the other user already liked this user)
         const { data: existingMatch, error: checkError } = await supabase
           .from('matches')
           .select('*')
@@ -91,7 +82,6 @@ const Dashboard = () => {
           .eq('matched_user_id', profileData.id)
           .single();
           
-        // Save the match to the database
         const { data, error } = await supabase
           .from('matches')
           .insert([
@@ -113,7 +103,6 @@ const Dashboard = () => {
             variant: "destructive",
           });
         } else {
-          // If this completes a mutual match, update the other user's match status to mutual
           if (existingMatch) {
             const { error: updateError } = await supabase
               .from('matches')
@@ -135,7 +124,6 @@ const Dashboard = () => {
             });
           }
           
-          // Move to the next match
           setCurrentMatchIndex(prev => 
             prev + 1 >= matches.length ? prev : prev + 1
           );
@@ -185,11 +173,16 @@ const Dashboard = () => {
         description: "Please wait while we update your matches...",
       });
       
+      if (profileData?.id) {
+        const mlResult = await generateMLRecommendations(profileData.id);
+        console.log("ML recommendation generation:", mlResult.message);
+      }
+      
       await fetchMatchesAgain();
       
       toast({
         title: "Success",
-        description: "Your matches have been refreshed.",
+        description: "Your matches have been refreshed with ML enhancements.",
       });
     } catch (error) {
       console.error('Error refreshing matches:', error);
@@ -298,6 +291,7 @@ const Dashboard = () => {
                 onLike={handleLike}
                 onPass={handlePass}
                 onMessage={() => handleMessage(currentMatch.id)}
+                currentUserId={profileData.id}
               />
             ) : (
               <div className="text-center p-8 bg-white/90 backdrop-blur-sm rounded-lg">
